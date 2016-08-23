@@ -32,8 +32,8 @@ var AnyplaceAPI = {};
 //AnyplaceAPI.PORT = "9000";
 //AnyplaceAPI.FULL_SERVER = AnyplaceAPI.SERVER + ":" + AnyplaceAPI.PORT;
 //AnyplaceAPI.FULL_SERVER = "http://127.0.0.1:9000/anyplace";
-AnyplaceAPI.FULL_SERVER = "https://dev.anyplace.rayzit.com/anyplace";
-//AnyplaceAPI.FULL_SERVER = "https://anyplace.rayzit.com/anyplace";
+//AnyplaceAPI.FULL_SERVER = "https://dev.anyplace.rayzit.com/anyplace";
+AnyplaceAPI.FULL_SERVER = "https://anyplace.rayzit.com/anyplace";
 
 
 /**

@@ -180,21 +180,21 @@ app.factory('AnyplaceService', function () {
         if(!this.selectedBuilding || !this.selectedBuilding.buid) {
             return "N/A";
         }
-        return encodeURIComponent("https://dev.anyplace.rayzit.com/viewer/?buid=" + this.selectedBuilding.buid);
+        return encodeURIComponent("https://anyplace.cs.ucy.ac.cy/viewer/?buid=" + this.selectedBuilding.buid);
     };
 
     anyService.getCampusViewerUrl = function() {
         if(!this.selectedCampus || !this.selectedCampus.cuid) {
             return "N/A";
         }
-        return "https://dev.anyplace.rayzit.com/viewer/?cuid=" + this.selectedCampus.cuid;
+        return "https://anyplace.cs.ucy.ac.cy/viewer/?cuid=" + this.selectedCampus.cuid;
     };
 
     anyService.getCampusViewerUrlEncoded = function() {
         if(!this.selectedCampus || !this.selectedCampus.cuid) {
             return "N/A";
         }
-        return encodeURIComponent("https://dev.anyplace.rayzit.com/viewer/?cuid=" + this.selectedCampus.cuid);
+        return encodeURIComponent("https://anyplace.cs.ucy.ac.cy/viewer/?cuid=" + this.selectedCampus.cuid);
     };
 
     anyService.clearAllData = function() {

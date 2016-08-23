@@ -221,11 +221,11 @@ app.factory('AnyplaceService', ['$rootScope', '$q', function ($rootScope, $q) {
         if (!this.selectedBuilding || !this.selectedBuilding.buid) {
             return "N/A";
         }
-        return "https://dev.anyplace.rayzit.com/viewer/?buid=" + this.selectedBuilding.buid;
+        return "https://anyplace.cs.ucy.ac.cy/viewer/?buid=" + this.selectedBuilding.buid;
     };
 
     anyService.getViewerUrl = function () {
-        var baseUrl = "https://dev.anyplace.rayzit.com/viewer";
+        var baseUrl = "https://anyplace.cs.ucy.ac.cy/viewer";
 
         if (!this.selectedBuilding || !this.selectedBuilding.buid)
             return baseUrl;
@@ -359,8 +359,8 @@ var AnyplaceAPI = {};
 //AnyplaceAPI.PORT = "9000";
 //AnyplaceAPI.FULL_SERVER = AnyplaceAPI.SERVER + ":" + AnyplaceAPI.PORT;
 //AnyplaceAPI.FULL_SERVER = "http://127.0.0.1:9000/anyplace";
-AnyplaceAPI.FULL_SERVER = "https://dev.anyplace.rayzit.com/anyplace";
-//AnyplaceAPI.FULL_SERVER = "https://anyplace.rayzit.com/anyplace";
+//AnyplaceAPI.FULL_SERVER = "https://dev.anyplace.rayzit.com/anyplace";
+AnyplaceAPI.FULL_SERVER = "https://anyplace.rayzit.com/anyplace";
 
 /**
  * MAPPING API

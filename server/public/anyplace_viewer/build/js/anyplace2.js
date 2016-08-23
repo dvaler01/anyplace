@@ -225,7 +225,7 @@ app.factory('AnyplaceService', ['$rootScope', '$q', function ($rootScope, $q) {
         if (!this.selectedBuilding || !this.selectedBuilding.buid) {
             return "N/A";
         }
-        return "https://dev.anyplace.rayzit.com/viewer/?buid=" + this.selectedBuilding.buid;
+        return "https://anyplace.cs.ucy.ac.cy/viewer/?buid=" + this.selectedBuilding.buid;
     };
 
     anyService.getViewerUrl = function () {
@@ -363,8 +363,8 @@ var AnyplaceAPI = {};
 //AnyplaceAPI.PORT = "9000";
 //AnyplaceAPI.FULL_SERVER = AnyplaceAPI.SERVER + ":" + AnyplaceAPI.PORT;
 //AnyplaceAPI.FULL_SERVER = "http://127.0.0.1:9000/anyplace";
-AnyplaceAPI.FULL_SERVER = "https://dev.anyplace.rayzit.com/anyplace";
-//AnyplaceAPI.FULL_SERVER = "https://anyplace.rayzit.com/anyplace";
+//AnyplaceAPI.FULL_SERVER = "https://dev.anyplace.rayzit.com/anyplace";
+AnyplaceAPI.FULL_SERVER = "https://anyplace.rayzit.com/anyplace";
 
 
 /**
@@ -3058,7 +3058,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         if (!$scope.anyService.selectedPoi || $scope.anyService.selectedPoi.puid != puid) {
             $scope.anyService.selectedPoi = $scope.myPoisHashT[puid].model;
         }
-        var viewerUrl ="https://dev.anyplace.rayzit.com/viewer/?cuid="+ $scope.urlCampus + $scope.anyService.getViewerUrl();
+        var viewerUrl ="https://anyplace.cs.ucy.ac.cy/viewer/?cuid="+ $scope.urlCampus + $scope.anyService.getViewerUrl();
 
         $scope.poiShareUrl.embed = '<iframe width="100%" height="500" frameborder="0" scrolling="yes" marginheight="0" marginwidth="0" src="' + viewerUrl + '"></iframe>';
 

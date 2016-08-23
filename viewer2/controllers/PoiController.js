@@ -666,7 +666,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         if (!$scope.anyService.selectedPoi || $scope.anyService.selectedPoi.puid != puid) {
             $scope.anyService.selectedPoi = $scope.myPoisHashT[puid].model;
         }
-        var viewerUrl ="https://dev.anyplace.rayzit.com/viewer/?cuid="+ $scope.urlCampus + $scope.anyService.getViewerUrl();
+        var viewerUrl ="https://anyplace.cs.ucy.ac.cy/viewer/?cuid="+ $scope.urlCampus + $scope.anyService.getViewerUrl();
 
         $scope.poiShareUrl.embed = '<iframe width="100%" height="500" frameborder="0" scrolling="yes" marginheight="0" marginwidth="0" src="' + viewerUrl + '"></iframe>';
 
