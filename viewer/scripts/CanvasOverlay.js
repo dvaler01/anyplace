@@ -1,39 +1,3 @@
-/*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
- *
- * Anyplace is a first-of-a-kind indoor information service offering GPS-less
- * localization, navigation and search inside buildings using ordinary smartphones.
- *
- * Author(s): Lambros Petrou, Kyriakos Georgiou
- *
- * Supervisor: Demetrios Zeinalipour-Yazti
- *
- * URL: http://anyplace.cs.ucy.ac.cy
- * Contact: anyplace@cs.ucy.ac.cy
- *
- * Copyright (c) 2015, Data Management Systems Lab (DMSL), University of Cyprus.
- * All rights reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the “Software”), to deal in the
- * Software without restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the
- * following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- */
-
 CanvasOverlay.prototype = new google.maps.OverlayView();
 
 // https://github.com/wbyoko/angularjs-google-maps-components
@@ -159,7 +123,7 @@ CanvasOverlay.prototype.onAdd = function () {
     var panes = this.getPanes();
     panes.overlayImage.appendChild(this.div_);
     return this;
-};
+}
 
 CanvasOverlay.prototype.draw = function () {
     var div = this.div_;
@@ -167,24 +131,24 @@ CanvasOverlay.prototype.draw = function () {
     if (this.canvas == null) {
         alert("error creating the canvas");
     }
-};
+}
 
 CanvasOverlay.prototype.onRemove = function () {
     this.div_.parentNode.removeChild(this.div_);
-};
+}
 
 // Note that the visibility property must be a string enclosed in quotes
 CanvasOverlay.prototype.hide = function () {
     if (this.div_) {
         this.div_.style.visibility = 'hidden';
     }
-};
+}
 
 CanvasOverlay.prototype.show = function () {
     if (this.div_) {
         this.div_.style.visibility = 'visible';
     }
-};
+}
 
 CanvasOverlay.prototype.toggle = function () {
     if (this.div_) {
@@ -194,7 +158,7 @@ CanvasOverlay.prototype.toggle = function () {
             this.hide();
         }
     }
-};
+}
 
 CanvasOverlay.prototype.toggleDOM = function () {
     if (this.getMap()) {
@@ -202,18 +166,18 @@ CanvasOverlay.prototype.toggleDOM = function () {
     } else {
         this.setMap(this.map_);
     }
-};
+}
 
 /*************************
  * CANVAS METHODS
  */
 CanvasOverlay.prototype.getCanvas = function () {
     return this.canvas;
-};
+}
 
 CanvasOverlay.prototype.getContext2d = function () {
     return this.ctx;
-};
+}
 
 
 /*****************************
@@ -228,7 +192,7 @@ CanvasOverlay.prototype.setCanvasSize = function () {
     // which is the element being rotated by the slider
     this.div_.style.width = this.width + 'px';
     this.div_.style.height = this.height + 'px';
-};
+}
 
 CanvasOverlay.prototype.initImage = function () {
     this.setCanvasSize();
@@ -239,7 +203,7 @@ CanvasOverlay.prototype.initImage = function () {
 
     this.ctx.drawImage(this.image_, -(this.width / 2), -(this.height / 2), this.width, this.height);
     this.ctx.restore();
-};
+}
 
 CanvasOverlay.prototype.drawBoundingCanvas = function () {
     // convert degress rotation to angle radians

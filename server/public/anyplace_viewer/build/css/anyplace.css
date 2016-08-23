@@ -936,6 +936,9 @@ body {
     #dropdown-ham-menu {
         left: -110px !important;
     }
+    #dropdown-chevron-menu {
+        left: -110px !important;
+    }
 }
 
 .bold-f {
@@ -1131,6 +1134,36 @@ body {
     padding: 10px;
 }
 
+.buildings-btn-parent {
+    position: absolute;
+    left: 8px;
+    top: 100px;
+    cursor: pointer;
+    box-shadow: rgba(0, 0, 0, 0.65098) 0px 1px 5px 0px;
+    clear: both;
+    z-index: 7;
+    -webkit-box-shadow: rgba(0, 0, 0, 0.65098) 0px 1px 5px 0px;
+    perspective-origin: 20px 61px;
+    -webkit-perspective-origin: 20px 61px;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    transform: matrix(1, 0, 0, 1, 0, 0);
+    -webkit-transform: matrix(1, 0, 0, 1, 0, 0);
+    transform-origin: 20px 61px;
+    -webkit-transform-origin: 20px 61px;
+    -webkit-user-select: none;
+    background: rgb(241, 241, 241) none repeat scroll 0% 0% / auto padding-box border-box;
+    font: normal normal normal normal 14px/24px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    text-align: center;
+}
+
+.buildings-btn-parent:hover {
+    background-color: #fdfdfd;
+}
+
+#buildings-btn {
+    padding: 10px;
+}
+
 .pan-find-me-box-parent {
     position: absolute;
     left: 56px;
@@ -1217,9 +1250,11 @@ body {
     cursor: pointer;
 }
 
+
 #info-window-nav-from-poi:hover {
     opacity: 0.7;
 }
+
 
 #hide-pb {
     font-weight: bolder;
@@ -1230,4 +1265,73 @@ body {
 
 .gm-style .gm-style-iw {
     overflow: visible !important;
+}
+
+
+
+
+
+.example-animate-container {
+    background:white;
+    border:1px solid black;
+    list-style:none;
+    margin:0;
+    padding:0 10px;
+}
+
+.animate-repeat {
+    line-height:30px;
+    list-style:none;
+    box-sizing:border-box;
+}
+
+.animate-repeat.ng-move,
+.animate-repeat.ng-enter,
+.animate-repeat.ng-leave {
+    transition:all linear 0.5s;
+}
+
+.animate-repeat.ng-leave.ng-leave-active,
+.animate-repeat.ng-move,
+.animate-repeat.ng-enter {
+    opacity:0;
+    max-height:0;
+}
+
+.animate-repeat.ng-leave,
+.animate-repeat.ng-move.ng-move-active,
+.animate-repeat.ng-enter.ng-enter-active {
+    opacity:1;
+    max-height:30px;
+}
+
+@media (max-width: 768px) {
+    .btn-responsive {
+        padding:2px 4px;
+        font-size:80%;
+        line-height: 1;
+        border-radius:3px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 992px) {
+    .btn-responsive {
+        padding:4px 9px;
+        font-size:90%;
+        line-height: 1.2;
+    }
+}
+
+
+#myProgress {
+    position: relative;
+    width: 100%;
+    height: 30px;
+    background-color: grey;
+}
+#myBar {
+    position: absolute;
+    width: 1%;
+    height: 100%;
+    background-color: green;
 }

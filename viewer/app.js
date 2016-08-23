@@ -221,11 +221,11 @@ app.factory('AnyplaceService', ['$rootScope', '$q', function ($rootScope, $q) {
         if (!this.selectedBuilding || !this.selectedBuilding.buid) {
             return "N/A";
         }
-        return "http://anyplace.cs.ucy.ac.cy/viewer/?buid=" + this.selectedBuilding.buid;
+        return "https://dev.anyplace.rayzit.com/viewer/?buid=" + this.selectedBuilding.buid;
     };
 
     anyService.getViewerUrl = function () {
-        var baseUrl = "http://anyplace.cs.ucy.ac.cy/viewer";
+        var baseUrl = "https://dev.anyplace.rayzit.com/viewer";
 
         if (!this.selectedBuilding || !this.selectedBuilding.buid)
             return baseUrl;

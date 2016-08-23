@@ -1,39 +1,3 @@
-/*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
- *
- * Anyplace is a first-of-a-kind indoor information service offering GPS-less
- * localization, navigation and search inside buildings using ordinary smartphones.
- *
- * Author(s): Lambros Petrou, Kyriakos Georgiou
- *
- * Supervisor: Demetrios Zeinalipour-Yazti
- *
- * URL: https://anyplace.cs.ucy.ac.cy
- * Contact: anyplace@cs.ucy.ac.cy
- *
- * Copyright (c) 2016, Data Management Systems Lab (DMSL), University of Cyprus.
- * All rights reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the “Software”), to deal in the
- * Software without restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the
- * following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- */
-
 package db_models;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -48,41 +12,41 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 
-public class Building extends AbstractModel {
+public class Building extends AbstractModel{
 
     private JsonNode json;
     private double lat;
     private double lng;
 
-    // Add the following admin accounts to the buildings
-    private String[] admins = { /* */ };
+    private String[] admins = {"112997031510415584062_google"};
 
-    public Building(HashMap<String, String> hm) {
+    public Building(HashMap<String,String> hm){
         this.fields = hm;
     }
 
-    public Building() {
+    public Building(){
         fields.put("username_creator", "");
-        fields.put("buid", "");
-        fields.put("is_published", "");
-        fields.put("name", "");
-        fields.put("description", "");
-        fields.put("url", "");
-        fields.put("address", "");
+        fields.put("buid","");
+        fields.put("is_published","");
+        fields.put("name","");
+        fields.put("description","");
+        fields.put("url","");
+        fields.put("address","");
 
         fields.put("coordinates_lat", "");
         fields.put("coordinates_lon", "");
 
-        fields.put("bucode", "");
+        fields.put("bucode","");
+        fields.put("poistypeid","");
     }
 
-    public Building(JsonNode json) {
+    public Building(JsonNode json){
         fields.put("username_creator", json.path("username_creator").textValue());
 
         // The id and the type of the owner that created the building
         fields.put("owner_id", json.path("owner_id").textValue());
 
-        fields.put("buid", json.path("buid").textValue());
+        fields.put("buid",json.path("buid").textValue());
         fields.put("is_published", json.path("is_published").textValue());
         fields.put("name", json.path("name").textValue());
         fields.put("description", json.path("description").textValue());
@@ -93,6 +57,7 @@ public class Building extends AbstractModel {
         fields.put("coordinates_lon", json.path("coordinates_lon").textValue());
 
         fields.put("bucode", json.path("bucode").textValue());
+        fields.put("poistypeid", json.path("poistypeid").textValue());
 
         this.json = json;
         this.lat = Double.parseDouble(json.path("coordinates_lat").textValue());
@@ -105,26 +70,34 @@ public class Building extends AbstractModel {
     }
 
 
-    public String getId() {
+    public String getId(){
         String buid;
-        if ((buid = fields.get("buid")) == null || buid.equals("")) {
-            String finalId = LPUtils.getRandomUUID() + "_" + System.currentTimeMillis();
-            fields.put("buid", "building_" + finalId);
+        if( (buid = fields.get("buid")) == null || buid.equals("") ){
+            // create the id for the new building
+            /*
+            String rnd = LPUtils.generateRandomToken();
+            String finalId = rnd + "_" + fields.get("coordinates_lat")
+                    + String.valueOf(System.currentTimeMillis())
+                    + fields.get("coordinates_lon");
+            fields.put("buid", "building_" + LPUtils.encodeBase64String(finalId) );
+                    */
+            String finalId = LPUtils.getRandomUUID()+ "_"+ System.currentTimeMillis();
+            fields.put("buid", "building_" + finalId );
             buid = fields.get("buid");
 
-            ((ObjectNode) this.json).put("buid", buid);
+            ((ObjectNode)this.json).put("buid", buid);
         }
         return buid;
     }
 
-    public String toValidCouchJson() {
+    public String toValidCouchJson(){
         getId(); // initialize id if not initialized
 
         Gson gson = new Gson();
-        return gson.toJson(this.getFields());
+        return gson.toJson( this.getFields() );
     }
 
-    public String toCouchGeoJSON() {
+    public String toCouchGeoJSON(){
         StringBuilder sb = new StringBuilder();
 
         ObjectNode json = null;
@@ -134,10 +107,10 @@ public class Building extends AbstractModel {
             json.put("geometry", new GeoJSONPoint(Double.parseDouble(fields.get("coordinates_lat")),
                     Double.parseDouble(fields.get("coordinates_lon"))).toGeoJSON());
 
-            if (json.get("co_owners") == null) {
+            if(json.get("co_owners") == null) {
                 ArrayNode ja = json.putArray("co_owners");
 
-                for (int i = 0; i < admins.length; i++) {
+                for(int i = 0; i < admins.length; i++) {
                     ja.add(admins[i]);
                 }
             }
@@ -148,7 +121,7 @@ public class Building extends AbstractModel {
             e.printStackTrace();
         }
 
-        sb.append(json.toString());
+        sb.append( json.toString() );
 
         return sb.toString();
     }
@@ -162,21 +135,21 @@ public class Building extends AbstractModel {
 
             json = (ObjectNode) JsonUtils.getJsonTree(toValidCouchJson());
 
-            if (json.get("owner_id") == null || !json.get("owner_id").equals(jsonReq.get("owner_id"))) {
+            if(json.get("owner_id") == null || !json.get("owner_id").equals(jsonReq.get("owner_id"))) {
                 return json.toString();
             }
 
             ArrayNode ja = json.putArray("co_owners");
 
-            for (int i = 0; i < admins.length; i++) {
+            for(int i = 0; i < admins.length; i++) {
                 ja.add(admins[i]);
             }
 
             Iterator<JsonNode> it = jsonReq.path("co_owners").elements();
 
-            while (it.hasNext()) {
+            while(it.hasNext()) {
                 JsonNode curr = it.next();
-                if (curr.textValue() != null) {
+                if(curr.textValue() != null) {
                     ja.add(curr.textValue());
                 }
             }
@@ -207,7 +180,7 @@ public class Building extends AbstractModel {
         return sb.toString();
     }
 
-    public String toString() {
+    public String toString(){
         return toValidCouchJson();
     }
 

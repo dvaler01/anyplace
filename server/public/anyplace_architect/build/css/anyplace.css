@@ -156,7 +156,7 @@ body {
 #control-bar {
     width: auto;
     max-width: 35%;
-    min-width: 400px;
+    min-width: 350px;
     height: auto;
     max-height: 100%;
     position: absolute;
@@ -180,7 +180,7 @@ body {
     margin-bottom: 4px;
 }
 
-#ctrl-bar-buildings, #ctrl-bar-floors, #ctrl-bar-pois, #ctrl-bar-more {
+#ctrl-bar-buildings,#ctrl-bar-campuses, #ctrl-bar-floors, #ctrl-bar-pois, #ctrl-bar-more {
     padding: 8px;
 }
 
@@ -227,6 +227,11 @@ body {
     font-style: italic;
 }
 
+.littlenote {
+    font-size: 12.5px;
+    font-style: italic;
+}
+
 .midnote {
     font-size: 16px;
     font-style: italic;
@@ -243,7 +248,7 @@ body {
 }
 
 #div-logo {
-    background-image: url('../images/anyplace_logo_text.png');
+    background-image: url('../images/anyplace_logo_text2.png');
     height: 100%;
     width: 80px;
     background-repeat: no-repeat;
@@ -266,8 +271,7 @@ body {
     padding-right: 20%;
 }
 
-.
-contextmenu {
+.contextmenu {
     visibility: hidden;
     background: #ffffff;
     border: 1px solid #8888FF;

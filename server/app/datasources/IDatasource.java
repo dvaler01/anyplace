@@ -1,45 +1,11 @@
-/*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
- *
- * Anyplace is a first-of-a-kind indoor information service offering GPS-less
- * localization, navigation and search inside buildings using ordinary smartphones.
- *
- * Author(s): Lambros Petrou
- *
- * Supervisor: Demetrios Zeinalipour-Yazti
- *
- * URL: https://anyplace.cs.ucy.ac.cy
- * Contact: anyplace@cs.ucy.ac.cy
- *
- * Copyright (c) 2016, Data Management Systems Lab (DMSL), University of Cyprus.
- * All rights reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the “Software”), to deal in the
- * Software without restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the
- * following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- */
-
 package datasources;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.*;
+
 import floor_module.IAlgo;
 import utils.GeoPoint;
 
+import javax.xml.crypto.Data;
 import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -137,6 +103,15 @@ public interface IDatasource {
     JsonNode poiFromKeyAsJson(String key) throws DatasourceException;
 
     /**
+     * Will Attempt to get all pois that dont have the url attribute that is needed for the android
+     * app to work
+     *
+     * @return
+     * @throws DatasourceException
+     */
+    List<JsonNode> tempAllPoisWithoutUrl() throws DatasourceException;
+
+    /**
      * A list of all the POIs in the building floor specified will be returned.
      * Each POI is a JsonNode object.
      *
@@ -146,6 +121,18 @@ public interface IDatasource {
      * @throws DatasourceException Thrown when error occurs reading from the database
      */
     List<JsonNode> poisByBuildingFloorAsJson(String buid, String floor_number) throws DatasourceException;
+
+
+    /**
+     * A list of all the POIs in the building floor specified will be returned.
+     * Each POI is a JsonNode object.
+     *
+     * @param buid         The building Id
+     * @return List<JsonNode> with all the POIs of the specified floor, or an empty list
+     * @throws DatasourceException Thrown when error occurs reading from the database
+     */
+    List<JsonNode> poisByBuildingIDAsJson(String buid) throws DatasourceException;
+
 
     /**
      * A list of all the POIs in the building floor specified will be returned.
@@ -167,6 +154,37 @@ public interface IDatasource {
      * @throws DatasourceException Thrown when error occurs reading from the database
      */
     List<JsonNode> poisByBuildingAsJson(String buid) throws DatasourceException;
+    /**
+     * A list of all the POIs in the building specified will be returned.
+     * Each POI is a JsonNode object.
+     *
+     * @param buid The building Id
+     * @return List<JsonNode> with all the POIs, or an empty list
+     * @throws DatasourceException Thrown when error occurs reading from the database
+     */
+    List<JsonNode> poisByBuildingAsJson2(String buid,String letters) throws DatasourceException;
+
+    /**
+     * A list of all the POIs in the building specified will be returned.
+     * Each POI is a JsonNode object.
+     *
+     * @param buid The building Id
+     * @return List<JsonNode> with all the POIs, or an empty list
+     * @throws DatasourceException Thrown when error occurs reading from the database
+     */
+    List<JsonNode> poisByBuildingAsJson3(String buid,String letters) throws DatasourceException;
+
+    /**
+     * A list of all the POIs in the building specified will be returned.
+     * Each POI is a JsonNode object.
+     *
+     * @param cuid The building Id
+     * @return List<JsonNode> with all the POIs, or an empty list
+     * @throws DatasourceException Thrown when error occurs reading from the database
+     */
+    List<JsonNode> poisByBuildingAsJson2GR(String cuid,String letters) throws DatasourceException;
+
+
 
     /**
      * A list of all the POIs in the building specified will be returned.
@@ -220,6 +238,17 @@ public interface IDatasource {
     List<JsonNode> connectionsByBuildingFloorAsJson(String buid, String floor_number) throws DatasourceException;
 
     /**
+     * A list of all the connections in the building specified will be returned.
+     * Each Connection is a JsonNode object.
+     *
+     * @param buid         The building Id
+     * @return List<JsonNode> with all the connections, or an empty list
+     * @throws DatasourceException Thrown when error occurs reading from the database
+     */
+    List<JsonNode> connectionsByBuildingAllFloorsAsJson(String buid) throws DatasourceException;
+
+
+    /**
      * Tries to delete everything stored for a specific building
      * inside the database. (Building, POI, Floors, Connections)
      *
@@ -258,11 +287,17 @@ public interface IDatasource {
      * @return A list with the keys/ids of the items failed to delete
      * @throws DatasourceException Thrown when there is an exception error
      */
-    List<String> deleteAllByPoi(String puid) throws DatasourceException;
+    List<String> deleteAllByPoi(String puid,String buid) throws DatasourceException;
 
     List<JsonNode> getRadioHeatmap() throws DatasourceException;
 
     List<JsonNode> getRadioHeatmapByBuildingFloor(String buid, String floor) throws DatasourceException;
+
+    List<JsonNode> getRadioHeatmapByBuildingFloor2(String lat,String lon,String buid,String floor,int range) throws DatasourceException;
+
+    List<JsonNode> getRadioHeatmapBBox(String lat,String lon,String buid,String floor,int range) throws DatasourceException;
+
+    List<JsonNode> getRadioHeatmapBBox2(String lat,String lon,String buid,String floor,int range) throws DatasourceException;
 
     /**
      * Returns all the buildings stored in the database in a list
@@ -273,12 +308,32 @@ public interface IDatasource {
     List<JsonNode> getAllBuildings() throws DatasourceException;
 
     /**
+     * Returns the building set json
+     *
+     * @return A JsonNode representing the correct cuid
+     * @throws DatasourceException When there is a connection error
+     */
+    List<JsonNode> getBuildingSet(String cuid) throws DatasourceException;
+
+    /**
+     * Returns buildings sets ids
+     *
+     * @return A JsonNode representing the correct cuid
+     * @throws DatasourceException When there is a connection error
+     */
+    Boolean BuildingSetsCuids(String cuid) throws DatasourceException;
+
+    /**
      * @return A list of JsonNodes representing all the stored buildings of the user
      * @throws DatasourceException When there is a connection error
      * @author KG
      * Returns all the buildings that belong to a user, stored in the database in a list
      */
     List<JsonNode> getAllBuildingsByOwner(String oid) throws DatasourceException;
+
+    List<JsonNode> getAllBuildingsetsByOwner(String oid) throws DatasourceException;
+
+    List<JsonNode> getAllPoisTypesByOwner(String oid) throws DatasourceException;
 
     List<JsonNode> getAllBuildingsByBucode(String bucode) throws DatasourceException;
 
@@ -322,6 +377,19 @@ public interface IDatasource {
      * @throws DatasourceException When there is a connection error
      */
     long dumpRssLogEntriesByBuildingFloor(FileOutputStream outFile, String buid, String floor_number) throws DatasourceException;
+
+    /**
+     * Using the floor_num and buid, this function will
+     * write all the rss log entries in the db that are from that floor in that building
+     *
+     * @param outFile      The file path of the output file that will contain the rss entries
+     * @param buid         building id
+     * @param floor_number The floor number of the user trying to download radio map
+     * @return Number of valid entries written into the file
+     * @throws DatasourceException When there is a connection error
+     */
+    long dumpRssLogEntriesByBuildingFloorBbox(FileOutputStream outFile, String buid, String floor_number,String range, String lat,String lon) throws DatasourceException;
+
 
     /*****
      * ACCOUNTS METHODS

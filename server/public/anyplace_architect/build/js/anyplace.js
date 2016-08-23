@@ -25,7 +25,7 @@
  THE SOFTWARE.
  */
 
-var app = angular.module('anyArchitect', ['ui.bootstrap', 'ui.select', 'ngSanitize']);
+var app = angular.module('anyArchitect', ['angularjs-dropdown-multiselect','ui.bootstrap', 'ui.select', 'ngSanitize']);
 
 app.service('GMapService', function () {
 
@@ -98,6 +98,9 @@ app.factory('AnyplaceService', function () {
     anyService.selectedBuilding = undefined;
     anyService.selectedFloor = undefined;
     anyService.selectedPoi = undefined;
+    anyService.selectedCampus = undefined;
+    anyService.ShowShareProp = undefined;
+    anyService.progress = undefined;
 
     anyService.alerts = [];
 
@@ -108,6 +111,10 @@ app.factory('AnyplaceService', function () {
 
     anyService.getBuilding = function () {
         return this.selectedBuilding;
+    };
+
+    anyService.getCampus = function () {
+        return this.selectedCampus;
     };
 
     anyService.getBuildingId = function () {
@@ -122,6 +129,13 @@ app.factory('AnyplaceService', function () {
             return 'N/A';
         }
         return this.selectedBuilding.name;
+    };
+
+    anyService.getCampusName = function() {
+        if(!this.selectedCampus) {
+            return 'N/A';
+        }
+        return this.selectedCampus.name;
     };
 
     anyService.getFloor = function () {
@@ -159,13 +173,36 @@ app.factory('AnyplaceService', function () {
         if(!this.selectedBuilding || !this.selectedBuilding.buid) {
             return "N/A";
         }
-        return "http://anyplace.cs.ucy.ac.cy/viewer/?buid=" + this.selectedBuilding.buid;
+        return this.selectedBuilding.buid;
+    };
+
+    anyService.getBuildingViewerUrlEncoded = function() {
+        if(!this.selectedBuilding || !this.selectedBuilding.buid) {
+            return "N/A";
+        }
+        return encodeURIComponent("https://dev.anyplace.rayzit.com/viewer/?buid=" + this.selectedBuilding.buid);
+    };
+
+    anyService.getCampusViewerUrl = function() {
+        if(!this.selectedCampus || !this.selectedCampus.cuid) {
+            return "N/A";
+        }
+        return "https://dev.anyplace.rayzit.com/viewer/?cuid=" + this.selectedCampus.cuid;
+    };
+
+    anyService.getCampusViewerUrlEncoded = function() {
+        if(!this.selectedCampus || !this.selectedCampus.cuid) {
+            return "N/A";
+        }
+        return encodeURIComponent("https://dev.anyplace.rayzit.com/viewer/?cuid=" + this.selectedCampus.cuid);
     };
 
     anyService.clearAllData = function() {
         anyService.selectedPoi = undefined;
         anyService.selectedFloor = undefined;
         anyService.selectedBuilding = undefined;
+        anyService.selectedCampus = undefined;
+        anyService.ShowShareProp = undefined ;
     };
 
     return anyService;
@@ -277,25 +314,52 @@ app.config(['$httpProvider', function($httpProvider) {
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-    
+
 var AnyplaceAPI = {};
 
 //AnyplaceAPI.SERVER = "http://127.0.0.1"
 //AnyplaceAPI.PORT = "9000";
 //AnyplaceAPI.FULL_SERVER = AnyplaceAPI.SERVER + ":" + AnyplaceAPI.PORT;
 //AnyplaceAPI.FULL_SERVER = "http://127.0.0.1:9000/anyplace";
-AnyplaceAPI.FULL_SERVER = "http://anyplace.rayzit.com/anyplace";
+AnyplaceAPI.FULL_SERVER = "https://dev.anyplace.rayzit.com/anyplace";
+//AnyplaceAPI.FULL_SERVER = "https://anyplace.rayzit.com/anyplace";
 
 /**
  * MAPPING API
  */
 AnyplaceAPI.Mapping = {};
-
 AnyplaceAPI.Mapping.RADIO_HEATMAP = "/mapping/radio/heatmap_building_floor";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP;
 
+AnyplaceAPI.Mapping.RADIO_HEATMAP_POI = "/mapping/radio/radio_heatmap_bbox";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_URL_POI = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_POI;
+
+AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL = "/position/radio_by_building_floor_all";
+AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL;
+
+AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT = "/position/radio_by_building_floor_all_text";
+AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT;
+
+
 AnyplaceAPI.Mapping.BUILDING_ADD = "/mapping/building/add";
 AnyplaceAPI.Mapping.BUILDING_ADD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDING_ADD;
+
+AnyplaceAPI.Mapping.CAMPUS_ALL = "/mapping/campus/all_owner";
+AnyplaceAPI.Mapping.CAMPUS_ALL_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.CAMPUS_ALL;
+
+AnyplaceAPI.Mapping.CAMPUS_UPDATE = "/mapping/campus/update";
+AnyplaceAPI.Mapping.CAMPUS_UPDATE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.CAMPUS_UPDATE;
+
+AnyplaceAPI.Mapping.CAMPUS_DELETE = "/mapping/campus/delete";
+AnyplaceAPI.Mapping.CAMPUS_DELETE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.CAMPUS_DELETE;
+
+AnyplaceAPI.Mapping.BUILDINGSET_ADD = "/mapping/campus/add";
+AnyplaceAPI.Mapping.BUILDINGSET_ADD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDINGSET_ADD;
+
+AnyplaceAPI.Mapping.POISCATEGORY_ADD = "/mapping/pois/add_category";
+AnyplaceAPI.Mapping.POISCATEGORY_ADD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.POISCATEGORY_ADD;
+
+
 AnyplaceAPI.Mapping.BUILDING_UPDATE = "/mapping/building/update";
 AnyplaceAPI.Mapping.BUILDING_UPDATE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDING_UPDATE;
 AnyplaceAPI.Mapping.BUILDING_DELETE = "/mapping/building/delete";
@@ -315,6 +379,8 @@ AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD = "/mapping/floor/upload"
 AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD;
 AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD = "/floorplans64/"
 AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD;
+AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_ALL = "/floorplans64all/"
+AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL_ALL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_ALL;
 
 AnyplaceAPI.Mapping.POIS_ADD = "/mapping/pois/add";
 AnyplaceAPI.Mapping.POIS_ADD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.POIS_ADD;
@@ -324,6 +390,12 @@ AnyplaceAPI.Mapping.POIS_DELETE = "/mapping/pois/delete";
 AnyplaceAPI.Mapping.POIS_DELETE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.POIS_DELETE;
 AnyplaceAPI.Mapping.POIS_ALL_FLOOR = "/mapping/pois/all_floor";
 AnyplaceAPI.Mapping.POIS_ALL_FLOOR_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.POIS_ALL_FLOOR;
+AnyplaceAPI.Mapping.POIS_ALL_BUILDING = "/mapping/pois/all_building";
+AnyplaceAPI.Mapping.POIS_ALL_BUILDING_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.POIS_ALL_BUILDING;
+
+//POIS_TYPES_URL
+AnyplaceAPI.Mapping.POIS_TYPES = "/mapping/pois/types";
+AnyplaceAPI.Mapping.POIS_TYPES_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.POIS_TYPES;
 
 AnyplaceAPI.Mapping.CONNECTION_ADD = "/mapping/connection/add";
 AnyplaceAPI.Mapping.CONNECTION_ADD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.CONNECTION_ADD;
@@ -359,6 +431,79 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
                 return data;
             });
     };
+//retrievePoisTypes
+
+    apiService.retrievePoisTypes = function (json_req) {
+
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.POIS_TYPES_URL,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+    };
+
+     apiService.retrievePoisByBuilding = function (json_req) {
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.POIS_ALL_BUILDING_URL,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+    };
+
+    apiService.getRadioHeatmapPoi = function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_URL_POI,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+    };
+
+    apiService.getRadioByBuildingFloorAll = function (json_req) {
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_URL,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+    };
+
+    apiService.getRadioByBuildingFloorTxt = function (json_req) {
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT_URL,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+    };
 
     /**************************************************
      * BUILDING FUNCTIONS
@@ -378,6 +523,36 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             });
     };
 
+    apiService.addBuildingSet = function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.BUILDINGSET_ADD_URL,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+    };
+
+    apiService.addCategory = function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.POISCATEGORY_ADD_URL,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+    };
+
     apiService.updateBuilding = function (json_req) {
         //alert( "make the request: " + json_req );
         return $http({
@@ -393,6 +568,22 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             });
 
     };
+
+        apiService.updateCampus = function (json_req) {
+            //alert( "make the request: " + json_req );
+            return $http({
+                method: "POST",
+                url: AnyplaceAPI.Mapping.CAMPUS_UPDATE_URL,
+                data: json_req
+            }).
+            success(function (data, status) {
+                return data;
+            }).
+            error(function (data, status) {
+                return data;
+            });
+
+        };
 
     apiService.deleteBuilding = function (json_req) {
         //alert( "make the request: " + json_req );
@@ -410,6 +601,22 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
 
     };
 
+        apiService.deleteCampus = function (json_req) {
+            //alert( "make the request: " + json_req );
+            return $http({
+                method: "POST",
+                url: AnyplaceAPI.Mapping.CAMPUS_DELETE_URL,
+                data: json_req
+            }).
+            success(function (data, status) {
+                return data;
+            }).
+            error(function (data, status) {
+                return data;
+            });
+
+        };
+
     apiService.allBuildings = function (json_req) {
         return $http({
             method: "POST",
@@ -425,8 +632,24 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
 
     };
 
+        apiService.allCampus = function (json_req) {
+            return $http({
+                method: "POST",
+                url: AnyplaceAPI.Mapping.CAMPUS_ALL_URL,
+                data: json_req
+            }).
+            success(function (data, status) {
+                return data;
+            }).
+            error(function (data, status) {
+                return data;
+            });
 
-    /****************************************************
+        };
+
+
+
+        /****************************************************
      * FLOOR FUNCTIONS
      */
 
@@ -494,7 +717,7 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
 
 
     apiService.uploadFloorPlan = function (json_req, file) {
-        alert("make the request: " + json_req);
+        //alert("make the request: " + json_req);
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD_URL,
@@ -556,6 +779,21 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             error(function (data, status) {
                 return data;
             });
+    };
+
+    apiService.downloadFloorPlanAll = function (json_req, buid, floor_number) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL_ALL + buid + "/" + floor_number,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
 
@@ -1757,14 +1995,28 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
     $scope.anyService = AnyplaceService;
     $scope.anyAPI = AnyplaceAPIService;
 
+
+    $scope.example9model = [];
+    $scope.example9data = [];
+    $scope.example9settings = {enableSearch: true , scrollable: true };
+
     $scope.myBuildings = [];
 
     $scope.myBuildingsHashT = {};
+    $scope.myCampus = [];
+    $scope.old_campus = [];
+
+    $scope.crudTabSelected = 1;
+
+    $scope.fileToUpload = "";
+    $scope.logfile = "";
+
+    $scope.poisTypes={};
+    $scope.catTypes={};
 
     $scope.crudTabSelected = 1;
     $scope.setCrudTabSelected = function (n) {
         $scope.crudTabSelected = n;
-
         if (!$scope.anyService.getBuilding()) {
             _err("No building is selected.");
             return;
@@ -1779,7 +2031,6 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         if (!m) {
             return;
         }
-
         // edit building
         if (n === 2) {
             m.setDraggable(true);
@@ -1795,6 +2046,8 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
     $scope.$on("loggedIn", function (event, mass) {
         //_suc('Successfully logged in.');
         $scope.fetchAllBuildings();
+        $scope.fetchAllCampus();
+        $scope.fetchAllPoisTypes();
     });
 
     $scope.$on("loggedOff", function (event, mass) {
@@ -1805,17 +2058,117 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         $scope.myBuildingsHashT = {};
     });
 
+    function S4() {
+        return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+    }
+    var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+    var d = new Date();
+    document.getElementById("CampusID").value="cuid_"+guid+ "_"+ d.getTime();
+
+    var logoPlanInputElement = $('#input-logo');
+
+    logoPlanInputElement.change(function handleImage(e) {
+        var reader = new FileReader();
+        reader.onload = function (event) {
+            var imgObj = new Image();
+            imgObj.src = event.target.result;
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    });
+
+    $scope.setLogoPlan = function (cuid) {
+
+        var newFl = {
+            is_published: 'true',
+            cuid: cuid,
+            logo: String($scope.newFloorNumber),
+            description: String($scope.newFloorNumber),
+            floor_number: String($scope.newFloorNumber)
+        };
+
+        $scope.myFloors[$scope.myFloorId] = newFl;
+        $scope.myFloorId++;
+
+        // create the proper image inside the canvas
+        canvasOverlay.drawBoundingCanvas();
+
+        // create the ground overlay and destroy the canvasOverlay object
+        // and also set the floor_plan_coords in $scope.data
+        var bl = canvasOverlay.bottom_left_coords;
+        var tr = canvasOverlay.top_right_coords;
+        $scope.data.floor_plan_coords.bottom_left_lat = bl.lat();
+        $scope.data.floor_plan_coords.bottom_left_lng = bl.lng();
+        $scope.data.floor_plan_coords.top_right_lat = tr.lat();
+        $scope.data.floor_plan_coords.top_right_lng = tr.lng();
+        var data = canvasOverlay.getCanvas().toDataURL("image/png"); // defaults to png
+        $scope.data.floor_plan_base64_data = data;
+        var imageBounds = new google.maps.LatLngBounds(
+            new google.maps.LatLng(bl.lat(), bl.lng()),
+            new google.maps.LatLng(tr.lat(), tr.lng()));
+        $scope.data.floor_plan_groundOverlay = new USGSOverlay(imageBounds, data, GMapService.gmap);
+
+        canvasOverlay.setMap(null); // remove the canvas overlay since the groundoverlay is placed
+        $('#input-floor-plan').prop('disabled', false);
+        $scope.isCanvasOverlayActive = false;
+
+        if (_floorNoExists($scope.newFloorNumber)) {
+            for (var i = 0; i < $scope.xFloors.length; i++) {
+                var f = $scope.xFloors[i];
+                if (!LPUtils.isNullOrUndefined(f)) {
+                    if (f.floor_number === String($scope.newFloorNumber)) {
+                        $scope.uploadFloorPlanBase64($scope.anyService.selectedBuilding, f, $scope.data);
+                        break;
+                    }
+                }
+            }
+        } else {
+            $scope.addFloorObject(newFl, $scope.anyService.selectedBuilding, $scope.data);
+        }
+
+    };
+
     $scope.$watch('anyService.selectedBuilding', function (newVal, oldVal) {
         if (newVal && newVal.coordinates_lat && newVal.coordinates_lon) {
             // Pan map to selected building
             $scope.gmapService.gmap.panTo(_latLngFromBuilding(newVal));
             $scope.gmapService.gmap.setZoom(19);
-
             if (typeof(Storage) !== "undefined" && localStorage) {
                 localStorage.setItem("lastBuilding", newVal.buid);
             }
         }
+        if (newVal && newVal.buid && newVal.poistypeid) {
+            $scope.fetchAllPoisTypes(newVal.poistypeid);
+        }
+        else {
+            $scope.poisTypes= [
+                "Disabled Toilets",
+                "Elevator",
+                "Entrance",
+                "Fire Extinguisher",
+                "First Aid/AED",
+                "Kitchen",
+                "Office",
+                "Ramp",
+                "Room",
+                "Security/Guard",
+                "Stair",
+                "Toilets",
+                "Other"
+            ];
+        }
     });
+
+    $scope.$watch('anyService.selectedCampus', function (newVal, oldVal) {
+        if (newVal && newVal.cuid ) {
+            // Pan map to selected building
+            if (typeof(Storage) !== "undefined" && localStorage) {
+                localStorage.setItem("lastCampus", newVal.cuid);
+            }
+        }
+
+    });
+
+
 
     var _clearBuildingMarkersAndModels = function () {
         for (var b in $scope.myBuildingsHashT) {
@@ -1843,6 +2196,35 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         }
         return undefined;
     };
+    $scope.fetchAllPoisTypes = function () {
+
+        //TODO: validation
+
+        var jsonReq = {};
+
+        jsonReq.username = $scope.creds.username;
+        jsonReq.password = $scope.creds.password;
+        jsonReq.access_token = $scope.gAuth.access_token;
+
+        jsonReq.owner_id = $scope.owner_id;
+
+        if (!jsonReq.owner_id) {
+            _err("Could nor authorize user. Please refresh.1");
+            return;
+        }
+        var promise = $scope.anyAPI.retrievePoisTypes(jsonReq);
+        promise.then(
+            function (resp) {
+                var data = resp.data;
+                $scope.catTypes = data.poistypes;
+            },
+            function (resp) {
+                var data = resp.data;
+                _err("Something went wrong while fetching POIs types");
+            }
+        );
+    };
+
 
     $scope.fetchAllBuildings = function () {
         var jsonReq = {};
@@ -1877,6 +2259,8 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                 for (var i = 0; i < $scope.myBuildings.length; i++) {
 
                     var b = $scope.myBuildings[i];
+
+                    $scope.example9data[i] = {id: b.buid, label: b.name};
 
                     if (localStoredBuildingId && localStoredBuildingId === b.buid) {
                         localStoredBuildingIndex = i;
@@ -1955,6 +2339,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                 _err("Could not authorize user. Please refresh.");
                 return;
             }
+
 
             building.coordinates_lat = String($scope.myMarkers[id].marker.position.lat());
             building.coordinates_lon = String($scope.myMarkers[id].marker.position.lng());
@@ -2160,6 +2545,221 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
 
     };
 
+    $scope.fetchAllCampus = function () {
+        var jsonReq = {};
+        jsonReq.username = $scope.creds.username;
+        jsonReq.password = $scope.creds.password;
+        jsonReq.owner_id = $scope.owner_id;
+        $scope.myCampus = [];
+        if (!jsonReq.owner_id) {
+            _err("Could nor authorize user. Please refresh.");
+            return;
+        }
+
+        var promise = $scope.anyAPI.allCampus(jsonReq);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data;
+                //var bs = JSON.parse( data.buildings );
+                $scope.myCampus = data.buildingsets;
+                var localStoredCampusIndex = -1;
+                var localStoredCampusId = undefined;
+                if (typeof(Storage) !== "undefined" && localStorage && localStorage.getItem('lastCampus')) {
+                    localStoredCampusId = localStorage.getItem('lastCampus');
+                }
+
+                for (var i = 0; i < $scope.myCampus.length; i++) {
+
+                    var b = $scope.myCampus[i];
+
+                    if (localStoredCampusId && localStoredCampusId === b.cuid) {
+                        localStoredCampusIndex = i;
+                    }
+                }
+
+                // using the latest building set form localStorage
+                if (localStoredCampusIndex >= 0) {
+                    $scope.anyService.selectedCampus = $scope.myCampus[localStoredCampusIndex];
+                } else if ($scope.myCampus[0]) {
+                    $scope.anyService.selectedCampus = $scope.myCampus[0];
+                }
+            },
+            function (resp) {
+                // on error
+                var data = resp.data;
+                _err('Something went wrong while fetching buildings.');
+            }
+        );
+    };
+
+    $scope.updateCampus = function () {
+        var b = $scope.anyService.getCampus();
+
+        if (LPUtils.isNullOrUndefined(b) || LPUtils.isNullOrUndefined(b.cuid)) {
+            _err("No campus selected found.");
+            return;
+        }
+
+        var reqObj = {};
+
+        // from controlBarController
+        reqObj = $scope.creds;
+        if (!$scope.owner_id) {
+            _err("Could not identify user. Please refresh and sign in again.");
+            return;
+        }
+
+        reqObj.owner_id = $scope.owner_id;
+
+        reqObj.cuid = b.cuid;
+
+        if (b.description) {
+            reqObj.description = b.description;
+        }
+
+        if (b.name) {
+            reqObj.name = b.name;
+        }
+
+
+        var promise = $scope.anyAPI.updateCampus(reqObj);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data;
+
+                _suc("Successfully updated campus.")
+            },
+            function (resp) {
+                // on error
+                var data = resp.data;
+                _err("Something went wrong while updating campus. " + data.message);
+            }
+        );
+
+    };
+
+    $scope.deleteCampus = function () {
+
+        var b = $scope.anyService.getCampus();
+
+        var reqObj = $scope.creds;
+
+        if (!$scope.owner_id) {
+            _err("Could not identify user. Please refresh and sign in again.");
+            return;
+        }
+
+        reqObj.owner_id = $scope.owner_id;
+
+        if (!b || !b.cuid) {
+            _err("No Campus selected for deletion.");
+            return;
+        }
+
+        reqObj.cuid = b.cuid;
+
+        var promise = $scope.anyAPI.deleteCampus(reqObj);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data;
+
+                console.log("campus deleted: ", b);
+
+
+                var bs = $scope.myCampus;
+                var sz = bs.length;
+                for (var i = 0; i < sz; i++) {
+                    if (bs[i].cuid == b.cuid) {
+                        bs.splice(i, 1);
+                        break;
+                    }
+                }
+
+                // update the selected building
+                if ($scope.myCampus && $scope.myCampus.length > 0) {
+                    $scope.anyService.selectedCampus = $scope.myCampus[0];
+                }
+                else if ($scope.myCampus.length == 0){
+                    $scope.anyService.selectedCampus = undefined ;
+                }
+
+                $scope.setCrudTabSelected(1);
+
+                _suc("Successfully deleted campus.");
+            },
+            function (resp) {
+                // on error
+                var data = resp.data;
+                _err("Something went wrong. It's likely that everything related to the campus is deleted but please refresh to make sure or try again.");
+            }
+        );
+
+    };
+
+    $scope.addCampus = function () {
+
+        var name_element = document.getElementById("CampusName");
+        var name =  "\"name\":\""+name_element.value+"\"";
+
+        if (document.getElementById("CampusDescription").value.localeCompare("")==0){
+            document.getElementById("CampusDescription").value="-";
+        }
+
+        var des = document.getElementById("CampusDescription");
+        var des = "\"description\":\""+ des.value+"\"";
+
+        var mycuid = document.getElementById("CampusID");
+        var mycuid = "\"cuid\":\""+ mycuid.value+"\"";
+
+        var greeklish = document.getElementById("Greeklish-OnOff").checked;
+        greeklish =  "\"greeklish\":\""+ greeklish+"\"";
+        var sz = $scope.example9model.length;
+
+        if (sz==0) {
+            _err("No buildings selected.");
+            return;
+        }
+        var buids = "\"buids\":[";
+        for (var i = sz - 1; i > 0; i--) {
+            buids =buids+ "\""+$scope.example9model[i].id+"\",";
+        }
+        buids =buids+ "\""+$scope.example9model[0].id+"\"]";
+
+        var jreq = "{"+greeklish+","+buids+","+mycuid+","+des+","+name+",\"owner_id\":\""+ $scope.owner_id+"\",\"access_token\":\""+$scope.gAuth.access_token+"\"}";
+        //alert(document.getElementById("Greeklish-OnOff").checked);
+        var promise = $scope.anyAPI.addBuildingSet(jreq);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data;
+                var new_campus = {} ;
+                new_campus.name = document.getElementById("CampusName").value ;
+                new_campus.buids = buids.buids ;
+                new_campus.description = document.getElementById("CampusDescription").value;
+                new_campus.cuid = data.cuid ;
+                $scope.myCampus.push(new_campus);
+                $scope.anyService.selectedCampus = $scope.myCampus[$scope.myCampus.length - 1];
+                _suc("Successfully added campus.");
+
+                function S4() {
+                    return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+                }
+                var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+                var d = new Date();
+                document.getElementById("CampusID").value="cuid_"+guid+ "_"+ d.getTime();
+            },
+            function (resp) {
+                // on error
+                var data = resp.data;
+                _err("Something went wrong while adding the building. " + data.message);
+            }
+        );
+
+    };
+
     var overlay = new google.maps.OverlayView();
     overlay.draw = function () {
     };
@@ -2225,6 +2825,11 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
             + '<fieldset class="form-group">'
             + '<input ng-model="myMarkers[' + marker.myId + '].model.is_published" id="building-published" type="checkbox"><span> Make building public to view.</span>'
             + '</fieldset>'
+            + '<fieldset class="form-group">'
+            + '<select ng-model="myMarkers[' + marker.myId + '].model.poistypeid" class="form-control" ng-options="type.poistypeid as type.poistype for type in catTypes" title="POI Types" tabindex="2">'
+            + '<option value="">Select POI Category</option>'
+            + '</select>'
+            + '</fieldset class="form-group">'
             + '<div style="text-align: center;">'
             + '<fieldset class="form-group" style="display: inline-block; width: 75%;">'
             + '<button type="submit" class="btn btn-success add-any-button" ng-click="addNewBuilding(' + marker.myId + ')">'
@@ -2297,7 +2902,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
             _err('No building selected');
             return;
         }
-
+        result.building.buid = building.buid;
         result.building.name = building.name;
         result.building.description = building.description;
         result.building.coordinates_lat = building.coordinates_lat;
@@ -2338,19 +2943,28 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                                             if (sPoi.pois_type == "None") {
                                                 continue;
                                             }
-
-                                            var tmp = {
-                                                name: sPoi.name,
-                                                description: sPoi.description,
-                                                pois_type: sPoi.pois_type,
-                                                coordinates_lat: sPoi.coordinates_lat,
-                                                coordinates_lon: sPoi.coordinates_lon
-                                            };
-
-                                            if (sPoi.is_building_entrance) {
-                                                tmp.is_building_entrance = 'true';
+                                            if (sPoi.overwrite){
+                                                var tmp = {
+                                                    name: sPoi.name,
+                                                    description: sPoi.description,
+                                                    puid: sPoi.puid,
+                                                    pois_type: sPoi.pois_type,
+                                                    coordinates_lat: sPoi.coordinates_lat,
+                                                    coordinates_lon: sPoi.coordinates_lon,
+                                                    overwrite: sPoi.overwrite
+                                                };
                                             }
-
+                                            else {
+                                                var tmp = {
+                                                    name: sPoi.name,
+                                                    description: sPoi.description,
+                                                    puid: sPoi.puid,
+                                                    pois_type: sPoi.pois_type,
+                                                    coordinates_lat: sPoi.coordinates_lat,
+                                                    coordinates_lon: sPoi.coordinates_lon,
+                                                    overwrite: "false"
+                                                };
+                                            }
                                             flPois.push(tmp);
                                         }
 
@@ -2364,9 +2978,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                                         count++;
                                         if (count === floors.length) {
                                             result.building.floors = resFloors;
-
                                             _suc('Successfully exported ' + building.name + ' to JSON.');
-
                                             var blob = new Blob([JSON.stringify(result, null, 4)], {type: "text/plain;charset=utf-8"});
                                             saveAs(blob, building.name.toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
                                         }
@@ -2391,7 +3003,659 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         );
     };
 
+    /**
+     * campus {
+   "buids": [
+   ],
+   "description": "",
+   "name": "",
+   "owner_id": "",
+   "access_token": "",
+   "cuid": ""
+    }
+     * }
+     */
+    $scope.exportCampusToJson = function () {
+        var result = {
+            campus: {
+                buids: []
+            }
+        };
+
+        var campus = $scope.anyService.selectedCampus;
+        if (LPUtils.isNullOrUndefined(campus)) {
+            _err('No campus selected');
+            return;
+        }
+
+        result.campus.name = campus.name;
+        result.campus.description = campus.description;
+        result.campus.buids = campus.buids;
+
+        _suc('Successfully exported ' + campus.name + ' to JSON.');
+
+        var blob = new Blob([JSON.stringify(result, null, 4)], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, campus.name.toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
+    };
+
+    function readSingleFile(e) {
+        var file = e.target.files[0];
+        if (!file) {
+            return;
+        }
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var contents = e.target.result;
+            $scope.fileToUpload = contents;
+        };
+        reader.readAsText(file);
+    }
+
+    document.getElementById('file-input')
+        .addEventListener('change', readSingleFile, false);
+
+    $scope.anyService.downloadlogfile = false;
+
+    $scope.importBuildingFromJson = function () {
+
+        $scope.anyService.progress = 0;
+        var i, j,count= 0,countok=0;
+        if ($scope.fileToUpload==""){
+            _err("Something went wrong no file selected");
+        }
+        var obj = JSON.parse($scope.fileToUpload);
+        for (i=0; i<obj.building.floors.length; i++){
+            for (j=0; j<obj.building.floors[i].pois.length; j++){
+                if (obj.building.floors[i].pois[j].overwrite=="true"){
+                    count++;
+                }
+            }
+        }
+        if (count==0){
+            _err("Something went wrong no pois to update");
+        }
+
+        for (i=0; i<obj.building.floors.length; i++){
+            for (j=0; j<obj.building.floors[i].pois.length; j++){
+                if (obj.building.floors[i].pois[j].overwrite=="true"){
+                    countok++;
+                    $scope.updatePoifromFile(obj.building.floors[i].pois[j].puid,
+                        obj.building.floors[i].pois[j].coordinates_lat,
+                        obj.building.floors[i].pois[j].coordinates_lon,
+                        obj.building.floors[i].pois[j].name,
+                        obj.building.floors[i].pois[j].description,
+                        obj.building.floors[i].pois[j].pois_type,
+                        obj.building.floors[i].pois[j].overwrite,
+                        obj.building.buid,i,j,count,countok,
+                        obj.building.name
+                    );
+                }
+            }
+        }
+    }
+
+    $scope.allpois = {};
+    $scope.pois = {};
+
+    $scope.importBuildingFromExcel = function (oEvent) {
+        $scope.anyService.progress = 0;
+        // Get The File From The Input
+        var oFile = document.getElementById('my_file_input').files[0];
+        $scope.fileToUpload = oFile.name;
+        // Create A File Reader HTML5
+        var reader = new FileReader();
+        // Ready The Event For When A File Gets Selected
+        reader.onload = function(e) {
+            var data = e.target.result;
+            var cfb = XLS.CFB.read(data, {type: 'binary'});
+            var wb = XLS.parse_xlscfb(cfb);
+            // Loop Over Each Sheet
+            wb.SheetNames.forEach(function(sheetName) {
+                // Obtain The Current Row As CSV
+                var oJS = XLS.utils.sheet_to_row_object_array(wb.Sheets[sheetName]);
+                var last_buid="";
+                $scope.uploadloop(0,oJS,last_buid);
+            });
+        };
+
+        // Tell JS To Start Reading The File.. You could delay this if desired
+        reader.readAsBinaryString(oFile);
+    }
+
+    $scope.uploadloop = function (potition,oJS,last_buid) {
+
+        for (var i=potition; i<oJS.length; i++){
+            if (last_buid!=oJS[i].buid && oJS[i].buid!=undefined){
+                $scope.pois = {};
+                last_buid=oJS[i].buid;
+                $scope.fetchAllPoisForBuilding(oJS[i].buid,oJS,i,last_buid);
+                return;
+            }
+            var description = "";
+
+            if (oJS[i].des3!=undefined && oJS[i].des3!="" && oJS[i].des3!=null){
+                if (oJS[i].des4!=undefined && oJS[i].des4!="" && oJS[i].des4!=null){
+                    description =description+ oJS[i].des3+" "+oJS[i].des4;
+                }
+                else {
+                    description =description+ oJS[i].des3;
+                }
+            }
+            else {
+                if (oJS[i].des4!=undefined && oJS[i].des4!="" && oJS[i].des4!=null){
+                    description =description+ oJS[i].des4;
+                }
+            }
+
+            if (oJS[i].des1!=undefined && oJS[i].des1!="" && oJS[i].des1!=null){
+                if (description!=""){
+                    description =description+"\n"+ oJS[i].des1;
+                }
+                else {
+                    description =description+oJS[i].des1;
+                }
+            }
+
+            if (oJS[i].des2!=undefined && oJS[i].des2!="" && oJS[i].des2!=null){
+                if (description!=""){
+                    description =description+"\n"+ oJS[i].des2;
+                }
+                else {
+                    description =description+oJS[i].des2;
+                }
+            }
+
+            $scope.anyService.progress = (i/(oJS.length-1))*100;
+            if ($scope.pois[oJS[i].name]){
+                $scope.updatePoifromExcel($scope.pois[oJS[i].name].puid,
+                    $scope.pois[oJS[i].name].coordinates_lat,
+                    $scope.pois[oJS[i].name].coordinates_lon,
+                    $scope.pois[oJS[i].name].is_building_entrance,
+                    oJS[i].name,
+                    description,
+                    $scope.pois[oJS[i].name].pois_type,
+                    $scope.pois[oJS[i].name].overwrite,
+                    $scope.pois[oJS[i].name].buid,
+                    ""
+                );
+            }
+            else {
+                $scope.updatePoifromExcel("",
+                    "",
+                    "",
+                    "",
+                    oJS[i].name,
+                    description,
+                    "",
+                    "",
+                    "",
+                    ""
+                );
+            }
+
+        }
+    };
+
+    $scope.fetchAllPoisForBuilding = function (building,oJS,position,last_buid) {
+        var jsonReq = AnyplaceService.jsonReq;
+        jsonReq.buid = building;
+
+        var promise = AnyplaceAPIService.retrievePoisByBuilding(jsonReq);
+        promise.then(
+            function (resp) {
+                var data = resp.data;
+
+                $scope.myPois = data.pois;
+
+                var sz = $scope.myPois.length;
+                for (var i = sz - 1; i >= 0; i--) {
+                    var name = $scope.myPois[i].name;
+                    $scope.pois[name] = $scope.myPois[i];
+                }
+                $scope.uploadloop(position,oJS,last_buid);
+            },
+            function (resp) {
+                var data = resp.data;
+                _err("Something went wrong while fetching POIs");
+            }
+        );
+    };
+    $scope.logfile = {
+        pois: []
+    };
+    $scope.updatePoifromExcel = function (id,lat,lng,building_entrance,nm,des,ptype,ovwrite,bid,buildingname) {
+
+        var obj = {};
+
+        obj.username = $scope.creds.username;
+        obj.password = $scope.creds.password;
+        obj.owner_id = $scope.owner_id;
+
+        obj.coordinates_lat = lat;
+        obj.coordinates_lon = lng;
+
+        obj.is_building_entrance = building_entrance;
+        obj.name = nm;
+        obj.puid = id;
+        obj.description = des;
+        obj.pois_type = ptype;
+        obj.overwrite = "false";
+        obj.buid = bid;
+        // make the request at AnyplaceAPI
+        var promise = $scope.anyAPI.updatePois(obj);
+        promise.then(
+            function (resp) {
+                var data = resp.data;
+                if ($scope.anyService.progress==100){
+                    setTimeout(function(){$scope.anyService.progress= undefined;
+                    }, 1500);
+
+                    if ($scope.anyService.downloadlogfile) {
+                        $scope.anyService.downloadlogfile = false;
+                        _suc("Successfully updated POIs.A log file will be downloaded");
+                        var blob = new Blob([JSON.stringify($scope.logfile, null, 4)], {type: "text/plain;charset=utf-8"});
+                        saveAs(blob, ($scope.fileToUpload+"-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
+                    }
+                    else {
+                        _suc("Successfully updated POIs.");
+                    }
+                }
+            },
+            function (resp) {
+                var data = resp.data;
+                $scope.logfile.pois.push({
+                    "name" : nm,
+                    "puid"  : id,
+                    "description"  : des,
+                    "status"  : "Something went wrong while updating POI."
+                });
+                $scope.anyService.downloadlogfile = true;
+                if ($scope.anyService.progress==100){
+                    $scope.anyService.downloadlogfile = false;
+                    setTimeout(function(){$scope.anyService.progress= undefined;
+                    }, 1500);
+                    _suc("Successfully updated POIs.A log file will be downloaded");
+                    var blob = new Blob([JSON.stringify($scope.logfile, null, 4)], {type: "text/plain;charset=utf-8"});
+                    saveAs(blob, ($scope.fileToUpload+"-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
+                }
+            }
+        );
+    };
+
+
+    $scope.updatePoifromFile = function (id,lat,lng,nm,des,ptype,ovwrite,bid,i,j,count,countok,buildingname) {
+
+        var obj = {};
+
+        obj.username = $scope.creds.username;
+        obj.password = $scope.creds.password;
+        obj.owner_id = $scope.owner_id;
+
+        obj.coordinates_lat = lat;
+        obj.coordinates_lon = lng;
+
+        obj.name = nm;
+        obj.puid = id;
+        obj.description = des;
+        obj.pois_type = ptype;
+        obj.overwrite = "false";
+        obj.buid = bid;
+        // make the request at AnyplaceAPI
+        var promise = $scope.anyAPI.updatePois(obj);
+        promise.then(
+            function (resp) {
+                var data = resp.data;
+                $scope.anyService.progress = countok/count*100;
+                if ($scope.anyService.progress==100){
+                    setTimeout(function(){$scope.anyService.progress= undefined;
+                    }, 1500);
+                    if ($scope.anyService.downloadlogfile){
+                        _suc("Successfully updated POIs.A log file will be downloaded");
+                        var blob = new Blob([JSON.stringify($scope.logfile, null, 4)], {type: "text/plain;charset=utf-8"});
+                        saveAs(blob, (buildingname+"-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
+                    }
+                    else {
+                        _suc("Successfully updated POIs.");
+                    }
+                }
+            },
+            function (resp) {
+                var data = resp.data;
+
+                $scope.logfile.pois.push({
+                    "name" : nm,
+                    "puid"  : id,
+                    "description"  : des,
+                    "status"  : "Something went wrong while updating POI."
+                });
+
+                $scope.anyService.downloadlogfile = true;
+                $scope.anyService.progress = countok/count*100;
+                if ($scope.anyService.progress==100){
+                    setTimeout(function(){$scope.anyService.progress= undefined;
+                    }, 1500);
+                    if ($scope.anyService.downloadlogfile) {
+                        _suc("Successfully updated POIs.A log file will be downloaded");
+                        $scope.logfile.pois = [];
+                        var blob = new Blob([JSON.stringify($scope.logfile, null, 4)], {type: "text/plain;charset=utf-8"});
+                        saveAs(blob, (buildingname + "-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
+                    }
+                    else {
+                        _suc("Successfully updated POIs.");
+                    }
+                }
+            }
+        );
+    };
+
+    $scope.Poisresult = {
+        building: {
+            floors: []
+        }
+    };
+
+    $scope.Connectionsresult = {
+        building: {
+        }
+    };
+
+    $scope.zip = new JSZip();
+    $scope.DownloadBackup = function () {
+
+        var b = $scope.anyService.selectedBuilding;
+        var xFloors = [];
+        var jsonReq = AnyplaceService.jsonReq;
+        jsonReq.buid = b.buid;
+        $scope.anyService.progress=0;
+        var promise = AnyplaceAPIService.allBuildingFloors(jsonReq);
+        promise.then(
+            function (resp) {
+                xFloors = resp.data.floors;
+                var floor = 0;
+                var floor_number = "";
+                for (var i = 0; i < xFloors.length; i++) {
+                    if (i==0){
+                        floor_number =xFloors[i].floor_number;
+                    }
+                    else{
+                        floor_number =floor_number+" "+ xFloors[i].floor_number;
+                    }
+                }
+                $scope.anyService.progress=10;
+                var buid = b.buid;
+                var jsonReq2 = AnyplaceService.jsonReq;
+                var promise2 = AnyplaceAPIService.downloadFloorPlanAll(jsonReq2, buid, floor_number);
+                promise2.then(
+                    function (resp) {
+                        // on success
+                        var data = resp.data;
+                        var img = $scope.zip.folder("floor_plans");
+                        for (var si=0; si<data.all_floors.length; si++){
+                            if (data.all_floors[si]!=""){
+                                img.file(xFloors[si].floor_number+".png", data.all_floors[si], {base64: true});
+                            }
+                        }
+                        $scope.anyService.progress=25;
+                        var jsonReq3 = AnyplaceService.jsonReq;
+                        jsonReq3.buid=buid;
+                        jsonReq3.floor=floor_number;
+                        var promise3 = AnyplaceAPIService.getRadioByBuildingFloorAll(jsonReq3);
+                        promise3.then(
+                            function (resp) {
+                                var data2 = resp.data;
+                                var logs = $scope.zip.folder("radiomaps");
+                                if(data2.rss_log_files){
+                                    var urls = "";
+                                    for (var si2=0; si2<data2.rss_log_files.length; si2++){
+                                        logs.file(xFloors[si2].floor_number+"-radiomap.txt",data2.rss_log_files[si2]);
+                                    }
+                                }
+                                $scope.anyService.progress=70;
+                                $scope.exportPoisBuildingToJson();
+                            },
+                            function (resp) {
+
+                            }
+                        );
+                    },
+                    function (resp) {
+                    }
+                );
+            },
+            function (resp) {
+                console.log(resp.data.message);
+                _err("Something went wrong while fetching all floors");
+            }
+        );
+
+
+    }
+
+    $scope.exportPoisBuildingToJson = function () {
+
+        var building = $scope.anyService.selectedBuilding;
+        if (LPUtils.isNullOrUndefined(building)) {
+            _err('No building selected');
+            return;
+        }
+        $scope.Poisresult.building.buid = building.buid;
+        $scope.Poisresult.building.name = building.name;
+        $scope.Poisresult.building.description = building.description;
+        $scope.Poisresult.building.coordinates_lat = building.coordinates_lat;
+        $scope.Poisresult.building.coordinates_lon = building.coordinates_lon;
+
+        var jsonReq = AnyplaceService.jsonReq;
+        jsonReq.buid = building.buid;
+
+        var count = 0;
+
+        var promise = AnyplaceAPIService.allBuildingFloors(jsonReq);
+        promise.then(
+            function (resp) {
+                var floors = resp.data.floors;
+
+                var resFloors = [];
+                $scope.anyService.progress=80;
+                if (floors) {
+                    for (var i = 0; i < floors.length; i++) {
+
+                        (function (jreq) {
+                            var promise = AnyplaceAPIService.retrievePoisByBuildingFloor(jreq);
+                            promise.then(
+                                function (resp) {
+                                    var data = resp.data;
+
+                                    var poisArray = data.pois;
+
+                                    if (poisArray) {
+
+                                        var flPois = [];
+
+                                        if (poisArray[0]!=undefined) {
+                                            var fNo = poisArray[0].floor_number;
+
+                                            for (var j = 0; j < poisArray.length; j++) {
+                                                var sPoi = poisArray[j];
+
+                                                if (sPoi.pois_type == "None") {
+                                                    continue;
+                                                }
+                                                if (sPoi.overwrite) {
+                                                    var tmp = {
+                                                        name: sPoi.name,
+                                                        description: sPoi.description,
+                                                        puid: sPoi.puid,
+                                                        pois_type: sPoi.pois_type,
+                                                        coordinates_lat: sPoi.coordinates_lat,
+                                                        coordinates_lon: sPoi.coordinates_lon,
+                                                        overwrite: sPoi.overwrite
+                                                    };
+                                                }
+                                                else {
+                                                    var tmp = {
+                                                        name: sPoi.name,
+                                                        description: sPoi.description,
+                                                        puid: sPoi.puid,
+                                                        pois_type: sPoi.pois_type,
+                                                        coordinates_lat: sPoi.coordinates_lat,
+                                                        coordinates_lon: sPoi.coordinates_lon,
+                                                        overwrite: "false"
+                                                    };
+                                                }
+
+                                                if (sPoi.is_building_entrance== 'true') {
+                                                    tmp.is_building_entrance = 'true';
+                                                }
+                                                else {
+                                                    tmp.is_building_entrance = 'false';
+                                                }
+
+                                                flPois.push(tmp);
+                                            }
+
+                                            resFloors.push(
+                                                {
+                                                    floor_number: fNo,
+                                                    pois: flPois
+                                                }
+                                            );
+                                        }
+                                        count++;
+                                        if (count === floors.length) {
+                                            $scope.Poisresult.building.floors = resFloors;
+                                            $scope.zip.file("allpois.json", JSON.stringify($scope.Poisresult, null, 4));
+                                            $scope.anyService.progress=90;
+                                            $scope.exportConnectionBuildingToJson();
+                                        }
+
+                                    }
+                                },
+                                function (resp) {
+                                    var data = resp.data;
+                                    console.log(data.message);
+                                });
+                        }({
+                            buid: building.buid,
+                            floor_number: floors[i].floor_number
+                        }));
+                    }
+                }
+            },
+            function (resp) {
+                // TODO: alert failure
+                console.log(resp.data.message);
+            }
+        );
+    };
+
+    $scope.exportConnectionBuildingToJson = function () {
+
+        var building = $scope.anyService.selectedBuilding;
+        if (LPUtils.isNullOrUndefined(building)) {
+            _err('No building selected');
+            return;
+        }
+        $scope.Connectionsresult.building.buid = building.buid;
+        $scope.Connectionsresult.building.name = building.name;
+        $scope.Connectionsresult.building.description = building.description;
+        $scope.Connectionsresult.building.coordinates_lat = building.coordinates_lat;
+        $scope.Connectionsresult.building.coordinates_lon = building.coordinates_lon;
+
+        var jsonReq = AnyplaceService.jsonReq;
+        jsonReq.buid = building.buid;
+
+        var count = 0;
+
+        var promise = AnyplaceAPIService.allBuildingFloors(jsonReq);
+        promise.then(
+            function (resp) {
+                var floors = resp.data.floors;
+
+                var resFloors = [];
+
+                if (floors) {
+                    for (var i = 0; i < floors.length; i++) {
+
+                        (function (jreq) {
+                            var promise = AnyplaceAPIService.retrieveConnectionsByBuildingFloor(jreq);
+                            promise.then(
+                                function (resp) {
+                                    $scope.anyService.progress=100;
+                                    var data = resp.data;
+
+                                    var connArray = data.connections;
+
+                                    if (connArray) {
+
+                                        var flConnections = [];
+
+                                        if (connArray[0]!=undefined) {
+
+                                            var fNo = connArray[0].floor_a;
+
+                                            for (var j = 0; j < connArray.length; j++) {
+                                                var sConnection = connArray[j];
+
+                                                var tmp = {
+                                                    name: sConnection.name,
+                                                    description: sConnection.description,
+                                                    cuid: sConnection.puid,
+                                                    weight: sConnection.weight,
+                                                    pois_a: sConnection.pois_a,
+                                                    pois_b: sConnection.pois_b,
+                                                    floor_a: sConnection.floor_a,
+                                                    floor_b: sConnection.floor_b,
+                                                    is_published: sConnection.is_published,
+                                                    buid_a: sConnection.buid_a,
+                                                    buid_b: sConnection.buid_b
+                                                };
+
+                                                flConnections.push(tmp);
+                                            }
+
+                                            resFloors.push(
+                                                {
+                                                    floor_number: fNo,
+                                                    connections: flConnections
+                                                }
+                                            );
+                                        }
+                                        count++;
+
+                                        if (count === floors.length) {
+
+                                            $scope.Connectionsresult.building.floors = resFloors;
+                                            $scope.zip.file("allconnections.json", JSON.stringify($scope.Connectionsresult, null, 4));
+
+                                            $scope.zip.generateAsync({type:"blob"})
+                                                .then(function(content) {
+                                                    // see FileSaver.js
+                                                    saveAs(content, building.buid+".zip");
+                                                });
+                                            $scope.anyService.progress=undefined;
+                                        }
+                                    }
+                                },
+                                function (resp) {
+                                    var data = resp.data;
+                                    console.log(data.message);
+                                });
+                        }({
+                            buid: building.buid,
+                            floor_number: floors[i].floor_number
+                        }));
+                    }
+                }
+            },
+            function (resp) {
+                // TODO: alert failure
+                console.log(resp.data.message);
+            }
+        );
+    };
+
 }]);
+
 /**
  *
  The MIT License (MIT)
@@ -2618,6 +3882,13 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         $scope.myFloors = {};
     };
 
+    var _latLngFromPoi = function (p) {
+        if (p && p.coordinates_lat && p.coordinates_lon) {
+            return {lat: parseFloat(p.coordinates_lat), lng: parseFloat(p.coordinates_lon)}
+        }
+        return undefined;
+    };
+
     $scope.$watch('anyService.selectedBuilding', function (newVal, oldVal) {
         if (newVal) {
             if (heatmap)
@@ -2626,6 +3897,13 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         }
     });
 
+    /**
+    $scope.$watch('anyService.selectedPoi', function (newVal, oldVal) {
+        if (newVal && _latLngFromPoi(newVal)) {
+            $scope.showRadioHeatmapPoi();
+        }
+    });
+*/
     $scope.$watch('newFloorNumber', function (newVal, oldVal) {
         //if (_floorNoExists(newVal)) {
         //    _setNextFloor();
@@ -3107,12 +4385,57 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         return heatmap && heatmap.getMap() ? "Hide WiFi Map" : "Show WiFi Map";
     };
 
-    $scope.showRadioHeatmap = function () {
-        var jsonReq = {};
+    $scope.showRadioHeatmapPoi = function () {
+        var jsonReq = {"buid":$scope.anyService.getBuildingId(),"floor":$scope.anyService.getFloorNumber(),"coordinates_lat":$scope.anyService.selectedPoi.coordinates_lat,"coordinates_lon":$scope.anyService.selectedPoi.coordinates_lon,"range":"1"};
+
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
-        jsonReq.buid = $scope.anyService.getBuildingId();
-        jsonReq.floor = $scope.anyService.getFloorNumber();
+
+        var promise = $scope.anyAPI.getRadioHeatmapPoi(jsonReq);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data;
+
+                var heatMapData = [];
+
+                var i = resp.data.radioPoints.length;
+
+                if (i <= 0) {
+                    _err("This floor seems not to be WiFi mapped. Download the Anyplace app from the Google Play store to map the floor.");
+                    return;
+                }
+
+                while (i--) {
+                    var rp = resp.data.radioPoints[i];
+                    heatMapData.push(
+                        {location: new google.maps.LatLng(rp.x, rp.y), weight: 1}
+                    );
+                    resp.data.radioPoints.splice(i, 1);
+                }
+
+                if (heatmap && heatmap.getMap()) {
+                    heatmap.setMap(null);
+                }
+
+                heatmap = new google.maps.visualization.HeatmapLayer({
+                    data: heatMapData
+                });
+                heatmap.setMap($scope.gmapService.gmap);
+            },
+            function (resp) {
+                // on error
+                var data = resp.data;
+                _err('Something went wrong while fetching radio heatmap.');
+            }
+        );
+    }
+
+    $scope.showRadioHeatmap = function () {
+        var jsonReq = {"buid":$scope.anyService.getBuildingId(),"floor":$scope.anyService.getFloorNumber()};
+
+        jsonReq.username = $scope.creds.username;
+        jsonReq.password = $scope.creds.password;
 
         var promise = $scope.anyAPI.getRadioHeatmap(jsonReq);
         promise.then(
@@ -3230,19 +4553,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     $scope.anyService = AnyplaceService;
     $scope.anyAPI = AnyplaceAPIService;
 
-    /*
-     myMarkers {
-     1: {
-     model: {
-     name:
-     description:
-     type:
-     isEntrance:
-     floor:
-     },
-     marker: { }
-     }
-     */
     $scope.myMarkers = {};
     $scope.myMarkerId = 0;
 
@@ -3254,13 +4564,21 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
     $scope.myConnectionsHashT = {};
 
-    $scope.poisTypes = ["Disabled Toilets", "Elevator", "Entrance", "Fire Extinguisher", "First Aid/AED", "Kitchen", "Office", "Ramp", "Room", "Security/Guard", "Stair", "Toilets", "Other"];
-
     $scope.edgeMode = false;
     $scope.connectPois = {
         prev: undefined,
         next: undefined
     };
+
+
+    $scope.crudTabSelected = 1;
+    $scope.setCrudTabSelected = function (n) {
+        $scope.crudTabSelected = n;
+    };
+    $scope.isCrudTabSelected = function (n) {
+        return $scope.crudTabSelected === n;
+    };
+
 
     $scope.orderByName = function (value) {
         return value.name;
@@ -3283,11 +4601,35 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         };
     });
 
+    $scope.$watch('anyService.selectedBuilding', function (newVal, oldVal) {
+        if (newVal && newVal.buid && newVal.poistypeid) {
+            $scope.fetchAllPoisTypes(newVal.poistypeid);
+        }
+        else {
+            $scope.poisTypes= [
+                "Disabled Toilets",
+                "Elevator",
+                "Entrance",
+                "Fire Extinguisher",
+                "First Aid/AED",
+                "Kitchen",
+                "Office",
+                "Ramp",
+                "Room",
+                "Security/Guard",
+                "Stair",
+                "Toilets",
+                "Other"
+            ];
+        }
+    });
+
     $scope.$watch('anyService.selectedFloor', function (newVal, oldVal) {
         if (newVal !== undefined && newVal !== null) {
             $scope.fetchAllPoisForFloor(newVal);
         } else {
             $scope.anyService.selectedPoi = undefined;
+
         }
     });
 
@@ -3310,6 +4652,127 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             }
         }
     });
+
+    $scope.poicategories = [{
+            poicat: "Elevator",
+            poicatPlaceholder: "name",
+            disenable: "true"
+        },{
+            poicat: "Entrance",
+            poicatPlaceholder: "name",
+            disenable: "true"
+        },{
+            poicat: "Stair",
+            poicatPlaceholder: "name",
+            disenable: "true"
+        }
+    ];
+
+    $scope.add = function () {
+        if ($scope.poicategories[$scope.poicategories.length-1].poicat!=""){
+            $scope.poicategories.push({
+                poicat: "",
+                poicatPlaceholder: "name",
+                disenable: "false"
+            });
+        }
+        else {
+            _err("Complete the last input to continue!");
+        }
+    };
+
+    $scope.addcategory = function () {
+
+        var name_element = document.getElementById("poistype");
+        var name =  "\"poistype\":\""+name_element.value+"\"";
+
+        function S4() {
+            return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+        }
+        var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+        var d = new Date();
+
+
+        var poistypeid = "poistypeid_"+guid+ "_"+ d.getTime();
+        poistypeid = "\"poistypeid\":\""+ poistypeid+"\"";
+
+        var sz = $scope.poicategories.length;
+
+        if (sz==0) {
+            _err("No categories added.");
+            return;
+        }
+
+        var types = "\"types\":[";
+        for (var i = sz - 1; i > 0; i--) {
+            if ($scope.poicategories[i].poicat!=""){
+                types =types+ "\""+$scope.poicategories[i].poicat+"\",";
+            }
+        }
+        types =types+ "\""+$scope.poicategories[0].poicat+"\"]";
+
+        var jreq = "{"+name+","+poistypeid+","+types+",\"owner_id\":\""+ $scope.owner_id+"\",\"access_token\":\""+$scope.gAuth.access_token+"\"}";
+
+        var promise = $scope.anyAPI.addCategory(jreq);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data;
+                _suc("Successfully added category.");
+            },
+            function (resp) {
+                // on error
+                var data = resp.data;
+                _err("Something went wrong while adding the category. " + data.message);
+            }
+        );
+
+    };
+
+
+    $scope.fetchAllPoisTypes = function (poistypeid) {
+
+        //TODO: validation
+
+        var jsonReq = $scope.anyService.jsonReq;
+
+        jsonReq.username = $scope.creds.username;
+        jsonReq.password = $scope.creds.password;
+        jsonReq.owner_id = $scope.owner_id;
+        jsonReq.access_token = $scope.gAuth.access_token;
+        jsonReq.poistypeid = poistypeid;
+
+        if (!jsonReq.owner_id) {
+            _err("Could nor authorize user. Please refresh.");
+            return;
+        }
+        var promise = $scope.anyAPI.retrievePoisTypes(jsonReq);
+        promise.then(
+            function (resp) {
+                var data = resp.data;
+
+                var poistypes = data.poistypes;
+
+                var sz = poistypes.length;
+                for (var i = sz - 1; i >= 0; i--) {
+                    if (poistypes[i].poistypeid==poistypeid){
+                        var types=poistypes[i].types;
+                        break;
+                    }
+                }
+
+                var sz = types.length;
+                for (var i = sz - 1; i >= 0; i--) {
+                    $scope.poisTypes[i]=types[i];
+                }
+            },
+            function (resp) {
+                var data = resp.data;
+                _err("Something went wrong while fetching POIs types");
+            }
+        );
+    };
+
 
     $scope.onInfoWindowKeyDown = function (e) {
         // esc key

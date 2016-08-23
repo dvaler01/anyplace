@@ -33,7 +33,6 @@
  * DEALINGS IN THE SOFTWARE.
  *
  */
-
 app.controller("AlertController", ['$rootScope', '$scope', 'AnyplaceService', function ($rootScope, $scope, AnyplaceService) {
 
     $scope.anyService = AnyplaceService;

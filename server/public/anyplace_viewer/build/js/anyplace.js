@@ -221,11 +221,11 @@ app.factory('AnyplaceService', ['$rootScope', '$q', function ($rootScope, $q) {
         if (!this.selectedBuilding || !this.selectedBuilding.buid) {
             return "N/A";
         }
-        return "http://anyplace.cs.ucy.ac.cy/viewer/?buid=" + this.selectedBuilding.buid;
+        return "https://dev.anyplace.rayzit.com/viewer/?buid=" + this.selectedBuilding.buid;
     };
 
     anyService.getViewerUrl = function () {
-        var baseUrl = "http://anyplace.cs.ucy.ac.cy/viewer";
+        var baseUrl = "https://dev.anyplace.rayzit.com/viewer";
 
         if (!this.selectedBuilding || !this.selectedBuilding.buid)
             return baseUrl;
@@ -359,7 +359,8 @@ var AnyplaceAPI = {};
 //AnyplaceAPI.PORT = "9000";
 //AnyplaceAPI.FULL_SERVER = AnyplaceAPI.SERVER + ":" + AnyplaceAPI.PORT;
 //AnyplaceAPI.FULL_SERVER = "http://127.0.0.1:9000/anyplace";
-AnyplaceAPI.FULL_SERVER = "http://anyplace.rayzit.com/anyplace";
+AnyplaceAPI.FULL_SERVER = "https://dev.anyplace.rayzit.com/anyplace";
+//AnyplaceAPI.FULL_SERVER = "https://anyplace.rayzit.com/anyplace";
 
 /**
  * MAPPING API
@@ -386,6 +387,9 @@ AnyplaceAPI.Mapping.POIS_ALL_FLOOR_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.M
 
 AnyplaceAPI.Mapping.POIS_ALL_BUILDING = "/mapping/pois/all_building";
 AnyplaceAPI.Mapping.POIS_ALL_BUILDING_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.POIS_ALL_BUILDING;
+
+AnyplaceAPI.Mapping.ALL_POIS = "/mapping/pois/all_pois";
+AnyplaceAPI.Mapping.ALL_POIS_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.ALL_POIS;
 
 AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR = "/mapping/connection/all_floor";
 AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR;
@@ -499,6 +503,21 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             });
     }
 
+    apiService.retrieveALLPois = function (json_req) {
+        var a = $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.ALL_POIS_URL,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+
+        return a;
+    }
 
     /****************************************************
      * CONNECTION FUNCTIONS
@@ -552,6 +571,8 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     // we return apiService controller in order to be able to use it in ng-click
     return apiService;
 }]);
+
+
 CanvasOverlay.prototype = new google.maps.OverlayView();
 
 // https://github.com/wbyoko/angularjs-google-maps-components
@@ -896,7 +917,7 @@ var getPositionData = function (el) {
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-    
+
 var LPUtils = {};
 
 LPUtils.isNullOrUndefined = function( t ){
@@ -2116,7 +2137,7 @@ app.controller('FloorController', ['$scope', '$compile', 'AnyplaceService', 'GMa
             function (resp) {
 
                 // in case the building was switched too fast, don't load the old building's
-                // floorplan 
+                // floorplan
                 if (buid == $scope.anyService.selectedBuilding.buid && floor_number == $scope.anyService.selectedFloor.floor_number) {
 
                     $scope.data.floor_plan_file = null;
@@ -2341,6 +2362,8 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
     $scope.myEntrances = [];
 
+
+
     $scope.showPoiDescription = false;
     $scope.poiShareUrl = {
         puid: undefined,
@@ -2349,6 +2372,47 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
     $scope.poiRouteState = {
         form: undefined
+    };
+
+
+
+    $scope.mylastquery = "";
+    $scope.myallPois = [];
+    var self = this;
+    self.querySearch = querySearch;
+
+    function querySearch (query){
+        if (query == ""){
+            return $scope.myPois;
+        }
+        if (query == $scope.mylastquery){
+            return $scope.myallPois;
+        }
+        $scope.anyService.selectedSearchPoi = query;
+        setTimeout(
+            function(){
+                if (query==$scope.anyService.selectedSearchPoi ){
+                    $scope.fetchAllPoi(query, $scope.anyService.selectedBuilding.buid);
+                }
+            },1000);
+        $scope.mylastquery = query;
+        return
+    }
+
+    $scope.fetchAllPoi = function (letters , buid) {
+        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "buid":buid, "cuid":"", "letters":letters };
+        var promise = AnyplaceAPIService.retrieveALLPois(jsonReq);
+        promise.then(
+            function (resp) {
+                var data = resp.data;
+                $scope.myallPois = data.pois;
+            },
+            function (resp) {
+                var data = resp.data;
+                if (letters=="")
+                    _err("Something went wrong while fetching POIs");
+            }
+        );
     };
 
     $scope.togglePoiDescription = function () {
@@ -2569,7 +2633,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 localStorage.removeItem("lastPoi");
         } catch (e) {
         }
-        
+
     };
 
     $scope.clearNavPolylines = function () {

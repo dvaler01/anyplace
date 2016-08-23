@@ -8,7 +8,7 @@
       "description": "You can find your API key (access_token) by signing in Anyplace Architect, in the \"More\" section."
     }
   ],
-  "baseurl": "http://anyplace.rayzit.com/anyplace",
+  "baseurl": "https://dev.anyplace.rayzit.com/anyplace",
   "endpoints": [
     {
       "name": "Navigation",
@@ -127,6 +127,22 @@
           "http_method": "POST",
           "uri": "/mapping/building/all",
           "parameters": [
+          ]
+        },
+
+        {
+          "method_name": "Buildings By Campus Code",
+          "method_description": "Get all buildings for a campus",
+          "http_method": "POST",
+          "uri": "/mapping/campus/all_cucode",
+          "parameters": [
+            {
+              "name": "cuid",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Your Campus ID"
+            }
           ]
         },
         {
@@ -254,6 +270,50 @@
               "description": "Floor number (non-whitespace)"
             }
           ]
+        },
+        {
+          "method_name": "Radio Heat-Map in Box",
+          "method_description": "Get all points (latitude, longitude) along with their number of Wi-Fi radio measurements recorded to draw a heat-map on the client side.",
+          "http_method": "POST",
+          "uri": "/mapping/radio/radio_heatmap_bbox  ",
+          "parameters": [
+            {
+              "name": "buid",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Building ID (buid)"
+            },
+            {
+              "name": "floor",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Floor number (non-whitespace)"
+            },
+            {
+              "name": "coordinates_lat",
+              "required": "Y",
+              "type": "text"
+            },
+            {
+              "name": "coordinates_lon",
+              "required": "Y",
+              "type": "text"
+            },
+            {
+              "name": "range",
+              "required": "Y",
+              "type": "text"
+            },
+            {
+              "name": "weight",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Choices : 1.true,2.false,3.no spatial"
+            }
+          ]
         }
       ]
     },
@@ -378,6 +438,36 @@
           ]
         },
         {
+          "method_name": "Add campus",
+          "method_description": "Add a new campus",
+          "http_method": "POST",
+          "uri": "/mapping/campus/add",
+          "parameters": [
+            {
+              "name": "access_token",
+              "required": "Y",
+              "type": "text",
+              "default": "api_tester",
+              "description": "OAuth2 Access Token"
+            },
+            {
+              "name": "name",
+              "required": "Y",
+              "type": "text"
+            },
+            {
+              "name": "description",
+              "required": "Y",
+              "type": "text"
+            },
+            {
+              "name": "buids",
+              "required": "Y",
+              "type": "text"
+            }
+          ]
+        },
+        {
           "method_name": "Update building",
           "method_description": "Update an existing building",
           "http_method": "POST",
@@ -435,6 +525,36 @@
           ]
         },
         {
+          "method_name": "Update campus",
+          "method_description": "Update an existing campus",
+          "http_method": "POST",
+          "uri": "/mapping/campus/update",
+          "parameters": [
+            {
+              "name": "access_token",
+              "required": "Y",
+              "type": "text",
+              "default": "api_tester",
+              "description": "OAuth2 Access Token"
+            },
+            {
+              "name": "cuid",
+              "required": "Y",
+              "type": "text"
+            },
+            {
+              "name": "name",
+              "required": "N",
+              "type": "text"
+            },
+            {
+              "name": "description",
+              "required": "N",
+              "type": "text"
+            }
+          ]
+        },
+        {
           "method_name": "Delete building",
           "method_description": "Delete an existing building",
           "http_method": "POST",
@@ -449,6 +569,26 @@
             },
             {
               "name": "buid",
+              "required": "Y",
+              "type": "text"
+            }
+          ]
+        },
+        {
+          "method_name": "Delete campus",
+          "method_description": "Delete an existing campus",
+          "http_method": "POST",
+          "uri": "/mapping/campus/delete",
+          "parameters": [
+            {
+              "name": "access_token",
+              "required": "Y",
+              "type": "text",
+              "default": "api_tester",
+              "description": "OAuth2 Access Token"
+            },
+            {
+              "name": "cuid",
               "required": "Y",
               "type": "text"
             }
@@ -949,6 +1089,43 @@
               "type": "text",
               "default": "",
               "description": "Your location floor number"
+            }
+          ]
+        },
+        {
+          "method_name": "Radiomap by building and floor in a range",
+          "method_description": "Radiomap using all the entries of an entire floor of a building",
+          "http_method": "POST",
+          "uri": "/position/radio_by_building_floor_bbox",
+          "parameters": [
+            {
+              "name": "buid",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Building ID (buid)"
+            },
+            {
+              "name": "floor",
+              "required": "Y",
+              "type": "text",
+              "default": "",
+              "description": "Floor number (non-whitespace)"
+            },
+            {
+              "name": "coordinates_lat",
+              "required": "Y",
+              "type": "text"
+            },
+            {
+              "name": "coordinates_lon",
+              "required": "Y",
+              "type": "text"
+            },
+            {
+              "name": "range",
+              "required": "Y",
+              "type": "text"
             }
           ]
         }

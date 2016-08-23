@@ -1,42 +1,39 @@
-/*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+/**
  *
- * Anyplace is a first-of-a-kind indoor information service offering GPS-less
- * localization, navigation and search inside buildings using ordinary smartphones.
- *
- * Author(s): Lambros Petrou, Kyriakos Georgiou
- *
- * Supervisor: Demetrios Zeinalipour-Yazti
- *
- * URL: http://anyplace.cs.ucy.ac.cy
- * Contact: anyplace@cs.ucy.ac.cy
- *
- * Copyright (c) 2015, Data Management Systems Lab (DMSL), University of Cyprus.
- * All rights reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the “Software”), to deal in the
- * Software without restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the
- * following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
+ The MIT License (MIT)
+
+ Copyright (c) 2015, Kyriakos Georgiou, Data Management Systems Laboratory (DMSL)
+ Department of Computer Science, University of Cyprus, Nicosia, CYPRUS,
+ dmsl@cs.ucy.ac.cy, http://dmsl.cs.ucy.ac.cy/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
 var AnyplaceAPI = {};
 
-AnyplaceAPI.FULL_SERVER = "http://anyplace.rayzit.com/anyplace";
+//AnyplaceAPI.SERVER = "http://anyplace.rayzit.com";//"http://thinklambros.in.cs.ucy.ac.cy"; //"http://172.20.194.98";
+//AnyplaceAPI.SERVER = "http://127.0.0.1"
+//AnyplaceAPI.PORT = "9000";
+//AnyplaceAPI.FULL_SERVER = AnyplaceAPI.SERVER + ":" + AnyplaceAPI.PORT;
+//AnyplaceAPI.FULL_SERVER = "http://127.0.0.1:9000/anyplace";
+AnyplaceAPI.FULL_SERVER = "https://dev.anyplace.rayzit.com/anyplace";
+//AnyplaceAPI.FULL_SERVER = "https://anyplace.rayzit.com/anyplace";
 
 /**
  * MAPPING API
@@ -64,6 +61,9 @@ AnyplaceAPI.Mapping.POIS_ALL_FLOOR_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.M
 AnyplaceAPI.Mapping.POIS_ALL_BUILDING = "/mapping/pois/all_building";
 AnyplaceAPI.Mapping.POIS_ALL_BUILDING_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.POIS_ALL_BUILDING;
 
+AnyplaceAPI.Mapping.ALL_POIS = "/mapping/pois/all_pois";
+AnyplaceAPI.Mapping.ALL_POIS_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.ALL_POIS;
+
 AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR = "/mapping/connection/all_floor";
 AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR;
 
@@ -86,12 +86,12 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             url: AnyplaceAPI.Mapping.BUILDING_ALL_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
 
     };
 
@@ -101,12 +101,12 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             url: AnyplaceAPI.Mapping.BUILDING_ONE_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
 
     };
 
@@ -121,12 +121,12 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             url: AnyplaceAPI.Mapping.FLOOR_ALL_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
 
     };
 
@@ -137,12 +137,12 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             url: AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL + buid + "/" + floor_number,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
     /******************************************************
@@ -154,12 +154,12 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             url: AnyplaceAPI.Mapping.POIS_ALL_FLOOR_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     }
 
     apiService.retrievePoisByBuilding = function (json_req) {
@@ -168,14 +168,29 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             url: AnyplaceAPI.Mapping.POIS_ALL_BUILDING_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     }
 
+    apiService.retrieveALLPois = function (json_req) {
+        var a = $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.ALL_POIS_URL,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+
+        return a;
+    }
 
     /****************************************************
      * CONNECTION FUNCTIONS
@@ -186,12 +201,12 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             url: AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
 
@@ -204,12 +219,12 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             url: AnyplaceAPI.Navigation.POIS_ROUTE,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.googleUrlShortener = function(json_req) {
@@ -218,12 +233,12 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             url: AnyplaceAPI.Other.GOOGLE_URL_SHORTNER_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
     // we return apiService controller in order to be able to use it in ng-click

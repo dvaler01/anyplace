@@ -1,44 +1,9 @@
-/*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
- *
- * Anyplace is a first-of-a-kind indoor information service offering GPS-less
- * localization, navigation and search inside buildings using ordinary smartphones.
- *
- * Author(s): Lambros Petrou, Kyriakos Georgiou
- *
- * Supervisor: Demetrios Zeinalipour-Yazti
- *
- * URL: https://anyplace.cs.ucy.ac.cy
- * Contact: anyplace@cs.ucy.ac.cy
- *
- * Copyright (c) 2016, Data Management Systems Lab (DMSL), University of Cyprus.
- * All rights reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the “Software”), to deal in the
- * Software without restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the
- * following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- */
-
 package controllers;
 
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Security;
 
 import java.io.File;
 
@@ -50,6 +15,13 @@ public class AnyplaceWebApps extends Controller {
     public static Result AddTrailingSlash() {
         return movedPermanently(request().path() + "/");
     }
+
+    // the action for the Anyplace Architect
+//    @Security.Authenticated(Secured.class)
+//    public static Result serveArchitect(String file) {
+//        File archiDir = new File("web_apps/anyplace_architect");
+//        return serveFile(archiDir, file);
+//    }
 
     // @Security.Authenticated(Secured.class)
     public static Result serveArchitect2(String file) {
@@ -78,31 +50,41 @@ public class AnyplaceWebApps extends Controller {
     }
 
     // the action for the Anyplace Viewer
-    public static Result serveViewer(String file) {
+    public static Result serveViewer() {
 
         String agentInfo = request().getHeader("user-agent");
 
         String mode = request().getQueryString("mode");
 
+        File viewerDir = null;
         if (mode == null || !mode.equalsIgnoreCase("widget")) {
 
             String bid = request().getQueryString("buid");
             String pid = request().getQueryString("selected");
             String floor = request().getQueryString("floor");
+            String campus = request().getQueryString("cuid");
             if (null == bid) {
                 bid = "";
             }
             if (null == pid) {
                 pid = "";
             }
-            if (null == floor) {
+            if(null == floor) {
                 floor = "";
+            }
+            if(null == campus) {
+                campus = "";
+                viewerDir = new File("public/anyplace_viewer");
+            }
+            else{
+                viewerDir = new File("public/anyplace_viewer2");
             }
 
         }
 
-        File viewerDir = new File("public/anyplace_viewer");
-        return serveFile(viewerDir, file);
+
+
+        return serveFile(viewerDir, "index.html");
     }
 
     /**
@@ -115,6 +97,7 @@ public class AnyplaceWebApps extends Controller {
         String agentInfo = request().getHeader("user-agent");
 
         String mode = request().getQueryString("mode");
+//        String fromHost = request().getHeader("host");
 
         if (mode == null || !mode.equalsIgnoreCase("widget")) {
 
@@ -127,10 +110,20 @@ public class AnyplaceWebApps extends Controller {
             if (null == pid) {
                 pid = "";
             }
-            if (null == floor) {
+            if(null == floor) {
                 floor = "";
             }
 
+            // important order, windows phone 8.1 contains android & iphone in useragent
+            // http://msdn.microsoft.com/en-us/library/ie/hh869301(v=vs.85).aspx
+//            if (agentInfo.toLowerCase().contains("windows phone")) {
+//                String wpUrl = "anyplace-dmsl-getnavigation:to?bid=" + bid + "&pid=" + pid;
+//                return redirect(wpUrl);
+//            } else if (agentInfo.toLowerCase().contains("android")) {
+////                String androidUrl = "http://anyplace.rayzit.com/getnavigation?poid=" + pid + "&buid=" + bid + "&floor=" + floor;
+////                return ok(new Html(new StringBuilder("<html><head><script>window.top.location" +
+////                        ".replace('" + androidUrl + "')</script></head></html>")));
+//            }
         }
 
         File viewerDir = new File("public/anyplace_viewer2");
@@ -161,6 +154,14 @@ public class AnyplaceWebApps extends Controller {
         return "";
     }
 
+    // The action that serves the Admin website
+    @Security.Authenticated(Secured.class)
+    public static Result serveAdmin(String file) {
+        File accountsDir = new File("web_apps/anyplace_accounts");
+        return serveFile(accountsDir, file);
+    }
+
+
     /**
      * HELPER METHODS
      */
@@ -170,10 +171,16 @@ public class AnyplaceWebApps extends Controller {
         }
         if (file.trim().isEmpty() || file.trim().equals("index.html")) {
             file = "index.html";
+            //System.out.println(request().cookie("PLAY_SESSION").value());
+            //response().setCookie("nickname", parseCookieForUsername(request()));
+
+            // update in 2.2.1 Play forces Content-Disposition: attachment
+            // when type File is given to Result, so we need to override it.
             response().setHeader("Content-Disposition", "inline");
         }
 
         File reqFile = new File(appDir, file);
+        //System.out.println("webapp: " + reqFile.getAbsolutePath().toString());
         if (!reqFile.exists() || !reqFile.canRead()) {
             return notFound();
         }

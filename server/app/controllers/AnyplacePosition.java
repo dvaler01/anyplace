@@ -1,39 +1,3 @@
-/*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
- *
- * Anyplace is a first-of-a-kind indoor information service offering GPS-less
- * localization, navigation and search inside buildings using ordinary smartphones.
- *
- * Author(s): Lambros Petrou, Kyriakos Georgiou
- *
- * Supervisor: Demetrios Zeinalipour-Yazti
- *
- * URL: https://anyplace.cs.ucy.ac.cy
- * Contact: anyplace@cs.ucy.ac.cy
- *
- * Copyright (c) 2016, Data Management Systems Lab (DMSL), University of Cyprus.
- * All rights reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the “Software”), to deal in the
- * Software without restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the
- * following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- */
-
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -52,12 +16,25 @@ import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import radiomapserver.RadioMap;
+import radiomapservercywee.RadioMap;
 import utils.*;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+
+import javax.net.ssl.HttpsURLConnection;
+
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.Callable;
+
+//import org.codehaus.jackson.JsonNode;
+//import org.codehaus.jackson.node.ObjectNode;
+
 
 public class AnyplacePosition extends Controller {
 
@@ -137,6 +114,7 @@ public class AnyplacePosition extends Controller {
             // TODO - Decide what to do with uploaded raw radio map file
             HelperMethods.storeRadioMapToServer(radioFile.getFile());
             String errorMsg = null;
+//            if (floorFlag) {
 
             F.Promise<Integer> promiseOfInt = Akka.future(
                     new Callable<Integer>() {
@@ -156,6 +134,16 @@ public class AnyplacePosition extends Controller {
                     }
             );
 
+//            } else {
+//                F.Promise<Integer> promiseOfInt = Akka.future(
+//                        new Callable<Integer>() {
+//                            public Integer call() {
+//                                storeRadioMapToDB(radioFile.getFile());
+//                                return 0;
+//                            }
+//                        }
+//                );
+//            }
         }
 
         return AnyResponseHelper.ok("Successfully uploaded rss log.");
@@ -338,11 +326,11 @@ public class AnyplacePosition extends Controller {
 
         // prepare the file structure that will hold the files for this radiomap request
         // File dir = new File("radiomaps" + File.separatorChar + LPUtils.generateRandomToken() + "_" + System.currentTimeMillis());
-
-        if (!rmapDir.mkdirs()) {
-            return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly!");
+        if (!rmapDir.exists()) {
+            if (!rmapDir.mkdirs()) {
+                return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly!");
+            }
         }
-
         File radio = new File(rmapDir.getAbsolutePath() + File.separatorChar + "rss-log");
         FileOutputStream fout;
         try {
@@ -410,6 +398,287 @@ public class AnyplacePosition extends Controller {
     }
 
     /**
+     * Returns a link to the radio map that needs to be downloaded according to the specified buid and floor
+     *
+     * @return a link to the radio_map file
+     */
+    public static Result radioDownloadByBuildingFloorall() {
+        OAuth2Request anyReq = new OAuth2Request(request(), response());
+        if (!anyReq.assertJsonBody()) {
+            return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON);
+        }
+        JsonNode json = anyReq.getJsonBody();
+        LPLogger.info("AnyplacePosition::radioDownloadFloor(): " + json.toString());
+
+        List<String> requiredMissing = JsonUtils.requirePropertiesInJson(json,
+                "floor",
+                "buid"
+        );
+
+        if (!requiredMissing.isEmpty()) {
+            return AnyResponseHelper.requiredFieldsMissing(requiredMissing);
+        }
+
+
+        String floor_number = json.findPath("floor").textValue();
+        String buid = json.findPath("buid").textValue();
+        String mode = json.findPath("mode").toString();
+
+
+        String floors[] = floor_number.split(" ");
+
+        List<String> radiomap_mean_filename = new ArrayList<>();
+
+        List<String> rss_log_files = new ArrayList<>();
+
+
+        for (int z=0; z<floors.length; z++){
+
+            System.out.println("1");
+            File rmapDir = new File("radiomaps_frozen" + File.separatorChar + buid + File.separatorChar + floors[z]);
+
+            File radiomapFile = new File("radiomaps_frozen" + File.separatorChar + buid + File.separatorChar +  floors[z] + File.separatorChar + "indoor-radiomap.txt");
+            File meanFile = new File("radiomaps_frozen" + File.separatorChar + buid + File.separatorChar +  floors[z] + File.separatorChar + "indoor-radiomap-mean.txt");
+
+            // prepare the file structure that will hold the files for this radiomap request
+            // File dir = new File("radiomaps" + File.separatorChar + LPUtils.generateRandomToken() + "_" + System.currentTimeMillis());
+            if (!rmapDir.exists()) {
+                if (!rmapDir.mkdirs()) {
+                    radiomap_mean_filename.add("0");
+                    continue;
+                }
+            }
+
+            File radio = new File(rmapDir.getAbsolutePath() + File.separatorChar + "rss-log");
+            FileOutputStream fout = null;
+            try {
+                fout = new FileOutputStream(radio);
+            } catch (FileNotFoundException e) {
+                radiomap_mean_filename.add("");
+                continue;
+            }
+
+            // DUMP ALL THE RADIO RSS LOG ENTRIES INTO THE RADIO FILE
+            long floorFetched=0;
+            try {
+                floorFetched = ProxyDataSource.getIDatasource().dumpRssLogEntriesByBuildingFloor(fout, buid,  floors[z]);
+                try {
+                    fout.close();
+                } catch (IOException e) {
+                    LPLogger.error("Error while closing the file output stream for the dumped rss logs");
+                }
+            } catch (DatasourceException e) {
+                radiomap_mean_filename.add("");
+                continue;
+            }
+            // if there are no entries for this area
+            if (floorFetched == 0) {
+                radiomap_mean_filename.add("");
+                continue;
+            }
+
+            try {
+                String folder = rmapDir.toString();
+                System.out.println("1");
+                String radiomap_filename = new File(folder + File.separatorChar + "indoor-radiomap.txt").getAbsolutePath();
+                String radiomap_mean_filename1 = radiomap_filename.replace(".txt", "-mean.txt");
+
+                // create the radiomap using the input rss log file
+                RadioMap rm = new RadioMap(new File(folder), radiomap_filename, "", -110);
+                rm.createRadioMap2();
+
+                // fix the paths
+                // radiomaps is the folder where the folders reside in
+                String api = AnyplaceServerAPI.SERVER_API_ROOT;
+                int pos = radiomap_mean_filename1.indexOf("radiomaps_frozen");
+                radiomap_mean_filename1 = api + radiomap_mean_filename1.substring(pos);
+                System.out.println("2");
+            } catch (Exception e) {
+                // no exception is expected to be thrown but just in case
+            }
+
+            File file = new File(rmapDir.getAbsolutePath() + File.separatorChar + "indoor-radiomap.txt");
+            BufferedReader reader = null;
+            try {
+                reader = new BufferedReader(new FileReader(file));
+                String finallog="";
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    finallog = finallog + line+"\n";
+                }
+                rss_log_files.add(finallog);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+        // everything is ok
+        ObjectNode res = JsonUtils.createObjectNode();
+        res.put("map_url_mean", JsonUtils.getJsonFromList(radiomap_mean_filename));
+        res.put("rss_log_files", JsonUtils.getJsonFromList(rss_log_files));
+
+        return AnyResponseHelper.ok(res, "Successfully created radio map.");
+    }
+
+    /**
+     * Returns a link to the radio map that needs to be downloaded according to the specified buid and floor
+     * in a specific range.
+     * @return a link to the radio_map file
+     */
+    public static Result radioDownloadByBuildingFloorBbox() {
+        OAuth2Request anyReq = new OAuth2Request(request(), response());
+        if (!anyReq.assertJsonBody()) {
+            return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON);
+        }
+        JsonNode json = anyReq.getJsonBody();
+        LPLogger.info("AnyplacePosition::radioDownloadFloor(): " + json.toString());
+
+        List<String> requiredMissing = JsonUtils.requirePropertiesInJson(json,
+                "coordinates_lat",
+                "coordinates_lon",
+                "floor",
+                "buid" ,
+                "range"
+        );
+
+        if (!requiredMissing.isEmpty()) {
+            return AnyResponseHelper.requiredFieldsMissing(requiredMissing);
+        }
+
+        String lat = json.findPath("coordinates_lat").textValue();
+        String lon = json.findPath("coordinates_lon").textValue();
+        String floor_number = json.findPath("floor").textValue();
+        String buid = json.findPath("buid").textValue();
+        String mode = json.findPath("mode").toString();
+        String range = json.findPath("range").textValue();
+
+        if (!Floor.checkFloorNumberFormat(floor_number)) {
+            return AnyResponseHelper.bad_request("Floor number cannot contain whitespace!");
+        }
+        String path = floor_number+"_"+range+"_"+lat.split("\\.")[0]+lat.split("\\.")[1]+"_"+lon.split("\\.")[0]+lon.split("\\.")[1];
+        File rmapDir = new File("radiomaps_frozen" + File.separatorChar + buid + File.separatorChar + path );
+
+        File radiomapFile = new File("radiomaps_frozen" + File.separatorChar + buid + File.separatorChar + path + File.separatorChar + "indoor-radiomap.txt");
+        File meanFile = new File("radiomaps_frozen" + File.separatorChar + buid + File.separatorChar + path +  File.separatorChar + "indoor-radiomap-mean.txt");
+
+        if (rmapDir.exists() && radiomapFile.exists() && meanFile.exists()) {
+            try {
+                String folder = rmapDir.toString();
+
+                String radiomap_filename = new File(folder + File.separatorChar + "indoor-radiomap.txt").getAbsolutePath();
+                String radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt");
+                String radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt");
+                String radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt");
+
+                // fix the paths
+
+                // frozen_radiomaps is the folder where the folders reside in
+                String api = AnyplaceServerAPI.SERVER_API_ROOT;
+                int pos = radiomap_mean_filename.indexOf("radiomaps_frozen");
+                radiomap_mean_filename = api + radiomap_mean_filename.substring(pos);
+
+                pos = radiomap_rbf_weights_filename.indexOf("radiomaps_frozen");
+                radiomap_rbf_weights_filename = api + radiomap_rbf_weights_filename.substring(pos);
+
+                pos = radiomap_parameters_filename.indexOf("radiomaps_frozen");
+                radiomap_parameters_filename = api + radiomap_parameters_filename.substring(pos);
+
+                // everything is ok
+                ObjectNode res = JsonUtils.createObjectNode();
+                res.put("map_url_mean", radiomap_mean_filename);
+                res.put("map_url_weights", radiomap_rbf_weights_filename);
+                res.put("map_url_parameters", radiomap_parameters_filename);
+
+                return AnyResponseHelper.ok(res, "Successfully served radio map.");
+            } catch (Exception e) {
+                // no exception is expected to be thrown but just in case
+                return AnyResponseHelper.internal_server_error("Error serving radiomap : " + e.getMessage());
+            }
+        }
+
+        // prepare the file structure that will hold the files for this radiomap request
+        // File dir = new File("radiomaps" + File.separatorChar + LPUtils.generateRandomToken() + "_" + System.currentTimeMillis());
+
+        if (!rmapDir.exists()){
+            if (!rmapDir.mkdirs()) {
+                return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly!");
+            }
+        }
+
+        File radio = new File(rmapDir.getAbsolutePath() + File.separatorChar + "rss-log");
+        FileOutputStream fout;
+        try {
+            fout = new FileOutputStream(radio);
+            System.out.println(radio.toPath().getFileName());
+        } catch (FileNotFoundException e) {
+            return AnyResponseHelper.internal_server_error("Cannot create radio map due to Server FileIO error!");
+        }
+
+        // DUMP ALL THE RADIO RSS LOG ENTRIES INTO THE RADIO FILE
+        long floorFetched;
+        try {
+            floorFetched = ProxyDataSource.getIDatasource().dumpRssLogEntriesByBuildingFloorBbox(fout, buid, floor_number,range,lat,lon);
+            try {
+                fout.close();
+            } catch (IOException e) {
+                LPLogger.error("Error while closing the file output stream for the dumped rss logs");
+            }
+        } catch (DatasourceException e) {
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
+        }
+        // if there are no entries for this area
+        if (floorFetched == 0) {
+            return AnyResponseHelper.bad_request("Area not supported yet!");
+        }
+
+        try {
+            String folder = rmapDir.toString();
+
+            String radiomap_filename = new File(folder + File.separatorChar + "indoor-radiomap.txt").getAbsolutePath();
+            String radiomap_mean_filename = radiomap_filename.replace(".txt", "-mean.txt");
+            String radiomap_rbf_weights_filename = radiomap_filename.replace(".txt", "-weights.txt");
+            String radiomap_parameters_filename = radiomap_filename.replace(".txt", "-parameters.txt");
+
+            // create the radiomap using the input rss log file
+            RadioMap rm = new RadioMap(new File(folder), radiomap_filename, "", -110);
+            if (!rm.createRadioMap()) {
+                return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly!");
+            }
+
+            // fix the paths
+            // radiomaps is the folder where the folders reside in
+            String api = AnyplaceServerAPI.SERVER_API_ROOT;
+            int pos = radiomap_mean_filename.indexOf("radiomaps_frozen");
+            radiomap_mean_filename = api + radiomap_mean_filename.substring(pos);
+
+            pos = radiomap_rbf_weights_filename.indexOf("radiomaps_frozen");
+            radiomap_rbf_weights_filename = api + radiomap_rbf_weights_filename.substring(pos);
+
+            pos = radiomap_parameters_filename.indexOf("radiomaps_frozen");
+            radiomap_parameters_filename = api + radiomap_parameters_filename.substring(pos);
+
+            // everything is ok
+            ObjectNode res = JsonUtils.createObjectNode();
+            res.put("map_url_mean", radiomap_mean_filename);
+            res.put("map_url_weights", radiomap_rbf_weights_filename);
+            res.put("map_url_parameters", radiomap_parameters_filename);
+
+            return AnyResponseHelper.ok(res, "Successfully created radio map.");
+        } catch (Exception e) {
+            // no exception is expected to be thrown but just in case
+            return AnyResponseHelper.internal_server_error("Error while creating Radio Map on-the-fly! : " + e.getMessage());
+        }
+
+    }
+
+
+    /**
      * Saves each line of the Radio Map file as a separate document inside the database.
      *
      * @param infile The radio map entry file that should be stored in db
@@ -458,6 +727,7 @@ public class AnyplacePosition extends Controller {
                 if (fr != null) fr.close();
                 if (bf != null) bf.close();
             } catch (IOException e) {
+                //e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 return "Internal server error: Error while storing rss log.";
             }
         }
@@ -623,6 +893,8 @@ public class AnyplacePosition extends Controller {
                 if (bf != null)
                     bf.close();
             } catch (IOException e) {
+                // e.printStackTrace(); //To change body of catch statement use
+                // File | Settings | File Templates.
                 return "Internal server error: Error while storing rss log.";
             }
         }
@@ -766,6 +1038,7 @@ public class AnyplacePosition extends Controller {
 
     }
 
+
     public static Result radioDownloadFloorBbox() {
         OAuth2Request anyReq = new OAuth2Request(request(), response());
         if (!anyReq.assertJsonBody()) {
@@ -868,6 +1141,8 @@ public class AnyplacePosition extends Controller {
         }
     }
 
+
+
     public static Result magneticPathAdd() {
 
         OAuth2Request anyReq = new OAuth2Request(request(), response());
@@ -897,8 +1172,9 @@ public class AnyplacePosition extends Controller {
             } catch (NumberFormatException e) {
                 return AnyResponseHelper.bad_request("Magnetic Path coordinates are invalid!");
             }
+            //System.out.println(building.toValidCouchJson());
             if (!ProxyDataSource.getIDatasource().addJsonDocument(mpath.getId(), 0, mpath.toValidCouchJson())) {
-                return AnyResponseHelper.bad_request("MPath already exists or could not be added!");
+                return AnyResponseHelper.bad_request("Building already exists or could not be added!");
             }
             ObjectNode res = JsonUtils.createObjectNode();
             res.put("mpath", mpath.getId());
@@ -960,7 +1236,14 @@ public class AnyplacePosition extends Controller {
             List<JsonNode> mpaths = ProxyDataSource.getIDatasource().magneticPathsByBuildingFloorAsJson(buid, floor_number);
             ObjectNode res = JsonUtils.createObjectNode();
             res.put("mpaths", JsonUtils.getJsonFromList(mpaths));
+//            try {
+//                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+//                return gzippedJSONOk(res.toString());
+//                }
             return AnyResponseHelper.ok(res.toString());
+//            } catch (IOException ioe) {
+//                return AnyResponseHelper.ok(res, "Successfully retrieved all pois from floor " + floor_number + "!");
+//            }
         } catch (DatasourceException e) {
             return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
         }
@@ -987,7 +1270,14 @@ public class AnyplacePosition extends Controller {
             List<JsonNode> mpaths = ProxyDataSource.getIDatasource().magneticPathsByBuildingAsJson(buid);
             ObjectNode res = JsonUtils.createObjectNode();
             res.put("mpaths", JsonUtils.getJsonFromList(mpaths));
+//            try {
+//                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+//                return gzippedJSONOk(res.toString());
+//                }
             return AnyResponseHelper.ok(res.toString());
+//            } catch (IOException ioe) {
+//                return AnyResponseHelper.ok(res, "Successfully retrieved all pois from floor " + floor_number + "!");
+//            }
         } catch (DatasourceException e) {
             return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
         }
@@ -1060,10 +1350,18 @@ public class AnyplacePosition extends Controller {
             List<JsonNode> mpaths = ProxyDataSource.getIDatasource().magneticMilestonesByBuildingFloorAsJson(buid, floor_number);
             ObjectNode res = JsonUtils.createObjectNode();
             res.put("mmilestones", JsonUtils.getJsonFromList(mpaths));
+//            try {
+//                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+//                return gzippedJSONOk(res.toString());
+//                }
             return AnyResponseHelper.ok(res.toString());
+//            } catch (IOException ioe) {
+//                return AnyResponseHelper.ok(res, "Successfully retrieved all pois from floor " + floor_number + "!");
+//            }
         } catch (DatasourceException e) {
             return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
         }
     }
+
 
 }

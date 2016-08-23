@@ -25,6 +25,49 @@
  THE SOFTWARE.
  */
 
+/*
+ POI Schema:
+ {
+ buid: "building_2f25420e-3cb1-4bc1-9996-3939e5530d30_1414014035379"
+ coordinates_lat: "35.1660861073284"
+ coordinates_lon: "129.13564771413803"
+ description: "4B Hall"
+ floor_name: "First Floor"
+ floor_number: "1"
+ geometry: {
+ coordinates: [35.1660861073284, 129.13564771413803],
+ type: "Point"
+ }
+ coordinates: [35.1660861073284, 129.13564771413803]
+ 0: 35.1660861073284
+ 1: 129.13564771413803
+ type: "Point"
+ image: "url_to_pois_image"
+ is_building_entrance: "false"
+ is_door: "false"
+ is_published: "true"
+ name: "4B Hall"
+ pois_type: "Room"
+ puid: "poi_057ce88f-01c4-4cf7-b39e-992f73b6b68d"
+ url: ""
+ }
+
+ Connection Schema:
+ {
+ buid: "building_2f25420e-3cb1-4bc1-9996-3939e5530d30_1414014035379"
+ buid_a: "building_2f25420e-3cb1-4bc1-9996-3939e5530d30_1414014035379"
+ buid_b: "building_2f25420e-3cb1-4bc1-9996-3939e5530d30_1414014035379"
+ cuid: "conn_poi_0f8916c8-b57d-44a3-a568-6042cbc173b7_poi_1de0950f-9ef3-4f01-b06e-f24fb42eb9dd"
+ edge_type: "hallway"
+ floor_a: "1"
+ floor_b: "1"
+ is_published: "true"
+ pois_a: "poi_0f8916c8-b57d-44a3-a568-6042cbc173b7"
+ pois_b: "poi_1de0950f-9ef3-4f01-b06e-f24fb42eb9dd"
+ weight: "0.0197223019334019"
+ }
+
+ */
 app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceService', 'AnyplaceAPIService', function ($scope, $compile, GMapService, AnyplaceService, AnyplaceAPIService) {
 
     $scope.anyService = AnyplaceService;
@@ -41,13 +84,21 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
     $scope.myConnectionsHashT = {};
 
-    $scope.poisTypes = ["Disabled Toilets", "Elevator", "Entrance", "Fire Extinguisher", "First Aid/AED", "Kitchen", "Office", "Ramp", "Room", "Security/Guard", "Stair", "Toilets", "Other"];
-
     $scope.edgeMode = false;
     $scope.connectPois = {
         prev: undefined,
         next: undefined
     };
+
+
+    $scope.crudTabSelected = 1;
+    $scope.setCrudTabSelected = function (n) {
+        $scope.crudTabSelected = n;
+    };
+    $scope.isCrudTabSelected = function (n) {
+        return $scope.crudTabSelected === n;
+    };
+
 
     $scope.orderByName = function (value) {
         return value.name;
@@ -70,11 +121,35 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         };
     });
 
+    $scope.$watch('anyService.selectedBuilding', function (newVal, oldVal) {
+        if (newVal && newVal.buid && newVal.poistypeid) {
+            $scope.fetchAllPoisTypes(newVal.poistypeid);
+        }
+        else {
+            $scope.poisTypes= [
+                "Disabled Toilets",
+                "Elevator",
+                "Entrance",
+                "Fire Extinguisher",
+                "First Aid/AED",
+                "Kitchen",
+                "Office",
+                "Ramp",
+                "Room",
+                "Security/Guard",
+                "Stair",
+                "Toilets",
+                "Other"
+            ];
+        }
+    });
+
     $scope.$watch('anyService.selectedFloor', function (newVal, oldVal) {
         if (newVal !== undefined && newVal !== null) {
             $scope.fetchAllPoisForFloor(newVal);
         } else {
             $scope.anyService.selectedPoi = undefined;
+
         }
     });
 
@@ -97,6 +172,127 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             }
         }
     });
+
+    $scope.poicategories = [{
+        poicat: "Elevator",
+        poicatPlaceholder: "name",
+        disenable: "true"
+    },{
+        poicat: "Entrance",
+        poicatPlaceholder: "name",
+        disenable: "true"
+    },{
+        poicat: "Stair",
+        poicatPlaceholder: "name",
+        disenable: "true"
+    }
+    ];
+
+    $scope.add = function () {
+        if ($scope.poicategories[$scope.poicategories.length-1].poicat!=""){
+            $scope.poicategories.push({
+                poicat: "",
+                poicatPlaceholder: "name",
+                disenable: "false"
+            });
+        }
+        else {
+            _err("Complete the last input to continue!");
+        }
+    };
+
+    $scope.addcategory = function () {
+
+        var name_element = document.getElementById("poistype");
+        var name =  "\"poistype\":\""+name_element.value+"\"";
+
+        function S4() {
+            return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+        }
+        var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+        var d = new Date();
+
+
+        var poistypeid = "poistypeid_"+guid+ "_"+ d.getTime();
+        poistypeid = "\"poistypeid\":\""+ poistypeid+"\"";
+
+        var sz = $scope.poicategories.length;
+
+        if (sz==0) {
+            _err("No categories added.");
+            return;
+        }
+
+        var types = "\"types\":[";
+        for (var i = sz - 1; i > 0; i--) {
+            if ($scope.poicategories[i].poicat!=""){
+                types =types+ "\""+$scope.poicategories[i].poicat+"\",";
+            }
+        }
+        types =types+ "\""+$scope.poicategories[0].poicat+"\"]";
+
+        var jreq = "{"+name+","+poistypeid+","+types+",\"owner_id\":\""+ $scope.owner_id+"\",\"access_token\":\""+$scope.gAuth.access_token+"\"}";
+
+        var promise = $scope.anyAPI.addCategory(jreq);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data;
+                _suc("Successfully added category.");
+            },
+            function (resp) {
+                // on error
+                var data = resp.data;
+                _err("Something went wrong while adding the category. " + data.message);
+            }
+        );
+
+    };
+
+
+    $scope.fetchAllPoisTypes = function (poistypeid) {
+
+        //TODO: validation
+
+        var jsonReq = $scope.anyService.jsonReq;
+
+        jsonReq.username = $scope.creds.username;
+        jsonReq.password = $scope.creds.password;
+        jsonReq.owner_id = $scope.owner_id;
+        jsonReq.access_token = $scope.gAuth.access_token;
+        jsonReq.poistypeid = poistypeid;
+
+        if (!jsonReq.owner_id) {
+            _err("Could nor authorize user. Please refresh.");
+            return;
+        }
+        var promise = $scope.anyAPI.retrievePoisTypes(jsonReq);
+        promise.then(
+            function (resp) {
+                var data = resp.data;
+
+                var poistypes = data.poistypes;
+
+                var sz = poistypes.length;
+                for (var i = sz - 1; i >= 0; i--) {
+                    if (poistypes[i].poistypeid==poistypeid){
+                        var types=poistypes[i].types;
+                        break;
+                    }
+                }
+
+                var sz = types.length;
+                for (var i = sz - 1; i >= 0; i--) {
+                    $scope.poisTypes[i]=types[i];
+                }
+            },
+            function (resp) {
+                var data = resp.data;
+                _err("Something went wrong while fetching POIs types");
+            }
+        );
+    };
+
 
     $scope.onInfoWindowKeyDown = function (e) {
         // esc key
@@ -183,6 +379,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             function (resp) {
                 var data = resp.data;
 
+                //var connections = JSON.parse( data.connections );
                 var connections = data.connections;
 
                 var hasht = {};
@@ -194,7 +391,10 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 $scope.myConnectionsHashT = hasht;
 
                 // draw the markers
+                // $scope.data.MainController.clearConnectionsOnMap();
                 $scope.drawConnectionsOnMap();
+
+                //_suc("Connections were loaded successfully.");
             },
             function (resp) {
                 var data = resp.data;
@@ -350,6 +550,17 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             } else {
                 var imgType = _POI_EXISTING_IMG;
                 var size = new google.maps.Size(21, 32);
+
+//                if (p.pois_type === "Entrance") {
+//                    imgType = "images/door.png";
+//                    size = new google.maps.Size(32, 32)
+//                } else if (p.pois_type === "Toilets") {
+//                    imgType = "images/toilets.png";
+//                    size = new google.maps.Size(32, 32)
+//                } else if (p.pois_type === "Ramp") {
+//                    imgType = "images/wheel_chair_accessible.png";
+//                    size = new google.maps.Size(32, 32)
+//                }
 
                 marker = new google.maps.Marker({
                     position: _latLngFromPoi(p),
@@ -708,6 +919,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 // draw the markers
                 $scope.drawPoisOnMap();
 
+                //_suc("Successfully fetched all POIs.");
             },
             function (resp) {
                 var data = resp.data;
@@ -1273,6 +1485,15 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             + '</form>'
             + '</div>';
 
+        //var htmlContent2 = '<div class="infowindow-scroll-fix">'
+        //    + '<h5 style="margin: 0">Name:</h5>'
+        //    + '<span>{{myMarkers[' + marker.myId + '].model.name}}</span>'
+        //    + '<h5 style="margin: 8px 0 0 0">Description:</h5>'
+        //    + '<span>{{myMarkers[' + marker.myId + '].model.description}}</span>'
+        //    + '<h5 style="margin: 8px 0 0 0">Type:</h5>'
+        //    + '<span>{{myMarkers[' + marker.myId + '].model.pois_type}}</span>'
+        //    + '</div>';
+
         var htmlContent2 = '<div class="infowindow-scroll-fix" ng-keydown="onInfoWindowKeyDown($event)">'
             + '<form name="poiForm">'
             + '<fieldset class="form-group">'
@@ -1390,6 +1611,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             $scope.placeMarker(ll, _POI_CONNECTOR_IMG, new google.maps.Size(21, 21), 'connector');
         }
     });
+
 }
 ])
 ;

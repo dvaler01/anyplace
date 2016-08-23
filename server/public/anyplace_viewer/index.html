@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html ng-app="anyViewer">
 <head>
-
+    <script>
+        if (window.location.protocol != "https:")
+            window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
+    </script>
     <link rel="icon" type="image/png" href="build/images/logo.png">
 
     <link rel="apple-touch-icon-precomposed" href="build/images/ios-icons/touch-icon-ipad.png"/>
@@ -135,7 +138,7 @@
     <!--<script type="text/javascript" src="scripts/LPUtils.js"></script>-->
 
 
-    <script type="text/javascript" src="build/js/anyplace.min.js"></script>
+    <script type="text/javascript" src="build/js/anyplace.js"></script>
     <link rel="stylesheet" type="text/css" href="build/css/anyplace.min.css"/>
 
     <script type="text/javascript" src="bower_components/add-to-homescreen/src/addtohomescreen.min.js"></script>
@@ -155,7 +158,7 @@
     <div class="container-fluid" id="gray-bg">
 
         <div class="col-md-1 col-sm-2 col-xs-2 " id="div-logo">
-            <img style="width: 75px; height: auto" src="build/images/anyplace_logo_text_white.png"/>
+            <img style="width: 75px; height: auto" src="build/images/anyplace_logo_text_white2.png"/>
         </div>
 
         <!-- BUILDINGS -->
@@ -218,7 +221,7 @@
                     ]</b> : {{$select.selected.name}} | {{$select.selected.description | limitTo : 40}}{{$select.selected.description.length > 40 ? '...' : ''}}
                 </ui-select-match>
                 <ui-select-choices
-                        repeat="p in myPois | filter : { pois_type : '!None' } | propsFilter: { name: $select.search, description: $select.search, floor_number: $select.search } | orderBy : orderByFloor">
+                        repeat="p in poiCtrl.querySearch($select.search) | filter : { pois_type : '!None' } | orderBy : orderByFloor">
                     <div ng-bind-html="'['+ p.floor_number +'] : ' + p.name + ' | ' + p.description | highlight: $select.search"></div>
                     <!--<small>-->
                     <!--<span ng-bind-html="'[ ' + p.floor_number + ' ] ' | highlight: $select.search"></span>-->
@@ -250,18 +253,15 @@
                         <!--</li>-->
                         <!--<li class="divider"></li>-->
                         <li style="text-align: center;">
-                            <a href="//anyplace.cs.ucy.ac.cy" target="_blank">
+                            <a href="https://dev.anyplace.rayzit.com" target="_blank">
                                 <div class="div-logo-menu">
-                                    <img style="width: 75px; height: auto" src="build/images/anyplace_logo_text.png"/>
+                                    <img style="width: 75px; height: auto" src="build/images/anyplace_logo_text2.png"/>
                                 </div>
                             </a>
                         </li>
-                        <li><a href="http://anyplace.cs.ucy.ac.cy/architect" target="_blank">Add Venue</a></li>
-                        <li><a href="https://play.google.com/store/apps/details?id=com.dmsl.anyplace" target="_blank">Anyplace
-                            Navigator</a></li>
-                        <li><a href="http://anyplace.cs.ucy.ac.cy" target="_blank">About</a></li>
-                        <li><a href="http://anyplace.cs.ucy.ac.cy#contact" target="_blank">Contact</a></li>
-                        <li><a href="http://anyplace.cs.ucy.ac.cy/tos" target="_blank">Terms</a></li>
+                        <li><a href="https://anyplace.cs.ucy.ac.cy" target="_blank">About</a></li>
+                        <li><a href="https://anyplace.cs.ucy.ac.cy#contact" target="_blank">Contact</a></li>
+                        <li><a href="https://anyplace.cs.ucy.ac.cy/tos" target="_blank">Terms</a></li>
                     </ul>
                 </div>
             </div>

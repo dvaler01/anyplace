@@ -1,37 +1,28 @@
-/*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+/**
  *
- * Anyplace is a first-of-a-kind indoor information service offering GPS-less
- * localization, navigation and search inside buildings using ordinary smartphones.
- *
- * Author(s): Kyriakos Georgiou
- *
- * Supervisor: Demetrios Zeinalipour-Yazti
- *
- * URL: http://anyplace.cs.ucy.ac.cy
- * Contact: anyplace@cs.ucy.ac.cy
- *
- * Copyright (c) 2015, Data Management Systems Lab (DMSL), University of Cyprus.
- * All rights reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the “Software”), to deal in the
- * Software without restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the
- * following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
+ The MIT License (MIT)
+
+ Copyright (c) 2015, Kyriakos Georgiou, Data Management Systems Laboratory (DMSL)
+ Department of Computer Science, University of Cyprus, Nicosia, CYPRUS,
+ dmsl@cs.ucy.ac.cy, http://dmsl.cs.ucy.ac.cy/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
 app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', '$location', '$compile', 'GMapService', 'AnyplaceService', function ($scope, $rootScope, $routeParams, $location, $compile, GMapService, AnyplaceService) {
@@ -117,6 +108,22 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
                 scaledSize: new google.maps.Size(20, 20)
             }
         });
+
+        //if (accuracyRadius)
+        //    accuracyRadius.setMap(null);
+        //
+        //var accuracyRadiusOptions = {
+        //    strokeColor: '#73B9FF',
+        //    strokeOpacity: 0.8,
+        //    strokeWeight: 2,
+        //    fillColor: '#73B9FF',
+        //    fillOpacity: 0.35,
+        //    map: GMapService.gmap,
+        //    center: posLatlng,
+        //    radius: radius / 2
+        //};
+        //// Add the circle for this city to the map.
+        //accuracyRadius = new google.maps.Circle(accuracyRadiusOptions);
     };
 
     $scope.showUserLocation = function () {
@@ -186,6 +193,9 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
     $scope.hideUserLocation = function () {
         if (myLocMarker)
             myLocMarker.setMap(null);
+        //if (accuracyRadius)
+        //    accuracyRadius.setMap(null);
+
         $scope.isUserLocVisible = false;
     };
 
@@ -218,6 +228,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
     };
 
     // check if android device to prompt.
+
     var ua = navigator.userAgent.toLowerCase();
     var isAndroid = ua.indexOf("android") > -1 && !ua.indexOf("windows") > -1;
     var d = $('#android_top_DIV_1');

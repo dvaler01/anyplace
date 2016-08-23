@@ -24,25 +24,52 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-    
+
 var AnyplaceAPI = {};
 
 //AnyplaceAPI.SERVER = "http://127.0.0.1"
 //AnyplaceAPI.PORT = "9000";
 //AnyplaceAPI.FULL_SERVER = AnyplaceAPI.SERVER + ":" + AnyplaceAPI.PORT;
 //AnyplaceAPI.FULL_SERVER = "http://127.0.0.1:9000/anyplace";
-AnyplaceAPI.FULL_SERVER = "http://anyplace.rayzit.com/anyplace";
+AnyplaceAPI.FULL_SERVER = "https://dev.anyplace.rayzit.com/anyplace";
+//AnyplaceAPI.FULL_SERVER = "https://anyplace.rayzit.com/anyplace";
 
 /**
  * MAPPING API
  */
 AnyplaceAPI.Mapping = {};
-
 AnyplaceAPI.Mapping.RADIO_HEATMAP = "/mapping/radio/heatmap_building_floor";
 AnyplaceAPI.Mapping.RADIO_HEATMAP_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP;
 
+AnyplaceAPI.Mapping.RADIO_HEATMAP_POI = "/mapping/radio/radio_heatmap_bbox";
+AnyplaceAPI.Mapping.RADIO_HEATMAP_URL_POI = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_HEATMAP_POI;
+
+AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL = "/position/radio_by_building_floor_all";
+AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL;
+
+AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT = "/position/radio_by_building_floor_all_text";
+AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT;
+
+
 AnyplaceAPI.Mapping.BUILDING_ADD = "/mapping/building/add";
 AnyplaceAPI.Mapping.BUILDING_ADD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDING_ADD;
+
+AnyplaceAPI.Mapping.CAMPUS_ALL = "/mapping/campus/all_owner";
+AnyplaceAPI.Mapping.CAMPUS_ALL_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.CAMPUS_ALL;
+
+AnyplaceAPI.Mapping.CAMPUS_UPDATE = "/mapping/campus/update";
+AnyplaceAPI.Mapping.CAMPUS_UPDATE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.CAMPUS_UPDATE;
+
+AnyplaceAPI.Mapping.CAMPUS_DELETE = "/mapping/campus/delete";
+AnyplaceAPI.Mapping.CAMPUS_DELETE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.CAMPUS_DELETE;
+
+AnyplaceAPI.Mapping.BUILDINGSET_ADD = "/mapping/campus/add";
+AnyplaceAPI.Mapping.BUILDINGSET_ADD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDINGSET_ADD;
+
+AnyplaceAPI.Mapping.POISCATEGORY_ADD = "/mapping/pois/add_category";
+AnyplaceAPI.Mapping.POISCATEGORY_ADD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.POISCATEGORY_ADD;
+
+
 AnyplaceAPI.Mapping.BUILDING_UPDATE = "/mapping/building/update";
 AnyplaceAPI.Mapping.BUILDING_UPDATE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.BUILDING_UPDATE;
 AnyplaceAPI.Mapping.BUILDING_DELETE = "/mapping/building/delete";
@@ -62,6 +89,8 @@ AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD = "/mapping/floor/upload"
 AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD;
 AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD = "/floorplans64/"
 AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD;
+AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_ALL = "/floorplans64all/"
+AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL_ALL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_ALL;
 
 AnyplaceAPI.Mapping.POIS_ADD = "/mapping/pois/add";
 AnyplaceAPI.Mapping.POIS_ADD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.POIS_ADD;
@@ -71,6 +100,12 @@ AnyplaceAPI.Mapping.POIS_DELETE = "/mapping/pois/delete";
 AnyplaceAPI.Mapping.POIS_DELETE_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.POIS_DELETE;
 AnyplaceAPI.Mapping.POIS_ALL_FLOOR = "/mapping/pois/all_floor";
 AnyplaceAPI.Mapping.POIS_ALL_FLOOR_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.POIS_ALL_FLOOR;
+AnyplaceAPI.Mapping.POIS_ALL_BUILDING = "/mapping/pois/all_building";
+AnyplaceAPI.Mapping.POIS_ALL_BUILDING_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.POIS_ALL_BUILDING;
+
+//POIS_TYPES_URL
+AnyplaceAPI.Mapping.POIS_TYPES = "/mapping/pois/types";
+AnyplaceAPI.Mapping.POIS_TYPES_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.POIS_TYPES;
 
 AnyplaceAPI.Mapping.CONNECTION_ADD = "/mapping/connection/add";
 AnyplaceAPI.Mapping.CONNECTION_ADD_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.CONNECTION_ADD;
@@ -85,7 +120,7 @@ AnyplaceAPI.Mapping.SIGN = "/mapping/accounts/sign";
 AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIGN;
 
 
-    app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($http, $q, formDataObject) {
+app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($http, $q, formDataObject) {
 
     $http.defaults.useXDomain = true;
     delete $http.defaults.headers.common['X-Requested-With'];
@@ -99,12 +134,85 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             url: AnyplaceAPI.Mapping.RADIO_HEATMAP_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+    };
+//retrievePoisTypes
+
+    apiService.retrievePoisTypes = function (json_req) {
+
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.POIS_TYPES_URL,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+    };
+
+    apiService.retrievePoisByBuilding = function (json_req) {
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.POIS_ALL_BUILDING_URL,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+    };
+
+    apiService.getRadioHeatmapPoi = function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.RADIO_HEATMAP_URL_POI,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+    };
+
+    apiService.getRadioByBuildingFloorAll = function (json_req) {
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_URL,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+    };
+
+    apiService.getRadioByBuildingFloorTxt = function (json_req) {
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT_URL,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
     /**************************************************
@@ -117,12 +225,42 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             url: AnyplaceAPI.Mapping.BUILDING_ADD_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+    };
+
+    apiService.addBuildingSet = function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.BUILDINGSET_ADD_URL,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+    };
+
+    apiService.addCategory = function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.POISCATEGORY_ADD_URL,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.updateBuilding = function (json_req) {
@@ -132,12 +270,28 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             url: AnyplaceAPI.Mapping.BUILDING_UPDATE_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+
+    };
+
+    apiService.updateCampus = function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.CAMPUS_UPDATE_URL,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
 
     };
 
@@ -148,12 +302,28 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             url: AnyplaceAPI.Mapping.BUILDING_DELETE_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+
+    };
+
+    apiService.deleteCampus = function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.CAMPUS_DELETE_URL,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
 
     };
 
@@ -163,14 +333,30 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             url: AnyplaceAPI.Mapping.BUILDING_ALL_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
 
     };
+
+    apiService.allCampus = function (json_req) {
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.CAMPUS_ALL_URL,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+
+    };
+
 
 
     /****************************************************
@@ -184,12 +370,12 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             url: AnyplaceAPI.Mapping.FLOOR_ADD_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.updateFloor = function (json_req) {
@@ -199,12 +385,12 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             url: AnyplaceAPI.Mapping.FLOOR_UPDATE_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.deleteFloor = function (json_req) {
@@ -214,12 +400,12 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             url: AnyplaceAPI.Mapping.FLOOR_DELETE_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
 
     };
 
@@ -230,18 +416,18 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             url: AnyplaceAPI.Mapping.FLOOR_ALL_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
 
     };
 
 
     apiService.uploadFloorPlan = function (json_req, file) {
-        alert("make the request: " + json_req);
+        //alert("make the request: " + json_req);
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_PLAN_UPLOAD_URL,
@@ -254,12 +440,12 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             },
             transformRequest: formDataObject
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.uploadFloorPlan64 = function (json_req, file) {
@@ -282,12 +468,12 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
                 'Content-Type': undefined
             }
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.downloadFloorPlan = function (json_req, buid, floor_number) {
@@ -297,12 +483,27 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             url: AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL + buid + "/" + floor_number,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
+    };
+
+    apiService.downloadFloorPlanAll = function (json_req, buid, floor_number) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL_ALL + buid + "/" + floor_number,
+            data: json_req
+        }).
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
 
@@ -316,12 +517,12 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             url: AnyplaceAPI.Mapping.POIS_ADD_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.updatePois = function (json_req) {
@@ -331,12 +532,12 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             url: AnyplaceAPI.Mapping.POIS_UPDATE_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.deletePois = function (json_req) {
@@ -348,14 +549,14 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             url: AnyplaceAPI.Mapping.POIS_DELETE_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                //deferred.resolve(data);
-                return data;
-            }).
-            error(function (data, status) {
-                //deferred.resolve(data);
-                return data;
-            });
+        success(function (data, status) {
+            //deferred.resolve(data);
+            return data;
+        }).
+        error(function (data, status) {
+            //deferred.resolve(data);
+            return data;
+        });
         //return deferred.promise;
     };
 
@@ -365,12 +566,12 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             url: AnyplaceAPI.Mapping.POIS_ALL_FLOOR_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     }
 
 
@@ -384,12 +585,12 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             url: AnyplaceAPI.Mapping.CONNECTION_ADD_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.updateConnection = function (json_req) {
@@ -399,12 +600,12 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             url: AnyplaceAPI.Mapping.CONNECTION_UPDATE_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.deleteConnection = function (json_req) {
@@ -414,12 +615,12 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             url: AnyplaceAPI.Mapping.CONNECTION_DELETE_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.retrieveConnectionsByBuildingFloor = function (json_req) {
@@ -428,12 +629,12 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             url: AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.signAccount = function (json_req) {
@@ -442,12 +643,12 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             url: AnyplaceAPI.Mapping.SIGN_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
     // we return apiService controller in order to be able to use it in ng-click

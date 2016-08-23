@@ -25,11 +25,12 @@
  THE SOFTWARE.
  */
 
-var app = angular.module('anyArchitect', ['ui.bootstrap', 'ui.select', 'ngSanitize']);
+var app = angular.module('anyArchitect', ['angularjs-dropdown-multiselect','ui.bootstrap', 'ui.select', 'ngSanitize']);
 
 app.service('GMapService', function () {
 
     this.gmap = {};
+//    this.searchBox = {};
 
     var self = this;
 
@@ -73,6 +74,21 @@ app.service('GMapService', function () {
         self.searchBox.setBounds(bounds);
     });
 
+    // Add click listener on map to add a marker on click
+    //google.maps.event.addListener(self.gmap, 'click', function (event) {
+    //
+    //    if (!self.mainMarker) {
+    //        self.mainMarker = new google.maps.Marker({
+    //            position: event.latLng,
+    //            map: self.gmap,
+    //            title: "Helper marker at (" + event.latLng.lat() + ", " + event.latLng.lng() + ")"
+    //        });
+    //    }
+    //
+    //    self.mainMarker.setPosition(event.latLng);
+    //    self.mainMarker.setTitle("Helper marker at (" + event.latLng.lat() + ", " + event.latLng.lng() + ")");
+    //});
+
 });
 
 app.factory('AnyplaceService', function () {
@@ -82,6 +98,9 @@ app.factory('AnyplaceService', function () {
     anyService.selectedBuilding = undefined;
     anyService.selectedFloor = undefined;
     anyService.selectedPoi = undefined;
+    anyService.selectedCampus = undefined;
+    anyService.ShowShareProp = undefined;
+    anyService.progress = undefined;
 
     anyService.alerts = [];
 
@@ -92,6 +111,10 @@ app.factory('AnyplaceService', function () {
 
     anyService.getBuilding = function () {
         return this.selectedBuilding;
+    };
+
+    anyService.getCampus = function () {
+        return this.selectedCampus;
     };
 
     anyService.getBuildingId = function () {
@@ -106,6 +129,13 @@ app.factory('AnyplaceService', function () {
             return 'N/A';
         }
         return this.selectedBuilding.name;
+    };
+
+    anyService.getCampusName = function() {
+        if(!this.selectedCampus) {
+            return 'N/A';
+        }
+        return this.selectedCampus.name;
     };
 
     anyService.getFloor = function () {
@@ -143,13 +173,36 @@ app.factory('AnyplaceService', function () {
         if(!this.selectedBuilding || !this.selectedBuilding.buid) {
             return "N/A";
         }
-        return "http://anyplace.cs.ucy.ac.cy/viewer/?buid=" + this.selectedBuilding.buid;
+        return this.selectedBuilding.buid;
+    };
+
+    anyService.getBuildingViewerUrlEncoded = function() {
+        if(!this.selectedBuilding || !this.selectedBuilding.buid) {
+            return "N/A";
+        }
+        return encodeURIComponent("https://dev.anyplace.rayzit.com/viewer/?buid=" + this.selectedBuilding.buid);
+    };
+
+    anyService.getCampusViewerUrl = function() {
+        if(!this.selectedCampus || !this.selectedCampus.cuid) {
+            return "N/A";
+        }
+        return "https://dev.anyplace.rayzit.com/viewer/?cuid=" + this.selectedCampus.cuid;
+    };
+
+    anyService.getCampusViewerUrlEncoded = function() {
+        if(!this.selectedCampus || !this.selectedCampus.cuid) {
+            return "N/A";
+        }
+        return encodeURIComponent("https://dev.anyplace.rayzit.com/viewer/?cuid=" + this.selectedCampus.cuid);
     };
 
     anyService.clearAllData = function() {
         anyService.selectedPoi = undefined;
         anyService.selectedFloor = undefined;
         anyService.selectedBuilding = undefined;
+        anyService.selectedCampus = undefined;
+        anyService.ShowShareProp = undefined ;
     };
 
     return anyService;
@@ -177,7 +230,7 @@ app.factory('formDataObject', function () {
 });
 
 app.config(['$locationProvider', function ($location) {
-    // Now there won't be a hashbang within URLs for browsers that support HTML5 history
+    //now there won't be a hashbang within URLs for browsers that support HTML5 history
     $location.html5Mode(true);
 }]);
 

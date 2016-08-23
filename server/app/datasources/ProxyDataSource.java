@@ -4,14 +4,14 @@
  * Anyplace is a first-of-a-kind indoor information service offering GPS-less
  * localization, navigation and search inside buildings using ordinary smartphones.
  *
- * Author(s): Lambros Petrou
+ * Author(s): First Author, Second Author, …
  *
  * Supervisor: Demetrios Zeinalipour-Yazti
  *
- * URL: https://anyplace.cs.ucy.ac.cy
+ * URL: http://anyplace.cs.ucy.ac.cy
  * Contact: anyplace@cs.ucy.ac.cy
  *
- * Copyright (c) 2016, Data Management Systems Lab (DMSL), University of Cyprus.
+ * Copyright (c) 2015, Data Management Systems Lab (DMSL), University of Cyprus.
  * All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -75,6 +75,18 @@ public class ProxyDataSource implements IDatasource {
     }
 
     private void initCouchbase() {
+        /*
+        String hostname = Play.application().configuration().getString("couchbase.hostname");
+        String port = Play.application().configuration().getString("couchbase.port");
+        String bucket = Play.application().configuration().getString("couchbase.bucket");
+        String password = Play.application().configuration().getString("couchbase.password");
+        this.mCouchbase = CouchbaseDatasource.createNewInstance(hostname,port,bucket,password);
+        try {
+            this.mCouchbase.init();
+        } catch (DatasourceException e) {
+            LPLogger.error("ProxyDataSource::initCouchbase():: Exception while instantiating Couchbase [" + e.getMessage() + "]");
+        }
+        */
         this.mCouchbase = CouchbaseDatasource.getStaticInstance();
     }
 
@@ -140,9 +152,21 @@ public class ProxyDataSource implements IDatasource {
     }
 
     @Override
+    public List<JsonNode> tempAllPoisWithoutUrl() throws DatasourceException {
+        _checkActiveDatasource();
+        return mActiveDatabase.tempAllPoisWithoutUrl();
+    }
+
+    @Override
     public List<JsonNode> poisByBuildingFloorAsJson(String buid, String floor_number) throws DatasourceException {
         _checkActiveDatasource();
         return mActiveDatabase.poisByBuildingFloorAsJson(buid, floor_number);
+    }
+
+    @Override
+    public List<JsonNode> poisByBuildingIDAsJson(String buid) throws DatasourceException {
+        _checkActiveDatasource();
+        return mActiveDatabase.poisByBuildingIDAsJson(buid);
     }
 
     @Override
@@ -155,6 +179,24 @@ public class ProxyDataSource implements IDatasource {
     public List<JsonNode> poisByBuildingAsJson(String buid) throws DatasourceException {
         _checkActiveDatasource();
         return mActiveDatabase.poisByBuildingAsJson(buid);
+    }
+
+    @Override
+    public List<JsonNode> poisByBuildingAsJson2(String buid,String letters) throws DatasourceException {
+        _checkActiveDatasource();
+        return mActiveDatabase.poisByBuildingAsJson2(buid,letters);
+    }
+
+    @Override
+    public List<JsonNode> poisByBuildingAsJson2GR(String buid,String letters) throws DatasourceException {
+        _checkActiveDatasource();
+        return mActiveDatabase.poisByBuildingAsJson2GR(buid,letters);
+    }
+
+    @Override
+    public List<JsonNode> poisByBuildingAsJson3(String buid,String letters) throws DatasourceException {
+        _checkActiveDatasource();
+        return mActiveDatabase.poisByBuildingAsJson3(buid,letters);
     }
 
     @Override
@@ -188,6 +230,12 @@ public class ProxyDataSource implements IDatasource {
     }
 
     @Override
+    public List<JsonNode> connectionsByBuildingAllFloorsAsJson(String buid) throws DatasourceException {
+        _checkActiveDatasource();
+        return mActiveDatabase.connectionsByBuildingAllFloorsAsJson(buid);
+    }
+
+    @Override
     public List<String> deleteAllByBuilding(String buid) throws DatasourceException {
         _checkActiveDatasource();
         return mActiveDatabase.deleteAllByBuilding(buid);
@@ -206,9 +254,9 @@ public class ProxyDataSource implements IDatasource {
     }
 
     @Override
-    public List<String> deleteAllByPoi(String puid) throws DatasourceException {
+    public List<String> deleteAllByPoi(String puid,String buid) throws DatasourceException {
         _checkActiveDatasource();
-        return mActiveDatabase.deleteAllByPoi(puid);
+        return mActiveDatabase.deleteAllByPoi(puid,buid);
     }
 
     @Override
@@ -224,6 +272,37 @@ public class ProxyDataSource implements IDatasource {
     }
 
     @Override
+    public List<JsonNode> getRadioHeatmapByBuildingFloor2(String lat,String lon,String buid,String floor,int range) throws DatasourceException {
+        _checkActiveDatasource();
+        return mActiveDatabase.getRadioHeatmapByBuildingFloor2(lat, lon, buid, floor, range);
+    }
+
+
+    @Override
+    public List<JsonNode> getRadioHeatmapBBox(String lat,String lon,String buid,String floor,int range) throws DatasourceException {
+        _checkActiveDatasource();
+        return mActiveDatabase.getRadioHeatmapBBox(lat,lon,buid,floor,range);
+    }
+
+    @Override
+    public List<JsonNode> getRadioHeatmapBBox2(String lat,String lon,String buid,String floor,int range) throws DatasourceException {
+        _checkActiveDatasource();
+        return mActiveDatabase.getRadioHeatmapBBox2(lat,lon,buid,floor,range);
+    }
+
+    @Override
+    public List<JsonNode> getBuildingSet(String cuid) throws DatasourceException {
+        _checkActiveDatasource();
+        return mActiveDatabase.getBuildingSet(cuid);
+    }
+
+    @Override
+    public Boolean BuildingSetsCuids(String cuid) throws DatasourceException {
+        _checkActiveDatasource();
+        return mActiveDatabase.BuildingSetsCuids(cuid);
+    }
+
+    @Override
     public List<JsonNode> getAllBuildings() throws DatasourceException {
         _checkActiveDatasource();
         return mActiveDatabase.getAllBuildings();
@@ -233,6 +312,18 @@ public class ProxyDataSource implements IDatasource {
     public List<JsonNode> getAllBuildingsByOwner(String oid) throws DatasourceException {
         _checkActiveDatasource();
         return mActiveDatabase.getAllBuildingsByOwner(oid);
+    }
+
+    @Override
+    public List<JsonNode> getAllBuildingsetsByOwner(String oid) throws DatasourceException {
+        _checkActiveDatasource();
+        return mActiveDatabase.getAllBuildingsetsByOwner(oid);
+    }
+
+    @Override
+    public List<JsonNode> getAllPoisTypesByOwner(String oid) throws DatasourceException {
+        _checkActiveDatasource();
+        return mActiveDatabase.getAllPoisTypesByOwner(oid);
     }
 
     @Override
@@ -264,6 +355,12 @@ public class ProxyDataSource implements IDatasource {
     public long dumpRssLogEntriesByBuildingFloor(FileOutputStream outFile, String buid, String floor_number) throws DatasourceException {
         _checkActiveDatasource();
         return mActiveDatabase.dumpRssLogEntriesByBuildingFloor(outFile, buid, floor_number);
+    }
+
+    @Override
+    public long dumpRssLogEntriesByBuildingFloorBbox(FileOutputStream outFile, String buid, String floor_number,String range, String lat,String lon) throws DatasourceException {
+        _checkActiveDatasource();
+        return mActiveDatabase.dumpRssLogEntriesByBuildingFloorBbox(outFile, buid, floor_number,range, lat,lon);
     }
 
     @Override

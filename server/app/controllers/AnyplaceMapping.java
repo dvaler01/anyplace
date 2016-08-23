@@ -1,39 +1,3 @@
-/*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
- *
- * Anyplace is a first-of-a-kind indoor information service offering GPS-less
- * localization, navigation and search inside buildings using ordinary smartphones.
- *
- * Author(s): Lambros Petrou, Kyriakos Georgiou
- *
- * Supervisor: Demetrios Zeinalipour-Yazti
- *
- * URL: https://anyplace.cs.ucy.ac.cy
- * Contact: anyplace@cs.ucy.ac.cy
- *
- * Copyright (c) 2016, Data Management Systems Lab (DMSL), University of Cyprus.
- * All rights reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the “Software”), to deal in the
- * Software without restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the
- * following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- */
-
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -43,6 +7,9 @@ import datasources.ProxyDataSource;
 import db_models.*;
 import oauth.provider.v2.models.OAuth2Request;
 import org.apache.commons.codec.binary.Base64;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -54,17 +21,18 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.GZIPOutputStream;
 
 public class AnyplaceMapping extends Controller {
 
+    private static String ADMIN_ID = "112997031510415584062_google";
+
     private static String verifyOwnerId(String authToken) {
 
         String gURL = "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=" + authToken;
+
+        URL googleUrl = null;
 
         String res = null;
 
@@ -165,6 +133,64 @@ public class AnyplaceMapping extends Controller {
             res.put("radioPoints", JsonUtils.getJsonFromList(radioPoints));
             try {
 //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+                    return gzippedJSONOk(res.toString());
+//                }
+//                return AnyResponseHelper.ok(res.toString());
+            } catch (IOException ioe) {
+                return AnyResponseHelper.ok(res, "Successfully retrieved all radio points!");
+            }
+        } catch (DatasourceException e) {
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
+        }
+    }
+
+
+    public static Result getRadioHeatmapBbox() {
+
+        OAuth2Request anyReq = new OAuth2Request(request(), response());
+        if (!anyReq.assertJsonBody()) {
+            return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON);
+        }
+        JsonNode json = anyReq.getJsonBody();
+        LPLogger.info("AnyplacePosition::radioDownloadFloor(): " + json.toString());
+
+        List<String> requiredMissing = JsonUtils.requirePropertiesInJson(json,
+                "coordinates_lat",
+                "coordinates_lon",
+                "floor",
+                "buid",
+                "range"
+        );
+        if (!requiredMissing.isEmpty()) {
+            return AnyResponseHelper.requiredFieldsMissing(requiredMissing);
+        }
+
+        String lat = json.findPath("coordinates_lat").textValue();
+        String lon = json.findPath("coordinates_lon").textValue();
+        String floor_number = json.findPath("floor").textValue();
+        String buid = json.findPath("buid").textValue();
+        String strRange = json.findPath("range").textValue();
+        String weight = json.findPath("weight").textValue();
+
+        int range = Integer.parseInt(strRange);
+        try {
+            List<JsonNode> radioPoints=new ArrayList<JsonNode>();
+            if (weight.compareTo("false")==0){
+                radioPoints = ProxyDataSource.getIDatasource().getRadioHeatmapBBox2(lat,lon,buid,floor_number,range);
+            }
+            else if(weight.compareTo("true")==0){
+                radioPoints = ProxyDataSource.getIDatasource().getRadioHeatmapBBox(lat,lon,buid,floor_number,range);
+            }
+            else if(weight.compareTo("no spatial")==0){
+                radioPoints = ProxyDataSource.getIDatasource().getRadioHeatmapByBuildingFloor2(lat,lon,buid,floor_number,range);
+            }
+            if (radioPoints == null) {
+                return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!");
+            }
+            ObjectNode res = JsonUtils.createObjectNode();
+            res.put("radioPoints", JsonUtils.getJsonFromList(radioPoints));
+            try {
+//                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
                 return gzippedJSONOk(res.toString());
 //                }
 //                return AnyResponseHelper.ok(res.toString());
@@ -251,6 +277,135 @@ public class AnyplaceMapping extends Controller {
             ObjectNode res = JsonUtils.createObjectNode();
             res.put("buid", building.getId());
             return AnyResponseHelper.ok(res, "Successfully added building!");
+        } catch (DatasourceException e) {
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
+        }
+    }
+
+
+    /**
+     * Adds a new building set to the database
+     *
+     * @return the newly created Building ID is included in the response if success
+     */
+    public static Result buildingSetAdd() {
+
+        OAuth2Request anyReq = new OAuth2Request(request(), response());
+        if (!anyReq.assertJsonBody()) {
+            return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON);
+        }
+
+        JsonNode json = anyReq.getJsonBody();
+        LPLogger.info("AnyplaceMapping::buildingSetAdd(): " + json.toString());
+
+        List<String> requiredMissing = JsonUtils.requirePropertiesInJson(json,
+                "description",
+                "name",
+                "buids",
+                "greeklish");
+
+        if (!requiredMissing.isEmpty()) {
+            return AnyResponseHelper.requiredFieldsMissing(requiredMissing);
+        }
+
+        // get access token from url and check it against google's service
+        if (json.findValue("access_token") == null) {
+            return AnyResponseHelper.forbidden("Unauthorized1");
+        }
+        String owner_id = verifyOwnerId(json.findValue("access_token").textValue());
+        if (owner_id == null) {
+            return AnyResponseHelper.forbidden("Unauthorized2");
+        }
+        owner_id = appendToOwnerId(owner_id);
+        ((ObjectNode) json).put("owner_id", owner_id);
+
+        try {
+
+            String cuid = json.findPath("cuid").textValue();
+
+            Boolean campus = ProxyDataSource.getIDatasource().BuildingSetsCuids(cuid);
+
+            if (campus){
+                return AnyResponseHelper.bad_request("Building set already exists!");
+            }
+            else {
+                BuildingSet buildingset;
+                try {
+                    buildingset = new BuildingSet(json);
+                } catch (NumberFormatException e) {
+                    return AnyResponseHelper.bad_request("Building coordinates are invalid!");
+                }
+                if (!ProxyDataSource.getIDatasource().addJsonDocument(buildingset.getId(), 0, buildingset.toCouchGeoJSON())) {
+                    return AnyResponseHelper.bad_request("Building set already exists or could not be added!");
+                }
+                ObjectNode res = JsonUtils.createObjectNode();
+
+                res.put("cuid", buildingset.getId());
+
+                return AnyResponseHelper.ok(res, "Successfully added building Set!");
+            }
+
+        } catch (DatasourceException e) {
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
+        }
+    }
+
+
+
+    /**
+     * Adds a new poi category to the database
+     *
+     * @return the newly created cat ID is included in the response if success
+     */
+    public static Result categoryAdd() {
+
+        OAuth2Request anyReq = new OAuth2Request(request(), response());
+        if (!anyReq.assertJsonBody()) {
+            return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON);
+        }
+
+        JsonNode json = anyReq.getJsonBody();
+        LPLogger.info("AnyplaceMapping::buildingSetAdd(): " + json.toString());
+
+        List<String> requiredMissing = JsonUtils.requirePropertiesInJson(json,
+                "poistypeid",
+                "poistype",
+                "owner_id",
+                "types");
+
+        if (!requiredMissing.isEmpty()) {
+            return AnyResponseHelper.requiredFieldsMissing(requiredMissing);
+        }
+
+        // get access token from url and check it against google's service
+        if (json.findValue("access_token") == null) {
+            return AnyResponseHelper.forbidden("Unauthorized1");
+        }
+        String owner_id = verifyOwnerId(json.findValue("access_token").textValue());
+        if (owner_id == null) {
+            return AnyResponseHelper.forbidden("Unauthorized2");
+        }
+        owner_id = appendToOwnerId(owner_id);
+        ((ObjectNode) json).put("owner_id", owner_id);
+
+        try {
+
+            PoisCategory poiscategory;
+            try {
+                poiscategory = new PoisCategory(json);
+            } catch (NumberFormatException e) {
+                return AnyResponseHelper.bad_request("Bad request!");
+            }
+            if (!ProxyDataSource.getIDatasource().addJsonDocument(poiscategory.getId(), 0, poiscategory.toCouchGeoJSON())) {
+                return AnyResponseHelper.bad_request("Building set already exists or could not be added!");
+            }
+            ObjectNode res = JsonUtils.createObjectNode();
+
+            res.put("poistypeid", poiscategory.getId());
+
+            return AnyResponseHelper.ok(res, "Successfully added Pois Category!");
+
+
         } catch (DatasourceException e) {
             return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
         }
@@ -401,6 +556,18 @@ public class AnyplaceMapping extends Controller {
                 return AnyResponseHelper.unauthorized("Unauthorized");
             }
 
+            // alias must be unique for each building
+//            if (json.findValue("alias") != null) {
+//                String alias = json.findValue("alias").textValue();
+//
+//                // alias must be unique, check if it exists first
+//                if (ProxyDataSource.getIDatasource().getBuildingByAlias(alias) == null) {
+//                    stored_building.put("alias", alias);
+//                } else {
+//                    return AnyResponseHelper.bad_request("The alias \"" + alias + "\" is already in use.");
+//                }
+//            }
+
             // check for values to update
             if (json.findValue("is_published") != null) {
                 String is_published = json.path("is_published").textValue();
@@ -439,6 +606,70 @@ public class AnyplaceMapping extends Controller {
             return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
         }
     }
+
+
+    /**
+     * Update the building information. Building to update is specified by buid
+     *
+     * @return
+     */
+    public static Result campusUpdate() {
+        OAuth2Request anyReq = new OAuth2Request(request(), response());
+        if (!anyReq.assertJsonBody()) {
+            return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON);
+        }
+        JsonNode json = anyReq.getJsonBody();
+        LPLogger.info("AnyplaceMapping::campusUpdate(): " + json.toString());
+
+        List<String> requiredMissing = JsonUtils.requirePropertiesInJson(json, "cuid"
+                , "access_token"
+        );
+        if (!requiredMissing.isEmpty()) {
+            return AnyResponseHelper.requiredFieldsMissing(requiredMissing);
+        }
+        // get access token from url and check it against google's service
+        if (json.findValue("access_token") == null) {
+            return AnyResponseHelper.forbidden("Unauthorized");
+        }
+        String owner_id = verifyOwnerId(json.findValue("access_token").textValue());
+        if (owner_id == null) {
+            return AnyResponseHelper.forbidden("Unauthorized");
+        }
+        owner_id = appendToOwnerId(owner_id);
+        ((ObjectNode) json).put("owner_id", owner_id);
+
+        String cuid = json.path("cuid").textValue();
+
+        try {
+            ObjectNode stored_campus = (ObjectNode) ProxyDataSource.getIDatasource().getFromKeyAsJson(cuid);
+            if (stored_campus == null) {
+                return AnyResponseHelper.bad_request("Campus does not exist or could not be retrieved!");
+            }
+
+            if (!isCampusOwner(stored_campus, owner_id)) {
+                return AnyResponseHelper.unauthorized("Unauthorized");
+            }
+
+            // check for values to update
+
+            if (json.findValue("name") != null) {
+                stored_campus.put("name", json.path("name").textValue());
+            }
+            if (json.findValue("description") != null) {
+                stored_campus.put("description", json.path("description").textValue());
+            }
+
+            AbstractModel campus = new BuildingSet(stored_campus);
+            if (!ProxyDataSource.getIDatasource().replaceJsonDocument(campus.getId(), 0, campus.toCouchGeoJSON())) {
+                return AnyResponseHelper.bad_request("Campus could not be updated!");
+            }
+
+            return AnyResponseHelper.ok("Successfully updated campus!");
+        } catch (DatasourceException e) {
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
+        }
+    }
+
 
     /**
      * Delete the building specified by buid.
@@ -516,11 +747,64 @@ public class AnyplaceMapping extends Controller {
         return AnyResponseHelper.ok("Successfully deleted everything related to building!");
     }
 
+
+    /**
+     * Delete the campus specified by cuid.
+     *
+     * @return
+     */
+    public static Result campusDelete() {
+        OAuth2Request anyReq = new OAuth2Request(request(), response());
+        if (!anyReq.assertJsonBody()) {
+            return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON);
+        }
+
+        JsonNode json = anyReq.getJsonBody();
+        LPLogger.info("AnyplaceMapping::campusDelete(): " + json.toString());
+
+        List<String> requiredMissing = JsonUtils.requirePropertiesInJson(json, "cuid", "access_token");
+        if (!requiredMissing.isEmpty()) {
+            return AnyResponseHelper.requiredFieldsMissing(requiredMissing);
+        }
+
+        // get access token from url and check it against google's service
+        if (json.findValue("access_token") == null) {
+            return AnyResponseHelper.forbidden("Unauthorized");
+        }
+        String owner_id = verifyOwnerId(json.findValue("access_token").textValue());
+        if (owner_id == null) {
+            return AnyResponseHelper.forbidden("Unauthorized");
+        }
+        owner_id = appendToOwnerId(owner_id);
+        ((ObjectNode) json).put("owner_id", owner_id);
+
+        String cuid = json.findPath("cuid").textValue();
+
+        try {
+            ObjectNode stored_campus = (ObjectNode) ProxyDataSource.getIDatasource().getFromKeyAsJson(cuid);
+
+            if (stored_campus == null) {
+                return AnyResponseHelper.bad_request("Campus does not exist or could not be retrieved!");
+            }
+            if (!isCampusOwner(stored_campus, owner_id)) {
+                return AnyResponseHelper.unauthorized("Unauthorized");
+            }
+            if (!ProxyDataSource.getIDatasource().deleteFromKey(cuid)) {
+                return AnyResponseHelper.internal_server_error("Server Internal Error while trying to delete Campus");
+            }
+        } catch (DatasourceException e) {
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
+        }
+
+        return AnyResponseHelper.ok("Successfully deleted everything related to building!");
+    }
+
     /**
      * Retrieve all the buildings.
      *
      * @return
      */
+    //@With(XSRFValidator.class)
     public static Result buildingAll() {
         OAuth2Request anyReq = new OAuth2Request(request(), response());
         if (!anyReq.assertJsonBody()) {
@@ -535,7 +819,7 @@ public class AnyplaceMapping extends Controller {
             res.put("buildings", JsonUtils.getJsonFromList(buildings));
             try {
 //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                return gzippedJSONOk(res.toString());
+                    return gzippedJSONOk(res.toString());
 //                }
 //                return AnyResponseHelper.ok(res.toString());
             } catch (IOException ioe) {
@@ -545,6 +829,73 @@ public class AnyplaceMapping extends Controller {
             return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
         }
     }
+
+    /**
+     * Retrieve the building Set.
+     *
+     * @return
+     */
+    //@With(XSRFValidator.class)
+    public static Result buildingSetAll() {
+        OAuth2Request anyReq = new OAuth2Request(request(), response());
+
+        if (!anyReq.assertJsonBody()) {
+            return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON);
+        }
+        JsonNode json = anyReq.getJsonBody();
+
+        LPLogger.info("AnyplaceMapping::buildingSetAll(): " + json.toString());
+
+        String cuid = request().getQueryString("cuid");
+        if (cuid==null) {
+            cuid = json.findPath("cuid").textValue();
+        }
+
+        try {
+
+            List<JsonNode> campus = ProxyDataSource.getIDatasource().getBuildingSet(cuid);
+
+            List<JsonNode> buildings = ProxyDataSource.getIDatasource().getAllBuildings();
+
+            List<JsonNode> result = new ArrayList<JsonNode>();
+            String cuname = "";
+            String greeklish = "";
+            for  (int i = 0 ; i < campus.size(); i ++){
+                JsonNode temp = campus.get(i);
+                for (int j = 0 ; j < temp.get("buids").size(); j++){
+                    if (j==0) cuname =  temp.get("name").toString().substring(1,temp.get("name").toString().length()-1);
+                    if (j==0) greeklish =  temp.get("greeklish").toString().substring(1,temp.get("greeklish").toString().length()-1);
+                    for  (int k = 0 ; k < buildings.size(); k ++) {
+                        //a
+                        JsonNode temp2 = buildings.get(k);
+                        if (temp2.get("buid").toString().compareTo(temp.get("buids").get(j).toString())==0){
+                            result.add(temp2);
+                        }
+                    }
+                }
+            }
+            ObjectNode res = JsonUtils.createObjectNode();
+            res.put("buildings", JsonUtils.getJsonFromList(result));
+            res.put("name", cuname);
+            System.out.println(greeklish);
+            if (greeklish==null){
+                greeklish="false";
+            }
+            res.put("greeklish", greeklish);
+            try {
+//                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+                return gzippedJSONOk(res.toString());
+//                }
+//                return AnyResponseHelper.ok(res.toString());
+            } catch (IOException ioe) {
+                return AnyResponseHelper.ok(res, "Successfully retrieved all buildings Sets!");
+            }
+        } catch (DatasourceException e) {
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
+        }
+    }
+
+
 
     public static Result buildingGetOne() {
         OAuth2Request anyReq = new OAuth2Request(request(), response());
@@ -562,6 +913,7 @@ public class AnyplaceMapping extends Controller {
         String buid = json.findPath("buid").textValue();
 
         try {
+
             JsonNode building = ProxyDataSource.getIDatasource().getFromKeyAsJson(buid);
 
             if (building != null && building.get("buid") != null
@@ -581,7 +933,7 @@ public class AnyplaceMapping extends Controller {
                 res.put("building", building);
                 try {
 //                    if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                    return gzippedJSONOk(res.toString());
+                        return gzippedJSONOk(res.toString());
 //                    }
 //                    return AnyResponseHelper.ok(res.toString());
                 } catch (IOException ioe) {
@@ -597,6 +949,7 @@ public class AnyplaceMapping extends Controller {
     }
 
     public static Result buildingAllByOwner() {
+
         OAuth2Request anyReq = new OAuth2Request(request(), response());
         if (!anyReq.assertJsonBody()) {
             return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON);
@@ -627,9 +980,59 @@ public class AnyplaceMapping extends Controller {
         }
 
         try {
+
             List<JsonNode> buildings = ProxyDataSource.getIDatasource().getAllBuildingsByOwner(owner_id);
             ObjectNode res = JsonUtils.createObjectNode();
             res.put("buildings", JsonUtils.getJsonFromList(buildings));
+
+            try {
+//                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+                    return gzippedJSONOk(res.toString());
+//                }
+//                return AnyResponseHelper.ok(res.toString());
+            } catch (IOException ioe) {
+                return AnyResponseHelper.ok(res, "Successfully retrieved all buildings!");
+            }
+        } catch (DatasourceException e) {
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
+        }
+    }
+
+    public static Result buildingsetAllByOwner() {
+        OAuth2Request anyReq = new OAuth2Request(request(), response());
+        if (!anyReq.assertJsonBody()) {
+            return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON);
+        }
+        JsonNode json = anyReq.getJsonBody();
+
+        LPLogger.info("AnyplaceMapping::buildingSetAll(): " + json.toString());
+
+        List<String> requiredMissing = JsonUtils.requirePropertiesInJson(json,
+                "access_token"
+        );
+        if (!requiredMissing.isEmpty()) {
+            return AnyResponseHelper.requiredFieldsMissing(requiredMissing);
+        }
+
+        // get access token from url and check it against google's service
+        if (json.findValue("access_token") == null) {
+            return AnyResponseHelper.forbidden("Unauthorized");
+        }
+        String owner_id = verifyOwnerId(json.findValue("access_token").textValue());
+        if (owner_id == null) {
+            return AnyResponseHelper.forbidden("Unauthorized");
+        }
+        owner_id = appendToOwnerId(owner_id);
+        ((ObjectNode) json).put("owner_id", owner_id);
+
+        if (owner_id == null || owner_id.isEmpty()) {
+            return AnyResponseHelper.requiredFieldsMissing(requiredMissing);
+        }
+
+        try {
+            List<JsonNode> buildingsets = ProxyDataSource.getIDatasource().getAllBuildingsetsByOwner(owner_id);
+            ObjectNode res = JsonUtils.createObjectNode();
+            res.put("buildingsets", JsonUtils.getJsonFromList(buildingsets));
 
             try {
 //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
@@ -637,7 +1040,7 @@ public class AnyplaceMapping extends Controller {
 //                }
 //                return AnyResponseHelper.ok(res.toString());
             } catch (IOException ioe) {
-                return AnyResponseHelper.ok(res, "Successfully retrieved all buildings!");
+                return AnyResponseHelper.ok(res, "Successfully retrieved all buildingsets!");
             }
         } catch (DatasourceException e) {
             return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
@@ -668,7 +1071,7 @@ public class AnyplaceMapping extends Controller {
 
             try {
 //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                return gzippedJSONOk(res.toString());
+                    return gzippedJSONOk(res.toString());
 //                }
 //                return AnyResponseHelper.ok(res.toString());
             } catch (IOException ioe) {
@@ -678,6 +1081,7 @@ public class AnyplaceMapping extends Controller {
             return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
         }
     }
+
 
     /**
      * Retrieve all the buildings that are inside the bounding box of the specified coordinates.
@@ -708,7 +1112,7 @@ public class AnyplaceMapping extends Controller {
             res.put("buildings", JsonUtils.getJsonFromList(buildings));
             try {
 //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                return gzippedJSONOk(res.toString());
+                    return gzippedJSONOk(res.toString());
 //                }
 //                return AnyResponseHelper.ok(res.toString());
             } catch (IOException ioe) {
@@ -718,6 +1122,7 @@ public class AnyplaceMapping extends Controller {
             return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
         }
     }
+
 
     /**
      * Adds a floor to the building denoted by buid
@@ -788,6 +1193,7 @@ public class AnyplaceMapping extends Controller {
             return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
         }
     }
+
 
     /**
      * Update floor information ( floor name, description, is_published )
@@ -983,7 +1389,7 @@ public class AnyplaceMapping extends Controller {
             res.put("floors", JsonUtils.getJsonFromList(buildings));
             try {
 //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                return gzippedJSONOk(res.toString());
+                    return gzippedJSONOk(res.toString());
 //                }
 //                return AnyResponseHelper.ok(res.toString());
             } catch (IOException ioe) {
@@ -993,6 +1399,7 @@ public class AnyplaceMapping extends Controller {
             return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
         }
     }
+
 
     /**
      * Inserts a new Point of Interest at the coordinates passed in
@@ -1035,8 +1442,9 @@ public class AnyplaceMapping extends Controller {
         ((ObjectNode) json).put("owner_id", owner_id);
 
         String buid = json.path("buid").textValue();
-
+        //ProxyDataSource.getIDatasource().poisByBuildingAsJson2(buid,letters);
         try {
+
             ObjectNode stored_building = (ObjectNode) ProxyDataSource.getIDatasource().getFromKeyAsJson(buid);
             if (stored_building == null) {
                 return AnyResponseHelper.bad_request("Building does not exist or could not be retrieved!");
@@ -1172,6 +1580,7 @@ public class AnyplaceMapping extends Controller {
         }
     }
 
+
     /**
      * Delete the Point of Interest denoted by the requested POIS id
      *
@@ -1219,7 +1628,7 @@ public class AnyplaceMapping extends Controller {
 
         try {
             // we need to download the pois/floors/connections and all its connections and delete them all
-            List<String> all_items_failed = ProxyDataSource.getIDatasource().deleteAllByPoi(puid);
+            List<String> all_items_failed = ProxyDataSource.getIDatasource().deleteAllByPoi(puid,buid);
             if (all_items_failed.size() > 0) {
                 // TODO - THINK WHAT TO DO WHEN DELETION FAILS ON SOME ITEMS
 
@@ -1236,12 +1645,46 @@ public class AnyplaceMapping extends Controller {
         }
     }
 
+
+    /**
+     * Get all pois without url - hotfix for android
+     */
+    public static Result tempAllPoisWithoutUrl() {
+        OAuth2Request anyReq = new OAuth2Request(request(), response());
+        if (!anyReq.assertJsonBody()) {
+            return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON);
+        }
+        JsonNode json = anyReq.getJsonBody();
+        LPLogger.info("AnyplaceMapping::poisByFloor(): " + json.toString());
+
+        try {
+            List<JsonNode> pois = ProxyDataSource.getIDatasource().tempAllPoisWithoutUrl();
+
+            for (JsonNode jn : pois) {
+                ObjectNode stored_poi = (ObjectNode) jn;
+
+                stored_poi.put("url", "-");
+
+                AbstractModel poi = new Poi(stored_poi);
+                if (!ProxyDataSource.getIDatasource().replaceJsonDocument(poi.getId(), 0, poi.toCouchGeoJSON())) {
+                    System.out.println("Poi could not be updated!");
+                }
+            }
+
+            return AnyResponseHelper.ok("Successfully added url to all pois!");
+        } catch (DatasourceException e) {
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
+        }
+    }
+
+
     /**
      * Retrieve all the pois of a building/floor combination.
      *
      * @return
      */
     public static Result poisByFloor() {
+
         OAuth2Request anyReq = new OAuth2Request(request(), response());
         if (!anyReq.assertJsonBody()) {
             return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON);
@@ -1265,7 +1708,7 @@ public class AnyplaceMapping extends Controller {
             res.put("pois", JsonUtils.getJsonFromList(pois));
             try {
 //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                return gzippedJSONOk(res.toString());
+                    return gzippedJSONOk(res.toString());
 //                }
 //                return AnyResponseHelper.ok(res.toString());
             } catch (IOException ioe) {
@@ -1275,6 +1718,104 @@ public class AnyplaceMapping extends Controller {
             return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
         }
     }
+
+    /**
+     * Retrieve all the pois of a building/floor combination.
+     *
+     * @return
+     */
+    public static Result poisByBuidincConnectors() {
+        OAuth2Request anyReq = new OAuth2Request(request(), response());
+        if (!anyReq.assertJsonBody()) {
+            return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON);
+        }
+        JsonNode json = anyReq.getJsonBody();
+        LPLogger.info("AnyplaceMapping::poisByBuidincConnectors(): " + json.toString());
+
+        List<String> requiredMissing = JsonUtils.requirePropertiesInJson(json,
+                "buid"
+        );
+        if (!requiredMissing.isEmpty()) {
+            return AnyResponseHelper.requiredFieldsMissing(requiredMissing);
+        }
+
+        String buid = json.findPath("buid").textValue();
+        try {
+            List<JsonNode> pois = ProxyDataSource.getIDatasource().poisByBuildingIDAsJson(buid);
+            ObjectNode res = JsonUtils.createObjectNode();
+            res.put("pois", JsonUtils.getJsonFromList(pois));
+            try {
+//                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+                return gzippedJSONOk(res.toString());
+//                }
+//                return AnyResponseHelper.ok(res.toString());
+            } catch (IOException ioe) {
+                return AnyResponseHelper.ok(res, "Successfully retrieved all pois from buid " + buid + "!");
+            }
+        } catch (DatasourceException e) {
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
+        }
+    }
+
+
+    /**
+     * Retrieve all the pois of a cuid combination.
+     *
+     * @return
+     */
+    public static Result poisAll() {
+        OAuth2Request anyReq = new OAuth2Request(request(), response());
+
+        if (!anyReq.assertJsonBody()) {
+            return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON);
+        }
+        JsonNode json = anyReq.getJsonBody();
+
+        String cuid = request().getQueryString("cuid");
+        if (cuid==null) {
+            cuid = json.findPath("cuid").textValue();
+        }
+        String letters = request().getQueryString("letters");
+        if (letters==null) {
+            letters = json.findPath("letters").textValue();
+        }
+
+        String buid = request().getQueryString("buid");
+        if (buid==null) {
+            buid = json.findPath("buid").textValue();
+        }
+
+        String greeklish = request().getQueryString("greeklish");
+        if (greeklish==null) {
+            greeklish = json.findPath("greeklish").textValue();
+        }
+
+        try {
+
+            List<JsonNode> result = new ArrayList<JsonNode>();
+            if (cuid.compareTo("")==0){
+                result = ProxyDataSource.getIDatasource().poisByBuildingAsJson3(buid,letters);
+            }
+            else{
+                if (greeklish.compareTo("true")==0){
+                    result = ProxyDataSource.getIDatasource().poisByBuildingAsJson2GR(cuid,letters);
+                }
+                else{
+                    result = ProxyDataSource.getIDatasource().poisByBuildingAsJson2(cuid,letters);
+                }
+            }
+            ObjectNode res = JsonUtils.createObjectNode();
+            res.put("pois", JsonUtils.getJsonFromList(result));
+            try {
+                return gzippedJSONOk(res.toString());
+            } catch (IOException ioe) {
+                return AnyResponseHelper.ok(res, "Successfully retrieved all pois from building.");
+            }
+        } catch (DatasourceException e) {
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
+        }
+    }
+
 
     /**
      * Retrieve all the pois of a building/floor combination.
@@ -1303,11 +1844,70 @@ public class AnyplaceMapping extends Controller {
             res.put("pois", JsonUtils.getJsonFromList(pois));
             try {
 //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                return gzippedJSONOk(res.toString());
+                    return gzippedJSONOk(res.toString());
 //                }
 //                return AnyResponseHelper.ok(res.toString());
             } catch (IOException ioe) {
                 return AnyResponseHelper.ok(res, "Successfully retrieved all pois from building.");
+            }
+        } catch (DatasourceException e) {
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
+        }
+    }
+//poisTypes
+
+    /**
+     * Retrieve all the pois types by owner.
+     *
+     * @return
+     */
+
+    public static Result poisTypes() {
+
+        OAuth2Request anyReq = new OAuth2Request(request(), response());
+        if (!anyReq.assertJsonBody()) {
+            return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON);
+        }
+        JsonNode json = anyReq.getJsonBody();
+
+        LPLogger.info("AnyplaceMapping::poisTypes(): " + json.toString());
+
+        List<String> requiredMissing = JsonUtils.requirePropertiesInJson(json,
+                "access_token"
+        );
+        if (!requiredMissing.isEmpty()) {
+            return AnyResponseHelper.requiredFieldsMissing(requiredMissing);
+        }
+
+        // get access token from url and check it against google's service
+        if (json.findValue("access_token") == null) {
+            return AnyResponseHelper.forbidden("Unauthorized");
+        }
+        String owner_id = verifyOwnerId(json.findValue("access_token").textValue());
+        if (owner_id == null) {
+            return AnyResponseHelper.forbidden("Unauthorized");
+        }
+        owner_id = appendToOwnerId(owner_id);
+        ((ObjectNode) json).put("owner_id", owner_id);
+
+        if (owner_id == null || owner_id.isEmpty()) {
+            return AnyResponseHelper.requiredFieldsMissing(requiredMissing);
+        }
+
+        try {
+
+            List<JsonNode> poistypes = ProxyDataSource.getIDatasource().getAllPoisTypesByOwner(owner_id);
+
+            ObjectNode res = JsonUtils.createObjectNode();
+            res.put("poistypes", JsonUtils.getJsonFromList(poistypes));
+
+            try {
+//                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+                return gzippedJSONOk(res.toString());
+//                }
+//                return AnyResponseHelper.ok(res.toString());
+            } catch (IOException ioe) {
+                return AnyResponseHelper.ok(res, "Successfully retrieved all poistypes!");
             }
         } catch (DatasourceException e) {
             return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
@@ -1411,6 +2011,7 @@ public class AnyplaceMapping extends Controller {
             return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
         }
     }
+
 
     /**
      * Updates the edge_type of the connection between two Points of Interest - specified by pois_a and pois_b -
@@ -1597,6 +2198,7 @@ public class AnyplaceMapping extends Controller {
         }
     }
 
+
     /**
      * Retrieve all the pois of a building/floor combination.
      *
@@ -1626,11 +2228,49 @@ public class AnyplaceMapping extends Controller {
             res.put("connections", JsonUtils.getJsonFromList(pois));
             try {
 //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                return gzippedJSONOk(res.toString());
+                    return gzippedJSONOk(res.toString());
 //                }
 //                return AnyResponseHelper.ok(res.toString());
             } catch (IOException ioe) {
                 return AnyResponseHelper.ok(res, "Successfully retrieved all pois from floor " + floor_number + "!");
+            }
+        } catch (DatasourceException e) {
+            return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
+        }
+    }
+
+    /**
+     * Retrieve all the pois of a building/floor combination.
+     *
+     * @return
+     */
+    public static Result connectionsByallFloors() {
+        OAuth2Request anyReq = new OAuth2Request(request(), response());
+        if (!anyReq.assertJsonBody()) {
+            return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON);
+        }
+        JsonNode json = anyReq.getJsonBody();
+        LPLogger.info("AnyplaceMapping::connectionsByallFloors(): " + json.toString());
+
+        List<String> requiredMissing = JsonUtils.requirePropertiesInJson(json,
+                "buid"
+        );
+        if (!requiredMissing.isEmpty()) {
+            return AnyResponseHelper.requiredFieldsMissing(requiredMissing);
+        }
+
+        String buid = json.findPath("buid").textValue();
+        try {
+            List<JsonNode> pois = ProxyDataSource.getIDatasource().connectionsByBuildingAllFloorsAsJson(buid);
+            ObjectNode res = JsonUtils.createObjectNode();
+            res.put("connections", JsonUtils.getJsonFromList(pois));
+            try {
+//                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
+                return gzippedJSONOk(res.toString());
+//                }
+//                return AnyResponseHelper.ok(res.toString());
+            } catch (IOException ioe) {
+                return AnyResponseHelper.ok(res, "Successfully retrieved all pois from all floors !");
             }
         } catch (DatasourceException e) {
             return AnyResponseHelper.internal_server_error("Server Internal Error [" + e.getMessage() + "]");
@@ -1674,6 +2314,7 @@ public class AnyplaceMapping extends Controller {
         return GeoPoint.getDistanceBetweenPoints(lat_a, lon_a, lat_b, lon_b, "K");
     }
 
+
     /**
      * Returns the floor plan (png) for the requested building floor in binary format.
      * Used by the Android client  - NOT ANYMORE
@@ -1705,6 +2346,7 @@ public class AnyplaceMapping extends Controller {
             return AnyResponseHelper.internal_server_error("Could not read floor plan.");
         }
     }
+
 
     /**
      * Returns the floor plan tiles in a .zip file for the requested building floor.
@@ -1742,6 +2384,7 @@ public class AnyplaceMapping extends Controller {
         }
     }
 
+
     /**
      * Returns the floor plan tiles .zip file LINK for the requested building floor.
      * Used by the Developers API.
@@ -1776,6 +2419,7 @@ public class AnyplaceMapping extends Controller {
 
         return AnyResponseHelper.ok(res, "Successfully fetched link for the tiles archive!");
     }
+
 
     /**
      * Returns the file requested from inside the floor plan folder
@@ -1822,6 +2466,7 @@ public class AnyplaceMapping extends Controller {
         }
     }
 
+
     /**
      * Returns the floorplan in base64 form. Used by the Anyplace websites
      *
@@ -1849,7 +2494,7 @@ public class AnyplaceMapping extends Controller {
                 String s = encodeFileToBase64Binary(filePath);
                 try {
 //                    if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                    return gzippedOk(s);
+                        return gzippedOk(s);
 //                    }
 //                    return AnyResponseHelper.ok(s);
                 } catch (IOException ioe) {
@@ -1863,6 +2508,56 @@ public class AnyplaceMapping extends Controller {
             return AnyResponseHelper.internal_server_error("Unknown server error during floor plan delivery!");
         }
     }
+
+    /**
+     * Returns the floorplan in base64 form. Used by the Anyplace websites
+     *
+     * @param buid
+     * @param floor_number
+     * @return
+     */
+    public static Result serveFloorPlanBase64all(String buid, String floor_number) {
+        OAuth2Request anyReq = new OAuth2Request(request(), response());
+        if (!anyReq.assertJsonBody()) {
+            return AnyResponseHelper.bad_request(AnyResponseHelper.CANNOT_PARSE_BODY_AS_JSON);
+        }
+        JsonNode json = anyReq.getJsonBody();
+        LPLogger.info("AnyplaceMapping::serveFloorPlanBase64all(): " + json.toString()+" "+floor_number);
+        String floors[] = floor_number.split(" ");
+
+        List<String> all_floors = new ArrayList<>();
+
+        for (int z=0; z<floors.length; z++){
+            String filePath = AnyPlaceTilerHelper.getFloorPlanFor(buid, floors[z]);
+            LPLogger.info("requested: " + filePath);
+
+            File file = new java.io.File(filePath);
+            try {
+                if (!file.exists() || !file.canRead()) {
+                    all_floors.add("");
+                    continue;
+                }
+                else {
+                    try {
+                        String s = encodeFileToBase64Binary(filePath);
+                        all_floors.add(s);
+                    } catch (IOException e) {
+                        return AnyResponseHelper.bad_request("Requested floor plan cannot be encoded in base64 properly! (" + floors[z] + ")");
+                    }
+                }
+            } catch (Exception e) {
+                return AnyResponseHelper.internal_server_error("Unknown server error during floor plan delivery!");
+            }
+        }
+        ObjectNode res = JsonUtils.createObjectNode();
+        res.put("all_floors", JsonUtils.getJsonFromList(all_floors));
+        try {
+            return gzippedJSONOk(res.toString());
+        } catch (IOException ioe) {
+            return AnyResponseHelper.ok(res, "Successfully retrieved all floors!");
+        }
+    }
+
 
     private static String encodeFileToBase64Binary(String fileName)
             throws IOException {
@@ -1922,6 +2617,7 @@ public class AnyplaceMapping extends Controller {
         if (floorplan == null) {
             return AnyResponseHelper.bad_request("Cannot find the floor plan file in your request!");
         }
+        //System.out.println( "File: " + floorplan.getFile().getAbsolutePath() );
 
         Map<String, String[]> urlenc = body.asFormUrlEncoded();
         String json_str = urlenc.get("json")[0];
@@ -2049,8 +2745,28 @@ public class AnyplaceMapping extends Controller {
 
     private static boolean isBuildingOwner(ObjectNode building, String userId) {
 
+        // Admin
+        if (userId.equals(ADMIN_ID)) {
+            return true;
+        }
+
         // Check if owner
         if (building != null && building.get("owner_id") != null && building.get("owner_id").textValue().equals(userId)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static boolean isCampusOwner(ObjectNode campus, String userId) {
+
+        // Admin
+        if (userId.equals(ADMIN_ID)) {
+            return true;
+        }
+
+        // Check if owner
+        if (campus != null && campus.get("owner_id") != null && campus.get("owner_id").textValue().equals(userId)) {
             return true;
         }
 
@@ -2074,7 +2790,6 @@ public class AnyplaceMapping extends Controller {
     }
 
     // TODO: Move to util class
-
     /**
      * Should check if Request Headers accept gzip encoding
      * <p>

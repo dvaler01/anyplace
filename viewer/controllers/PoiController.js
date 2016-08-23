@@ -1,39 +1,73 @@
-/*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
+/**
  *
- * Anyplace is a first-of-a-kind indoor information service offering GPS-less
- * localization, navigation and search inside buildings using ordinary smartphones.
- *
- * Author(s): Kyriakos Georgiou
- *
- * Supervisor: Demetrios Zeinalipour-Yazti
- *
- * URL: http://anyplace.cs.ucy.ac.cy
- * Contact: anyplace@cs.ucy.ac.cy
- *
- * Copyright (c) 2015, Data Management Systems Lab (DMSL), University of Cyprus.
- * All rights reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the “Software”), to deal in the
- * Software without restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the
- * following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
+ The MIT License (MIT)
+
+ Copyright (c) 2015, Kyriakos Georgiou, Data Management Systems Laboratory (DMSL)
+ Department of Computer Science, University of Cyprus, Nicosia, CYPRUS,
+ dmsl@cs.ucy.ac.cy, http://dmsl.cs.ucy.ac.cy/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
+/*
+ POI Schema:
+ {
+ buid: "building_2f25420e-3cb1-4bc1-9996-3939e5530d30_1414014035379"
+ coordinates_lat: "35.1660861073284"
+ coordinates_lon: "129.13564771413803"
+ description: "4B Hall"
+ floor_name: "First Floor"
+ floor_number: "1"
+ geometry: {
+ coordinates: [35.1660861073284, 129.13564771413803],
+ type: "Point"
+ }
+ coordinates: [35.1660861073284, 129.13564771413803]
+ 0: 35.1660861073284
+ 1: 129.13564771413803
+ type: "Point"
+ image: "url_to_pois_image"
+ is_building_entrance: "false"
+ is_door: "false"
+ is_published: "true"
+ name: "4B Hall"
+ pois_type: "Room"
+ puid: "poi_057ce88f-01c4-4cf7-b39e-992f73b6b68d"
+ url: ""
+ }
+
+ Connection Schema:
+ {
+ buid: "building_2f25420e-3cb1-4bc1-9996-3939e5530d30_1414014035379"
+ buid_a: "building_2f25420e-3cb1-4bc1-9996-3939e5530d30_1414014035379"
+ buid_b: "building_2f25420e-3cb1-4bc1-9996-3939e5530d30_1414014035379"
+ cuid: "conn_poi_0f8916c8-b57d-44a3-a568-6042cbc173b7_poi_1de0950f-9ef3-4f01-b06e-f24fb42eb9dd"
+ edge_type: "hallway"
+ floor_a: "1"
+ floor_b: "1"
+ is_published: "true"
+ pois_a: "poi_0f8916c8-b57d-44a3-a568-6042cbc173b7"
+ pois_b: "poi_1de0950f-9ef3-4f01-b06e-f24fb42eb9dd"
+ weight: "0.0197223019334019"
+ }
+
+ */
 app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceService', 'AnyplaceAPIService', function ($scope, $compile, GMapService, AnyplaceService, AnyplaceAPIService) {
 
     var _POI_CONNECTOR_IMG = 'build/images/edge-connector-icon.png';
@@ -41,6 +75,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     var _POI_NEW_IMG = 'build/images/poi-icon.png';
 
     var _MARKERS_IMG_RAW_SIZE = new google.maps.Size(62, 93);
+    // 21, 32 old size
     var _MARKERS_SIZE_NORMAL = new google.maps.Size(21, 32);
     var _MARKERS_SIZE_BIG = new google.maps.Size(31, 48);
 
@@ -55,6 +90,8 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
     $scope.myEntrances = [];
 
+
+
     $scope.showPoiDescription = false;
     $scope.poiShareUrl = {
         puid: undefined,
@@ -63,6 +100,47 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
     $scope.poiRouteState = {
         form: undefined
+    };
+
+
+
+    $scope.mylastquery = "";
+    $scope.myallPois = [];
+    var self = this;
+    self.querySearch = querySearch;
+
+    function querySearch (query){
+        if (query == ""){
+            return $scope.myPois;
+        }
+        if (query == $scope.mylastquery){
+            return $scope.myallPois;
+        }
+        $scope.anyService.selectedSearchPoi = query;
+        setTimeout(
+            function(){
+                if (query==$scope.anyService.selectedSearchPoi ){
+                    $scope.fetchAllPoi(query, $scope.anyService.selectedBuilding.buid);
+                }
+            },1000);
+        $scope.mylastquery = query;
+        return
+    }
+
+    $scope.fetchAllPoi = function (letters , buid) {
+        var jsonReq = { "access-control-allow-origin": "",    "content-encoding": "gzip",    "access-control-allow-credentials": "true",    "content-length": "17516",    "content-type": "application/json" , "buid":buid, "cuid":"", "letters":letters };
+        var promise = AnyplaceAPIService.retrieveALLPois(jsonReq);
+        promise.then(
+            function (resp) {
+                var data = resp.data;
+                $scope.myallPois = data.pois;
+            },
+            function (resp) {
+                var data = resp.data;
+                if (letters=="")
+                    _err("Something went wrong while fetching POIs");
+            }
+        );
     };
 
     $scope.togglePoiDescription = function () {
@@ -279,11 +357,11 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         try {
             if (typeof(Storage) !== "undefined" && localStorage)
                 localStorage.removeItem("lastBuilding");
-                localStorage.removeItem("lastFloor");
-                localStorage.removeItem("lastPoi");
+            localStorage.removeItem("lastFloor");
+            localStorage.removeItem("lastPoi");
         } catch (e) {
         }
-        
+
     };
 
     $scope.clearNavPolylines = function () {
@@ -635,8 +713,8 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                     if (!p || p.floor_number != targetPoi.floor_number)
                         continue;
                     if ((d = _euclideanDistance(
-                            parseFloat(p.coordinates_lat), parseFloat(p.coordinates_lon),
-                            lat, lng)
+                                parseFloat(p.coordinates_lat), parseFloat(p.coordinates_lon),
+                                lat, lng)
                         ) <= minD) {
                         minD = d;
                         minP = p;
@@ -816,25 +894,25 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             });
 
             htmlContent = '<div class="iw infowindow-scroll-fix">'
-            + '<div class="wordwrap" style="text-align: center">'
-            + '<span ng-show="navRoutesShown()" id="info-window-zoomin" ng-click="zoomInPoi()"><img src="build/images/html5_location_icon.png"></span>'
-            + '<span class="iw-poi-name">' + p.name + '</span></div>'
-            + '<div class="wordwrap iw-poi-description" ng-show="showPoiDescription">' + p.description + '</div>'
-            + '<div style="text-align: center">'
-            + '<div class="poi-action-btn"><button class="btn btn-info" ng-click="togglePoiDescription()"><i class="fa fa-info-circle"></i></i></button></div>'
-            + '<div class="poi-action-btn"><button class="btn btn-primary" ng-click="startNavFromPoi()"><i style="font-size: 12px;" class="fa fa-flag"></i></button></div>'
-            + '<div class="poi-action-btn"><button class="btn btn-success" ng-click="navigateFromUserToPoi(\'' + p.puid + '\')"><i class="fa fa-location-arrow"></i></button></div>'
-            + '<div class="poi-action-btn"><button class="btn btn-warning" ng-click="getPoiShareUrl(\'' + p.puid + '\')"><i class="fa fa-share-alt"></i></button></div>'
-                //+ '<span id="info-window-nav-from-poi" ng-click="startNavFromPoi()"><img src="build/images/start-poi-nav.png"></span>'
-                //+ '<div ng-show="navRoutesShown()" class="poi-action-btn"><button class="btn btn-primary" ng-click="zoomInPoi()"><i class="fa fa-crosshairs"></i></button></div>'
-            + '</div>'
-            + '<div ng-show="poiShareUrl.puid" style="margin-top: 2px">'
-            + '<div>Share URL:</div>'
-            + '<input class="form-control" value="{{poiShareUrl.url}}"/>'
-            + '<div>Embed:</div>'
-            + '<input class="form-control" value="{{poiShareUrl.embed}}"/>'
-            + '</div>'
-            + '</div>';
+                + '<div class="wordwrap" style="text-align: center">'
+                + '<span ng-show="navRoutesShown()" id="info-window-zoomin" ng-click="zoomInPoi()"><img src="build/images/html5_location_icon.png"></span>'
+                + '<span class="iw-poi-name">' + p.name + '</span></div>'
+                + '<div class="wordwrap iw-poi-description" ng-show="showPoiDescription">' + p.description + '</div>'
+                + '<div style="text-align: center">'
+                + '<div class="poi-action-btn"><button class="btn btn-info" ng-click="togglePoiDescription()"><i class="fa fa-info-circle"></i></i></button></div>'
+                + '<div class="poi-action-btn"><button class="btn btn-primary" ng-click="startNavFromPoi()"><i style="font-size: 12px;" class="fa fa-flag"></i></button></div>'
+                + '<div class="poi-action-btn"><button class="btn btn-success" ng-click="navigateFromUserToPoi(\'' + p.puid + '\')"><i class="fa fa-location-arrow"></i></button></div>'
+                + '<div class="poi-action-btn"><button class="btn btn-warning" ng-click="getPoiShareUrl(\'' + p.puid + '\')"><i class="fa fa-share-alt"></i></button></div>'
+                    //+ '<span id="info-window-nav-from-poi" ng-click="startNavFromPoi()"><img src="build/images/start-poi-nav.png"></span>'
+                    //+ '<div ng-show="navRoutesShown()" class="poi-action-btn"><button class="btn btn-primary" ng-click="zoomInPoi()"><i class="fa fa-crosshairs"></i></button></div>'
+                + '</div>'
+                + '<div ng-show="poiShareUrl.puid" style="margin-top: 2px">'
+                + '<div>Share URL:</div>'
+                + '<input class="form-control" value="{{poiShareUrl.url}}"/>'
+                + '<div>Embed:</div>'
+                + '<input class="form-control" value="{{poiShareUrl.embed}}"/>'
+                + '</div>'
+                + '</div>';
 
             var compiledTpl = $compile(htmlContent)($scope);
 
@@ -890,6 +968,10 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         } else if (entranceFound && entrancePoi) {
             $scope.anyService.selectedPoi = entrancePoi;
         }
+        //else if ($scope.myPois && $scope.myPois.length > 0) {
+        //    $scope.anyService.selectedPoi = $scope.myPois[0];
+        //}
+
     };
 
     $scope.showPoisOnlyForFloor = function (floor_num) {
@@ -967,4 +1049,5 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         return (resd <= radius)
     }
 }
-]);
+])
+;

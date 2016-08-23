@@ -25,6 +25,21 @@
  THE SOFTWARE.
  */
 
+/*
+ Floor Schema:
+ {
+ bottom_left_lat: "35.164948104577476"
+ bottom_left_lng: "129.133842587471"
+ buid: "building_2f25420e-3cb1-4bc1-9996-3939e5530d30_1414014035379"
+ description: "First Floor"
+ floor_name: "First Floor"
+ floor_number: "1"
+ fuid: "building_2f25420e-3cb1-4bc1-9996-3939e5530d30_1414014035379_1"
+ is_published: "true"
+ top_right_lat: "35.1664873646166"
+ top_right_lng: "129.13621366024017"
+ }
+ */
 app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', 'AnyplaceAPIService', function ($scope, AnyplaceService, GMapService, AnyplaceAPIService) {
     $scope.anyService = AnyplaceService;
     $scope.anyAPI = AnyplaceAPIService;
@@ -64,6 +79,13 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         $scope.myFloors = {};
     };
 
+    var _latLngFromPoi = function (p) {
+        if (p && p.coordinates_lat && p.coordinates_lon) {
+            return {lat: parseFloat(p.coordinates_lat), lng: parseFloat(p.coordinates_lon)}
+        }
+        return undefined;
+    };
+
     $scope.$watch('anyService.selectedBuilding', function (newVal, oldVal) {
         if (newVal) {
             if (heatmap)
@@ -72,6 +94,13 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         }
     });
 
+    /**
+     $scope.$watch('anyService.selectedPoi', function (newVal, oldVal) {
+        if (newVal && _latLngFromPoi(newVal)) {
+            $scope.showRadioHeatmapPoi();
+        }
+    });
+     */
     $scope.$watch('newFloorNumber', function (newVal, oldVal) {
         //if (_floorNoExists(newVal)) {
         //    _setNextFloor();
@@ -145,6 +174,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
 
                 _setNextFloor();
 
+//                _suc("Successfully fetched all floors.");
             },
             function (resp) {
                 console.log(resp.data.message);
@@ -552,12 +582,57 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
         return heatmap && heatmap.getMap() ? "Hide WiFi Map" : "Show WiFi Map";
     };
 
-    $scope.showRadioHeatmap = function () {
-        var jsonReq = {};
+    $scope.showRadioHeatmapPoi = function () {
+        var jsonReq = {"buid":$scope.anyService.getBuildingId(),"floor":$scope.anyService.getFloorNumber(),"coordinates_lat":$scope.anyService.selectedPoi.coordinates_lat,"coordinates_lon":$scope.anyService.selectedPoi.coordinates_lon,"range":"1"};
+
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
-        jsonReq.buid = $scope.anyService.getBuildingId();
-        jsonReq.floor = $scope.anyService.getFloorNumber();
+
+        var promise = $scope.anyAPI.getRadioHeatmapPoi(jsonReq);
+        promise.then(
+            function (resp) {
+                // on success
+                var data = resp.data;
+
+                var heatMapData = [];
+
+                var i = resp.data.radioPoints.length;
+
+                if (i <= 0) {
+                    _err("This floor seems not to be WiFi mapped. Download the Anyplace app from the Google Play store to map the floor.");
+                    return;
+                }
+
+                while (i--) {
+                    var rp = resp.data.radioPoints[i];
+                    heatMapData.push(
+                        {location: new google.maps.LatLng(rp.x, rp.y), weight: 1}
+                    );
+                    resp.data.radioPoints.splice(i, 1);
+                }
+
+                if (heatmap && heatmap.getMap()) {
+                    heatmap.setMap(null);
+                }
+
+                heatmap = new google.maps.visualization.HeatmapLayer({
+                    data: heatMapData
+                });
+                heatmap.setMap($scope.gmapService.gmap);
+            },
+            function (resp) {
+                // on error
+                var data = resp.data;
+                _err('Something went wrong while fetching radio heatmap.');
+            }
+        );
+    }
+
+    $scope.showRadioHeatmap = function () {
+        var jsonReq = {"buid":$scope.anyService.getBuildingId(),"floor":$scope.anyService.getFloorNumber()};
+
+        jsonReq.username = $scope.creds.username;
+        jsonReq.password = $scope.creds.password;
 
         var promise = $scope.anyAPI.getRadioHeatmap(jsonReq);
         promise.then(

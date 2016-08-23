@@ -1,49 +1,13 @@
-/*
- * AnyPlace: A free and open Indoor Navigation Service with superb accuracy!
- *
- * Anyplace is a first-of-a-kind indoor information service offering GPS-less
- * localization, navigation and search inside buildings using ordinary smartphones.
- *
- * Author(s): Lambros Petrou
- *
- * Supervisor: Demetrios Zeinalipour-Yazti
- *
- * URL: https://anyplace.cs.ucy.ac.cy
- * Contact: anyplace@cs.ucy.ac.cy
- *
- * Copyright (c) 2016, Data Management Systems Lab (DMSL), University of Cyprus.
- * All rights reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the “Software”), to deal in the
- * Software without restriction, including without limitation the rights to use, copy,
- * modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the
- * following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- * DEALINGS IN THE SOFTWARE.
- *
- */
-
 package utils;
 
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
+import org.apache.commons.codec.binary.Base64;
+
+import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.UUID;
@@ -79,6 +43,10 @@ public class LPUtils {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static String hashStringBase64(String input){
+        return new String (Base64.encodeBase64(hashString(input)));
     }
 
     public static String hashStringHex(String input){
@@ -130,6 +98,100 @@ public class LPUtils {
         return null;
     }
 
+    /**
+     * Securely encrypts the plaintext using the password provided.
+     *
+     * The salt, IV and ciphertext are stored in the final result separated by dot.
+     *
+     * base64(salt).base64(iv).base64(ciphertext)
+     *
+     * @param password
+     * @param plaintext
+     * @return
+     */
+    public static String secureEncrypt(String password, String plaintext){
+        try {
+            int keyLength = SECURE_KEY_LENGTH;
+            // same size as key output in bytes ( keyLength is in bits )
+            int saltLength = keyLength >> 3;
+
+            SecureRandom random = new SecureRandom();
+            byte[] salt = new byte[saltLength];
+            random.nextBytes(salt);
+            SecretKey key = deriveKeyPbkdf2(salt, password);
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            byte[] iv = new byte[cipher.getBlockSize()];
+            random.nextBytes(iv);
+            IvParameterSpec ivParams = new IvParameterSpec(iv);
+            cipher.init(Cipher.ENCRYPT_MODE, key, ivParams);
+            byte[] ciphertext = cipher.doFinal(plaintext.getBytes("UTF-8"));
+
+            //LPLogger.info("bytes: " + new String(salt) + "." + iv + "." + new String(ciphertext));
+            String finalResult = new String (Base64.encodeBase64(salt)) + "." + new String (Base64.encodeBase64(iv)) + "." + new String (Base64.encodeBase64(ciphertext));
+            //LPLogger.info("final: " + finalResult);
+            return finalResult;
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Securely decrypts the plaintext using the password provided.
+     *
+     * The salt, IV and ciphertext are stored in the ciphertext separated by dot.
+     *
+     * base64(salt).base64(iv).base64(ciphertext)
+     *
+     * @param password The password used to encrypt the text above
+     * @param ciphertext The output of the secureEncrypt function above
+     * @return
+     */
+    public static String secureDecrypt(String password, String ciphertext){
+        try {
+            String[] fields = ciphertext.split("[.]");
+            byte[] salt = Base64.decodeBase64(fields[0].getBytes());
+            byte[] iv = Base64.decodeBase64(fields[1].getBytes());
+            byte[] cipherBytes = Base64.decodeBase64(fields[2].getBytes());
+            //LPLogger.info( salt + "." + iv + "." + cipherBytes);
+            SecretKey key = deriveKeyPbkdf2(salt, password);
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            IvParameterSpec ivParams = new IvParameterSpec(iv);
+            cipher.init(Cipher.DECRYPT_MODE, key, ivParams);
+            byte[] plaintext = cipher.doFinal(cipherBytes);
+            String plainrStr = new String(plaintext , "UTF-8");
+            return plainrStr;
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 
     public static String binaryToHex(byte[] ba){
@@ -156,5 +218,25 @@ public class LPUtils {
                     .parseInt(hex.substring(2 * i, 2 * i + 2), 16);
         }
         return ba;
+    }
+
+    public static String encodeBase64String(String s){
+        try{
+            byte[] binary = s.getBytes("UTF-8");
+            return new String (Base64.encodeBase64(binary));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String decodeBase64String(String sb64){
+        try{
+            byte[] binary = Base64.decodeBase64(sb64.getBytes());
+            return new String(binary,"UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
