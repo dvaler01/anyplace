@@ -595,7 +595,10 @@
                                 <a href="" ng-click="setCrudTabSelected(3)">New Category</a>
                             </li>
                             <li role="presentation" ng-class="{ active:isCrudTabSelected(2) }">
-                                <a href="" ng-click="setCrudTabSelected(2)">Import</a>
+                                <a href="" ng-click="setCrudTabSelected(2)">Import (JSON)</a>
+                            </li>
+                            <li role="presentation" ng-class="{ active:isCrudTabSelected(4) }">
+                                <a href="" ng-click="setCrudTabSelected(4)">Import (EXCEL)</a>
                             </li>
                         </ul>
 
@@ -645,6 +648,22 @@
                                         <button class="btn btn-success" ng-click="importBuildingFromJson()">Import from JSON
                                         </button>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="divider-top-10" ng-show="isCrudTabSelected(4) && anyService.selectedBuilding">
+                            <div>
+                                <div class="divider-top-10">
+                                    <div class="midnote">Export / Import</div>
+                                    <div class="subnote">To update the POIs from an excel file, with same name,</div>
+                                    <div class="subnote">create an excel with 6 columns.</div>
+                                    <div class="subnote">Name the 1st 'buid',the 2nd name and from the 3rd to 6th name them </div>
+                                    <div class="subnote">'des1','des2','des3','des4' respectively.</div>
+                                    <div class="subnote">Furthermore in 'buid' column complete the buids,</div>
+                                    <div class="subnote">in 'name' column complete the names that mach with POIs names,</div>
+                                    <div class="subnote">and finally in use the des1,des2,des3,des4 to complete the description.</div>
+                                    <div class="subnote">The structure of descriptions is "des3 des4\ndes1\ndes2".</div>
 
                                     <div>
                                         <input class="form-control" style="margin: 3px;" type="file" id="my_file_input" value=""/>
@@ -658,6 +677,7 @@
                                 </div>
                             </div>
                         </div>
+
 
                         <div class="divider-top-10" ng-show="isCrudTabSelected(3)">
 
