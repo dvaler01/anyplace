@@ -30,7 +30,7 @@ public class AnyplaceMapping extends Controller {
 
     private static String verifyOwnerId(String authToken) {
 
-        String gURL = "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=" + authToken;
+        String gURL = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + authToken;
 
         URL googleUrl = null;
 
@@ -46,7 +46,7 @@ public class AnyplaceMapping extends Controller {
         if (res != null) {
             try {
                 JsonNode json = (ObjectNode) JsonUtils.getJsonTree(res);
-                return json.get("user_id") == null ? null : json.get("user_id").textValue();
+                return json.get("sub") == null ? null : json.get("sub").textValue();
             } catch (IOException ioe) {
                 return null;
             }
@@ -133,7 +133,7 @@ public class AnyplaceMapping extends Controller {
             res.put("radioPoints", JsonUtils.getJsonFromList(radioPoints));
             try {
 //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                    return gzippedJSONOk(res.toString());
+                return gzippedJSONOk(res.toString());
 //                }
 //                return AnyResponseHelper.ok(res.toString());
             } catch (IOException ioe) {
@@ -819,7 +819,7 @@ public class AnyplaceMapping extends Controller {
             res.put("buildings", JsonUtils.getJsonFromList(buildings));
             try {
 //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                    return gzippedJSONOk(res.toString());
+                return gzippedJSONOk(res.toString());
 //                }
 //                return AnyResponseHelper.ok(res.toString());
             } catch (IOException ioe) {
@@ -933,7 +933,7 @@ public class AnyplaceMapping extends Controller {
                 res.put("building", building);
                 try {
 //                    if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                        return gzippedJSONOk(res.toString());
+                    return gzippedJSONOk(res.toString());
 //                    }
 //                    return AnyResponseHelper.ok(res.toString());
                 } catch (IOException ioe) {
@@ -987,7 +987,7 @@ public class AnyplaceMapping extends Controller {
 
             try {
 //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                    return gzippedJSONOk(res.toString());
+                return gzippedJSONOk(res.toString());
 //                }
 //                return AnyResponseHelper.ok(res.toString());
             } catch (IOException ioe) {
@@ -1071,7 +1071,7 @@ public class AnyplaceMapping extends Controller {
 
             try {
 //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                    return gzippedJSONOk(res.toString());
+                return gzippedJSONOk(res.toString());
 //                }
 //                return AnyResponseHelper.ok(res.toString());
             } catch (IOException ioe) {
@@ -1112,7 +1112,7 @@ public class AnyplaceMapping extends Controller {
             res.put("buildings", JsonUtils.getJsonFromList(buildings));
             try {
 //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                    return gzippedJSONOk(res.toString());
+                return gzippedJSONOk(res.toString());
 //                }
 //                return AnyResponseHelper.ok(res.toString());
             } catch (IOException ioe) {
@@ -1389,7 +1389,7 @@ public class AnyplaceMapping extends Controller {
             res.put("floors", JsonUtils.getJsonFromList(buildings));
             try {
 //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                    return gzippedJSONOk(res.toString());
+                return gzippedJSONOk(res.toString());
 //                }
 //                return AnyResponseHelper.ok(res.toString());
             } catch (IOException ioe) {
@@ -1708,7 +1708,7 @@ public class AnyplaceMapping extends Controller {
             res.put("pois", JsonUtils.getJsonFromList(pois));
             try {
 //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                    return gzippedJSONOk(res.toString());
+                return gzippedJSONOk(res.toString());
 //                }
 //                return AnyResponseHelper.ok(res.toString());
             } catch (IOException ioe) {
@@ -1844,7 +1844,7 @@ public class AnyplaceMapping extends Controller {
             res.put("pois", JsonUtils.getJsonFromList(pois));
             try {
 //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                    return gzippedJSONOk(res.toString());
+                return gzippedJSONOk(res.toString());
 //                }
 //                return AnyResponseHelper.ok(res.toString());
             } catch (IOException ioe) {
@@ -2228,7 +2228,7 @@ public class AnyplaceMapping extends Controller {
             res.put("connections", JsonUtils.getJsonFromList(pois));
             try {
 //                if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                    return gzippedJSONOk(res.toString());
+                return gzippedJSONOk(res.toString());
 //                }
 //                return AnyResponseHelper.ok(res.toString());
             } catch (IOException ioe) {
@@ -2494,7 +2494,7 @@ public class AnyplaceMapping extends Controller {
                 String s = encodeFileToBase64Binary(filePath);
                 try {
 //                    if (request().getHeader("Accept-Encoding") != null && request().getHeader("Accept-Encoding").contains("gzip")) {
-                        return gzippedOk(s);
+                    return gzippedOk(s);
 //                    }
 //                    return AnyResponseHelper.ok(s);
                 } catch (IOException ioe) {

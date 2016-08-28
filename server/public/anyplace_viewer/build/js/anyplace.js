@@ -413,12 +413,12 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             url: AnyplaceAPI.Mapping.BUILDING_ALL_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
 
     };
 
@@ -428,12 +428,12 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             url: AnyplaceAPI.Mapping.BUILDING_ONE_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
 
     };
 
@@ -448,12 +448,12 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             url: AnyplaceAPI.Mapping.FLOOR_ALL_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
 
     };
 
@@ -464,12 +464,12 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             url: AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL + buid + "/" + floor_number,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
     /******************************************************
@@ -481,12 +481,12 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             url: AnyplaceAPI.Mapping.POIS_ALL_FLOOR_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     }
 
     apiService.retrievePoisByBuilding = function (json_req) {
@@ -495,12 +495,12 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             url: AnyplaceAPI.Mapping.POIS_ALL_BUILDING_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     }
 
     apiService.retrieveALLPois = function (json_req) {
@@ -528,12 +528,12 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             url: AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
 
@@ -546,12 +546,12 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             url: AnyplaceAPI.Navigation.POIS_ROUTE,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.googleUrlShortener = function(json_req) {
@@ -560,12 +560,12 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             url: AnyplaceAPI.Other.GOOGLE_URL_SHORTNER_URL,
             data: json_req
         }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        success(function (data, status) {
+            return data;
+        }).
+        error(function (data, status) {
+            return data;
+        });
     };
 
     // we return apiService controller in order to be able to use it in ng-click
@@ -2629,8 +2629,8 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         try {
             if (typeof(Storage) !== "undefined" && localStorage)
                 localStorage.removeItem("lastBuilding");
-                localStorage.removeItem("lastFloor");
-                localStorage.removeItem("lastPoi");
+            localStorage.removeItem("lastFloor");
+            localStorage.removeItem("lastPoi");
         } catch (e) {
         }
 
@@ -2985,8 +2985,8 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                     if (!p || p.floor_number != targetPoi.floor_number)
                         continue;
                     if ((d = _euclideanDistance(
-                            parseFloat(p.coordinates_lat), parseFloat(p.coordinates_lon),
-                            lat, lng)
+                                parseFloat(p.coordinates_lat), parseFloat(p.coordinates_lon),
+                                lat, lng)
                         ) <= minD) {
                         minD = d;
                         minP = p;
@@ -3166,25 +3166,25 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             });
 
             htmlContent = '<div class="iw infowindow-scroll-fix">'
-            + '<div class="wordwrap" style="text-align: center">'
-            + '<span ng-show="navRoutesShown()" id="info-window-zoomin" ng-click="zoomInPoi()"><img src="build/images/html5_location_icon.png"></span>'
-            + '<span class="iw-poi-name">' + p.name + '</span></div>'
-            + '<div class="wordwrap iw-poi-description" ng-show="showPoiDescription">' + p.description + '</div>'
-            + '<div style="text-align: center">'
-            + '<div class="poi-action-btn"><button class="btn btn-info" ng-click="togglePoiDescription()"><i class="fa fa-info-circle"></i></i></button></div>'
-            + '<div class="poi-action-btn"><button class="btn btn-primary" ng-click="startNavFromPoi()"><i style="font-size: 12px;" class="fa fa-flag"></i></button></div>'
-            + '<div class="poi-action-btn"><button class="btn btn-success" ng-click="navigateFromUserToPoi(\'' + p.puid + '\')"><i class="fa fa-location-arrow"></i></button></div>'
-            + '<div class="poi-action-btn"><button class="btn btn-warning" ng-click="getPoiShareUrl(\'' + p.puid + '\')"><i class="fa fa-share-alt"></i></button></div>'
-                //+ '<span id="info-window-nav-from-poi" ng-click="startNavFromPoi()"><img src="build/images/start-poi-nav.png"></span>'
-                //+ '<div ng-show="navRoutesShown()" class="poi-action-btn"><button class="btn btn-primary" ng-click="zoomInPoi()"><i class="fa fa-crosshairs"></i></button></div>'
-            + '</div>'
-            + '<div ng-show="poiShareUrl.puid" style="margin-top: 2px">'
-            + '<div>Share URL:</div>'
-            + '<input class="form-control" value="{{poiShareUrl.url}}"/>'
-            + '<div>Embed:</div>'
-            + '<input class="form-control" value="{{poiShareUrl.embed}}"/>'
-            + '</div>'
-            + '</div>';
+                + '<div class="wordwrap" style="text-align: center">'
+                + '<span ng-show="navRoutesShown()" id="info-window-zoomin" ng-click="zoomInPoi()"><img src="build/images/html5_location_icon.png"></span>'
+                + '<span class="iw-poi-name">' + p.name + '</span></div>'
+                + '<div class="wordwrap iw-poi-description" ng-show="showPoiDescription">' + p.description + '</div>'
+                + '<div style="text-align: center">'
+                + '<div class="poi-action-btn"><button class="btn btn-info" ng-click="togglePoiDescription()"><i class="fa fa-info-circle"></i></i></button></div>'
+                + '<div class="poi-action-btn"><button class="btn btn-primary" ng-click="startNavFromPoi()"><i style="font-size: 12px;" class="fa fa-flag"></i></button></div>'
+                + '<div class="poi-action-btn"><button class="btn btn-success" ng-click="navigateFromUserToPoi(\'' + p.puid + '\')"><i class="fa fa-location-arrow"></i></button></div>'
+                + '<div class="poi-action-btn"><button class="btn btn-warning" ng-click="getPoiShareUrl(\'' + p.puid + '\')"><i class="fa fa-share-alt"></i></button></div>'
+                    //+ '<span id="info-window-nav-from-poi" ng-click="startNavFromPoi()"><img src="build/images/start-poi-nav.png"></span>'
+                    //+ '<div ng-show="navRoutesShown()" class="poi-action-btn"><button class="btn btn-primary" ng-click="zoomInPoi()"><i class="fa fa-crosshairs"></i></button></div>'
+                + '</div>'
+                + '<div ng-show="poiShareUrl.puid" style="margin-top: 2px">'
+                + '<div>Share URL:</div>'
+                + '<input class="form-control" value="{{poiShareUrl.url}}"/>'
+                + '<div>Embed:</div>'
+                + '<input class="form-control" value="{{poiShareUrl.embed}}"/>'
+                + '</div>'
+                + '</div>';
 
             var compiledTpl = $compile(htmlContent)($scope);
 

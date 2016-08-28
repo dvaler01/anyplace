@@ -25,7 +25,7 @@
  THE SOFTWARE.
  */
 
-var app = angular.module('anyArchitect', ['angularjs-dropdown-multiselect','ui.bootstrap', 'ui.select', 'ngSanitize']);
+var app = angular.module('anyArchitect', ['angularjs-dropdown-multiselect', 'ui.bootstrap', 'ui.select', 'ngSanitize']);
 
 app.service('GMapService', function () {
 
@@ -42,7 +42,7 @@ app.service('GMapService', function () {
         zoomControl: true,
         mapTypeControl: true,
         mapTypeControlOptions: {
-            position:google.maps.ControlPosition.RIGHT_BOTTOM
+            position: google.maps.ControlPosition.RIGHT_BOTTOM
         },
         scaleControl: true,
         streetViewControl: false,
@@ -118,21 +118,21 @@ app.factory('AnyplaceService', function () {
     };
 
     anyService.getBuildingId = function () {
-        if(!this.selectedBuilding) {
+        if (!this.selectedBuilding) {
             return undefined;
         }
         return this.selectedBuilding.buid;
     };
 
-    anyService.getBuildingName = function() {
-        if(!this.selectedBuilding) {
+    anyService.getBuildingName = function () {
+        if (!this.selectedBuilding) {
             return 'N/A';
         }
         return this.selectedBuilding.name;
     };
 
-    anyService.getCampusName = function() {
-        if(!this.selectedCampus) {
+    anyService.getCampusName = function () {
+        if (!this.selectedCampus) {
             return 'N/A';
         }
         return this.selectedCampus.name;
@@ -143,7 +143,7 @@ app.factory('AnyplaceService', function () {
     };
 
     anyService.getFloorNumber = function () {
-        if(!this.selectedFloor) {
+        if (!this.selectedFloor) {
             return 'N/A';
         }
         return String(this.selectedFloor.floor_number);
@@ -169,46 +169,46 @@ app.factory('AnyplaceService', function () {
         this.alerts.splice(index, 1);
     };
 
-    anyService.getBuildingViewerUrl = function() {
-        if(!this.selectedBuilding || !this.selectedBuilding.buid) {
+    anyService.getBuildingViewerUrl = function () {
+        if (!this.selectedBuilding || !this.selectedBuilding.buid) {
             return "N/A";
         }
         return this.selectedBuilding.buid;
     };
 
-    anyService.getBuildingViewerUrlEncoded = function() {
-        if(!this.selectedBuilding || !this.selectedBuilding.buid) {
+    anyService.getBuildingViewerUrlEncoded = function () {
+        if (!this.selectedBuilding || !this.selectedBuilding.buid) {
             return "N/A";
         }
         return encodeURIComponent("https://anyplace.cs.ucy.ac.cy/viewer/?buid=" + this.selectedBuilding.buid);
     };
 
-    anyService.getCampusViewerUrl = function() {
-        if(!this.selectedCampus || !this.selectedCampus.cuid) {
+    anyService.getCampusViewerUrl = function () {
+        if (!this.selectedCampus || !this.selectedCampus.cuid) {
             return "N/A";
         }
         return "https://anyplace.cs.ucy.ac.cy/viewer/?cuid=" + this.selectedCampus.cuid;
     };
 
-    anyService.getCampusViewerUrlEncoded = function() {
-        if(!this.selectedCampus || !this.selectedCampus.cuid) {
+    anyService.getCampusViewerUrlEncoded = function () {
+        if (!this.selectedCampus || !this.selectedCampus.cuid) {
             return "N/A";
         }
         return encodeURIComponent("https://anyplace.cs.ucy.ac.cy/viewer/?cuid=" + this.selectedCampus.cuid);
     };
 
-    anyService.clearAllData = function() {
+    anyService.clearAllData = function () {
         anyService.selectedPoi = undefined;
         anyService.selectedFloor = undefined;
         anyService.selectedBuilding = undefined;
         anyService.selectedCampus = undefined;
-        anyService.ShowShareProp = undefined ;
+        anyService.ShowShareProp = undefined;
     };
 
     return anyService;
 });
 
-app.factory('Alerter', function() {
+app.factory('Alerter', function () {
     var alerter = {};
 
     alerter.AlertCtrl = '-';
@@ -265,9 +265,9 @@ app.filter('propsFilter', function () {
     }
 });
 
-app.factory('myInterceptor', [function() {
+app.factory('myInterceptor', [function () {
     var requestInterceptor = {
-        request: function(config) {
+        request: function (config) {
 
             if (config.url.indexOf(AnyplaceAPI.FULL_SERVER) != 0) {
                 return config;
@@ -284,7 +284,7 @@ app.factory('myInterceptor', [function() {
     return requestInterceptor;
 }]);
 
-app.config(['$httpProvider', function($httpProvider) {
+app.config(['$httpProvider', function ($httpProvider) {
     $httpProvider.interceptors.push('myInterceptor');
 }]);
 
@@ -410,7 +410,7 @@ AnyplaceAPI.Mapping.SIGN = "/mapping/accounts/sign";
 AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIGN;
 
 
-    app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($http, $q, formDataObject) {
+app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($http, $q, formDataObject) {
 
     $http.defaults.useXDomain = true;
     delete $http.defaults.headers.common['X-Requested-With'];
@@ -423,13 +423,11 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.RADIO_HEATMAP_URL,
             data: json_req
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
     };
 //retrievePoisTypes
 
@@ -439,25 +437,21 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.POIS_TYPES_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
 
-     apiService.retrievePoisByBuilding = function (json_req) {
+    apiService.retrievePoisByBuilding = function (json_req) {
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.POIS_ALL_BUILDING_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -468,11 +462,9 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.RADIO_HEATMAP_URL_POI,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -482,11 +474,9 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -496,11 +486,9 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -514,13 +502,11 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.BUILDING_ADD_URL,
             data: json_req
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.addBuildingSet = function (json_req) {
@@ -529,11 +515,9 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.BUILDINGSET_ADD_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -544,11 +528,9 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.POISCATEGORY_ADD_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -559,31 +541,27 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.BUILDING_UPDATE_URL,
             data: json_req
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
 
     };
 
-        apiService.updateCampus = function (json_req) {
-            //alert( "make the request: " + json_req );
-            return $http({
-                method: "POST",
-                url: AnyplaceAPI.Mapping.CAMPUS_UPDATE_URL,
-                data: json_req
-            }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+    apiService.updateCampus = function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.CAMPUS_UPDATE_URL,
+            data: json_req
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
 
-        };
+    };
 
     apiService.deleteBuilding = function (json_req) {
         //alert( "make the request: " + json_req );
@@ -591,65 +569,56 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.BUILDING_DELETE_URL,
             data: json_req
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
 
     };
 
-        apiService.deleteCampus = function (json_req) {
-            //alert( "make the request: " + json_req );
-            return $http({
-                method: "POST",
-                url: AnyplaceAPI.Mapping.CAMPUS_DELETE_URL,
-                data: json_req
-            }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+    apiService.deleteCampus = function (json_req) {
+        //alert( "make the request: " + json_req );
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.CAMPUS_DELETE_URL,
+            data: json_req
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
 
-        };
+    };
 
     apiService.allBuildings = function (json_req) {
         return $http({
             method: "POST",
             url: AnyplaceAPI.Mapping.BUILDING_ALL_URL,
             data: json_req
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
 
     };
 
-        apiService.allCampus = function (json_req) {
-            return $http({
-                method: "POST",
-                url: AnyplaceAPI.Mapping.CAMPUS_ALL_URL,
-                data: json_req
-            }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+    apiService.allCampus = function (json_req) {
+        return $http({
+            method: "POST",
+            url: AnyplaceAPI.Mapping.CAMPUS_ALL_URL,
+            data: json_req
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
 
-        };
+    };
 
 
-
-        /****************************************************
+    /****************************************************
      * FLOOR FUNCTIONS
      */
 
@@ -659,13 +628,11 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_ADD_URL,
             data: json_req
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.updateFloor = function (json_req) {
@@ -674,13 +641,11 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_UPDATE_URL,
             data: json_req
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.deleteFloor = function (json_req) {
@@ -689,13 +654,11 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_DELETE_URL,
             data: json_req
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
 
     };
 
@@ -705,13 +668,11 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_ALL_URL,
             data: json_req
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
 
     };
 
@@ -729,13 +690,11 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
                 json: json_req
             },
             transformRequest: formDataObject
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.uploadFloorPlan64 = function (json_req, file) {
@@ -757,13 +716,11 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             headers: {
                 'Content-Type': undefined
             }
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.downloadFloorPlan = function (json_req, buid, floor_number) {
@@ -772,13 +729,11 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL + buid + "/" + floor_number,
             data: json_req
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.downloadFloorPlanAll = function (json_req, buid, floor_number) {
@@ -787,11 +742,9 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL_ALL + buid + "/" + floor_number,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -806,13 +759,11 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.POIS_ADD_URL,
             data: json_req
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.updatePois = function (json_req) {
@@ -821,13 +772,11 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.POIS_UPDATE_URL,
             data: json_req
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.deletePois = function (json_req) {
@@ -838,15 +787,13 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.POIS_DELETE_URL,
             data: json_req
-        }).
-            success(function (data, status) {
-                //deferred.resolve(data);
-                return data;
-            }).
-            error(function (data, status) {
-                //deferred.resolve(data);
-                return data;
-            });
+        }).success(function (data, status) {
+            //deferred.resolve(data);
+            return data;
+        }).error(function (data, status) {
+            //deferred.resolve(data);
+            return data;
+        });
         //return deferred.promise;
     };
 
@@ -855,13 +802,11 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.POIS_ALL_FLOOR_URL,
             data: json_req
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
     }
 
 
@@ -874,13 +819,11 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.CONNECTION_ADD_URL,
             data: json_req
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.updateConnection = function (json_req) {
@@ -889,13 +832,11 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.CONNECTION_UPDATE_URL,
             data: json_req
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.deleteConnection = function (json_req) {
@@ -904,13 +845,11 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.CONNECTION_DELETE_URL,
             data: json_req
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.retrieveConnectionsByBuildingFloor = function (json_req) {
@@ -918,13 +857,11 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR_URL,
             data: json_req
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
     };
 
     apiService.signAccount = function (json_req) {
@@ -932,13 +869,11 @@ AnyplaceAPI.Mapping.SIGN_URL = AnyplaceAPI.FULL_SERVER + AnyplaceAPI.Mapping.SIG
             method: "POST",
             url: AnyplaceAPI.Mapping.SIGN_URL,
             data: json_req
-        }).
-            success(function (data, status) {
-                return data;
-            }).
-            error(function (data, status) {
-                return data;
-            });
+        }).success(function (data, status) {
+            return data;
+        }).error(function (data, status) {
+            return data;
+        });
     };
 
     // we return apiService controller in order to be able to use it in ng-click
@@ -1034,13 +969,13 @@ CanvasOverlay.prototype.onAdd = function () {
      * @param {Number} angle in degrees
      * @returns {object} correction css object {left, top}
      */
-    jQuery.getCorrection = function(init_w, init_h, delta_w, delta_h, angle){
+    jQuery.getCorrection = function (init_w, init_h, delta_w, delta_h, angle) {
         //Convert angle from degrees to radians
         var angle = angle * Math.PI / 180
 
         //Get position after rotation with original size
-        var x = -init_w/2;
-        var y = init_h/2;
+        var x = -init_w / 2;
+        var y = init_h / 2;
         var new_x = y * Math.sin(angle) + x * Math.cos(angle);
         var new_y = y * Math.cos(angle) - x * Math.sin(angle);
         var diff1 = {left: new_x - x, top: new_y - y};
@@ -1049,8 +984,8 @@ CanvasOverlay.prototype.onAdd = function () {
         var new_height = init_h + delta_h;
 
         //Get position after rotation with new size
-        var x = -new_width/2;
-        var y = new_height/2;
+        var x = -new_width / 2;
+        var y = new_height / 2;
         var new_x = y * Math.sin(angle) + x * Math.cos(angle);
         var new_y = y * Math.cos(angle) - x * Math.sin(angle);
         var diff2 = {left: new_x - x, top: new_y - y};
@@ -1060,7 +995,7 @@ CanvasOverlay.prototype.onAdd = function () {
         return offset;
     }
 
-    jQuery.ui.resizable.prototype._mouseStart = function(event) {
+    jQuery.ui.resizable.prototype._mouseStart = function (event) {
 
         var curleft, curtop, cursor,
             o = this.options,
@@ -1079,7 +1014,7 @@ CanvasOverlay.prototype.onAdd = function () {
         }
 
         this.offset = this.helper.offset();
-        this.position = { left: curleft, top: curtop };
+        this.position = {left: curleft, top: curtop};
 
         this.size = this._helper ? {
             width: this.helper.width(),
@@ -1102,8 +1037,8 @@ CanvasOverlay.prototype.onAdd = function () {
             height: el.outerHeight() - el.height()
         };
 
-        this.originalPosition = { left: curleft, top: curtop };
-        this.originalMousePosition = { left: event.pageX, top: event.pageY };
+        this.originalPosition = {left: curleft, top: curtop};
+        this.originalMousePosition = {left: event.pageX, top: event.pageY};
 
         //patch: object to store previous data
         this.lastData = this.originalPosition;
@@ -1120,7 +1055,7 @@ CanvasOverlay.prototype.onAdd = function () {
         return true;
     };
 
-    jQuery.ui.resizable.prototype._mouseDrag = function(event) {
+    jQuery.ui.resizable.prototype._mouseDrag = function (event) {
         //patch: get the angle
         var angle = getAngle(this.element[0]);
         var angle_rad = angle * Math.PI / 180;
@@ -1133,8 +1068,8 @@ CanvasOverlay.prototype.onAdd = function () {
             prevLeft = this.position.left,
             prevWidth = this.size.width,
             prevHeight = this.size.height,
-            dx = (event.pageX-smp.left)||0,
-            dy = (event.pageY-smp.top)||0,
+            dx = (event.pageX - smp.left) || 0,
+            dy = (event.pageY - smp.top) || 0,
             trigger = this._change[a];
 
         var init_w = this.size.width;
@@ -1176,26 +1111,26 @@ CanvasOverlay.prototype.onAdd = function () {
         //patch: difference between datas
         var diffData = {
             left: _parseFloat(data.left || this.lastData.left) - _parseFloat(this.lastData.left),
-            top:  _parseFloat(data.top || this.lastData.top)  - _parseFloat(this.lastData.top),
+            top: _parseFloat(data.top || this.lastData.top) - _parseFloat(this.lastData.top),
         }
 
         //patch: calculate the correct position offset based on angle
         var new_data = {};
-        new_data.left = diffData.left * _cos - diffData.top  * _sin;
-        new_data.top  = diffData.top  * _cos + diffData.left * _sin;
+        new_data.left = diffData.left * _cos - diffData.top * _sin;
+        new_data.top = diffData.top * _cos + diffData.left * _sin;
 
         //patch: round the values
         new_data.left = _round(new_data.left);
-        new_data.top  = _round(new_data.top);
+        new_data.top = _round(new_data.top);
 
         //patch: update the position
         this.position.left += new_data.left;
-        this.position.top  += new_data.top;
+        this.position.top += new_data.top;
 
         //patch: save the data for later use
         this.lastData = {
             left: _parseFloat(data.left || this.lastData.left),
-            top:  _parseFloat(data.top  || this.lastData.top)
+            top: _parseFloat(data.top || this.lastData.top)
         };
 
         // plugins callbacks need to be called first
@@ -1231,7 +1166,7 @@ CanvasOverlay.prototype.onAdd = function () {
         }
 
         // Call the user callback if the element was resized
-        if ( ! $.isEmptyObject(props) ) {
+        if (!$.isEmptyObject(props)) {
             this._trigger("resize", event, this.ui());
         }
 
@@ -1247,7 +1182,7 @@ CanvasOverlay.prototype.onAdd = function () {
             st.getPropertyValue("-o-transform") ||
             st.getPropertyValue("transform") ||
             null;
-        if(tr && tr != "none"){
+        if (tr && tr != "none") {
             var values = tr.split('(')[1];
             values = values.split(')')[0];
             values = values.split(',');
@@ -1255,9 +1190,9 @@ CanvasOverlay.prototype.onAdd = function () {
             var a = values[0];
             var b = values[1];
 
-            var angle = Math.round(Math.atan2(b, a) * (180/Math.PI));
-            while(angle >= 360) angle = 360-angle;
-            while(angle < 0) angle = 360+angle;
+            var angle = Math.round(Math.atan2(b, a) * (180 / Math.PI));
+            while (angle >= 360) angle = 360 - angle;
+            while (angle < 0) angle = 360 + angle;
             return angle;
         }
         else
@@ -1265,12 +1200,13 @@ CanvasOverlay.prototype.onAdd = function () {
     }
 
     function _parseFloat(e) {
-        return isNaN(parseFloat(e)) ? 0: parseFloat(e);
+        return isNaN(parseFloat(e)) ? 0 : parseFloat(e);
     }
 
     function _round(e) {
         return Math.round((e + 0.00001) * 100) / 100
     }
+
     /* end of patch functions */
 
     jQuery(div).resizable({
@@ -1547,16 +1483,16 @@ var getPositionData = function (el) {
 
 var LPUtils = {};
 
-LPUtils.isNullOrUndefined = function( t ){
+LPUtils.isNullOrUndefined = function (t) {
     return (typeof(t) === 'undefined' || t === null);
 }
 
-LPUtils.isStringEmptyNullUndefined = function( s ){
+LPUtils.isStringEmptyNullUndefined = function (s) {
     return ( !s || 0 === s.length );
     //return ( typeof(s) === 'undefined' || s === null || 0 === s.length );
 }
 
-LPUtils.isStringBlankNullUndefined = function( s ){
+LPUtils.isStringBlankNullUndefined = function (s) {
     return ( !s || /^\s*$/.test(s) );
 }
 
@@ -1564,18 +1500,18 @@ LPUtils.isStringBlankNullUndefined = function( s ){
  * UI Functions
  */
 
-LPUtils.alert = function( msg ){
-    var np = document.getElementById( "notification_panel" );
-    np.innerHTML = "<alert type=\"error\" close=\"LPUtils.closeAlert()\">"+ msg +"</alert>";
+LPUtils.alert = function (msg) {
+    var np = document.getElementById("notification_panel");
+    np.innerHTML = "<alert type=\"error\" close=\"LPUtils.closeAlert()\">" + msg + "</alert>";
 }
-LPUtils.closeAlert = function(){
-    var np = document.getElementById( "notification_panel" );
+LPUtils.closeAlert = function () {
+    var np = document.getElementById("notification_panel");
     np.getEl.innerHTML = "";
 }
 
-LPUtils.success = function( msg ){
-    var np = document.getElementById( "notification_panel" );
-    np.innerHTML = "<alert type=\"success\">"+ msg +"</alert>";
+LPUtils.success = function (msg) {
+    var np = document.getElementById("notification_panel");
+    np.innerHTML = "<alert type=\"success\">" + msg + "</alert>";
 }
 
 
@@ -1583,7 +1519,7 @@ function hexToBase64(str) {
     return btoa(String.fromCharCode.apply(null, str.replace(/\r|\n/g, "").replace(/([\da-fA-F]{2}) ?/g, "0x$1 ").replace(/ +$/, "").split(" ")));
 }
 
-function base64_encode (data) {
+function base64_encode(data) {
     // http://kevin.vanzonneveld.net
     // +   original by: Tyler Akins (http://rumkin.com)
     // +   improved by: Bayron Guevara
@@ -1636,10 +1572,10 @@ function base64_encode (data) {
 LPUtils.Base64 = {
 
 // private property
-    _keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+    _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
 
 // public method for encoding
-    encode : function (input) {
+    encode: function (input) {
         var output = "";
         var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
         var i = 0;
@@ -1673,7 +1609,7 @@ LPUtils.Base64 = {
     },
 
 // public method for decoding
-    decode : function (input) {
+    decode: function (input) {
         var output = "";
         var chr1, chr2, chr3;
         var enc1, enc2, enc3, enc4;
@@ -1710,8 +1646,8 @@ LPUtils.Base64 = {
     },
 
 // private method for UTF-8 encoding
-    _utf8_encode : function (string) {
-        string = string.replace(/\r\n/g,"\n");
+    _utf8_encode: function (string) {
+        string = string.replace(/\r\n/g, "\n");
         var utftext = "";
 
         for (var n = 0; n < string.length; n++) {
@@ -1721,7 +1657,7 @@ LPUtils.Base64 = {
             if (c < 128) {
                 utftext += String.fromCharCode(c);
             }
-            else if((c > 127) && (c < 2048)) {
+            else if ((c > 127) && (c < 2048)) {
                 utftext += String.fromCharCode((c >> 6) | 192);
                 utftext += String.fromCharCode((c & 63) | 128);
             }
@@ -1737,12 +1673,12 @@ LPUtils.Base64 = {
     },
 
 // private method for UTF-8 decoding
-    _utf8_decode : function (utftext) {
+    _utf8_decode: function (utftext) {
         var string = "";
         var i = 0;
         var c = c1 = c2 = 0;
 
-        while ( i < utftext.length ) {
+        while (i < utftext.length) {
 
             c = utftext.charCodeAt(i);
 
@@ -1750,14 +1686,14 @@ LPUtils.Base64 = {
                 string += String.fromCharCode(c);
                 i++;
             }
-            else if((c > 191) && (c < 224)) {
-                c2 = utftext.charCodeAt(i+1);
+            else if ((c > 191) && (c < 224)) {
+                c2 = utftext.charCodeAt(i + 1);
                 string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
                 i += 2;
             }
             else {
-                c2 = utftext.charCodeAt(i+1);
-                c3 = utftext.charCodeAt(i+2);
+                c2 = utftext.charCodeAt(i + 1);
+                c3 = utftext.charCodeAt(i + 2);
                 string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
                 i += 3;
             }
@@ -1782,23 +1718,23 @@ LPUtils.Base64 = {
  */
 
 LPUtils.Base64Binary = {
-    _keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+    _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
 
     /* will return a  Uint8Array type */
-    decodeArrayBuffer: function(input) {
-        var bytes = (input.length/4) * 3;
+    decodeArrayBuffer: function (input) {
+        var bytes = (input.length / 4) * 3;
         var ab = new ArrayBuffer(bytes);
         this.decode(input, ab);
 
         return ab;
     },
 
-    decode: function(input, arrayBuffer) {
+    decode: function (input, arrayBuffer) {
         //get last chars to see if are valid
-        var lkey1 = this._keyStr.indexOf(input.charAt(input.length-1));
-        var lkey2 = this._keyStr.indexOf(input.charAt(input.length-2));
+        var lkey1 = this._keyStr.indexOf(input.charAt(input.length - 1));
+        var lkey2 = this._keyStr.indexOf(input.charAt(input.length - 2));
 
-        var bytes = (input.length/4) * 3;
+        var bytes = (input.length / 4) * 3;
         if (lkey1 == 64) bytes--; //padding chars, so skip
         if (lkey2 == 64) bytes--; //padding chars, so skip
 
@@ -1815,7 +1751,7 @@ LPUtils.Base64Binary = {
 
         input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
 
-        for (i=0; i<bytes; i+=3) {
+        for (i = 0; i < bytes; i += 3) {
             //get the 3 octects in 4 ascii chars
             enc1 = this._keyStr.indexOf(input.charAt(j++));
             enc2 = this._keyStr.indexOf(input.charAt(j++));
@@ -1827,8 +1763,8 @@ LPUtils.Base64Binary = {
             chr3 = ((enc3 & 3) << 6) | enc4;
 
             uarray[i] = chr1;
-            if (enc3 != 64) uarray[i+1] = chr2;
-            if (enc4 != 64) uarray[i+2] = chr3;
+            if (enc3 != 64) uarray[i + 1] = chr2;
+            if (enc4 != 64) uarray[i + 2] = chr3;
         }
 
         return uarray;
@@ -1854,7 +1790,7 @@ function USGSOverlay(bounds, image, map) {
     this.setMap(map);
 }
 
-USGSOverlay.prototype.onAdd = function() {
+USGSOverlay.prototype.onAdd = function () {
 
     // Note: an overlay's receipt of onAdd() indicates that
     // the map's panes are now available for attaching
@@ -1862,7 +1798,7 @@ USGSOverlay.prototype.onAdd = function() {
 
     // Create the DIV and set some basic attributes.
     var div = document.createElement('div');
-    div.id="ground_overlay";
+    div.id = "ground_overlay";
     div.style.borderStyle = 'none';
     div.style.borderWidth = '0px';
     div.style.position = 'absolute';
@@ -1884,7 +1820,7 @@ USGSOverlay.prototype.onAdd = function() {
     panes.overlayLayer.appendChild(div);
 }
 
-USGSOverlay.prototype.draw = function() {
+USGSOverlay.prototype.draw = function () {
 
     // Size and position the overlay. We use a southwest and northeast
     // position of the overlay to peg it to the correct position and size.
@@ -1905,7 +1841,7 @@ USGSOverlay.prototype.draw = function() {
     div.style.height = (sw.y - ne.y) + 'px';
 }
 
-USGSOverlay.prototype.onRemove = function() {
+USGSOverlay.prototype.onRemove = function () {
     this.div_.parentNode.removeChild(this.div_);
     this.div_ = null;
 }
@@ -1998,7 +1934,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
 
     $scope.example9model = [];
     $scope.example9data = [];
-    $scope.example9settings = {enableSearch: true , scrollable: true };
+    $scope.example9settings = {enableSearch: true, scrollable: true};
 
     $scope.myBuildings = [];
 
@@ -2011,8 +1947,8 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
     $scope.fileToUpload = "";
     $scope.logfile = "";
 
-    $scope.poisTypes={};
-    $scope.catTypes={};
+    $scope.poisTypes = {};
+    $scope.catTypes = {};
 
     $scope.crudTabSelected = 1;
     $scope.setCrudTabSelected = function (n) {
@@ -2059,11 +1995,12 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
     });
 
     function S4() {
-        return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
     }
-    var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+
+    var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
     var d = new Date();
-    document.getElementById("CampusID").value="cuid_"+guid+ "_"+ d.getTime();
+    document.getElementById("CampusID").value = "cuid_" + guid + "_" + d.getTime();
 
     var logoPlanInputElement = $('#input-logo');
 
@@ -2140,7 +2077,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
             $scope.fetchAllPoisTypes(newVal.poistypeid);
         }
         else {
-            $scope.poisTypes= [
+            $scope.poisTypes = [
                 "Disabled Toilets",
                 "Elevator",
                 "Entrance",
@@ -2159,7 +2096,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
     });
 
     $scope.$watch('anyService.selectedCampus', function (newVal, oldVal) {
-        if (newVal && newVal.cuid ) {
+        if (newVal && newVal.cuid) {
             // Pan map to selected building
             if (typeof(Storage) !== "undefined" && localStorage) {
                 localStorage.setItem("lastCampus", newVal.cuid);
@@ -2167,7 +2104,6 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         }
 
     });
-
 
 
     var _clearBuildingMarkersAndModels = function () {
@@ -2682,8 +2618,8 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                 if ($scope.myCampus && $scope.myCampus.length > 0) {
                     $scope.anyService.selectedCampus = $scope.myCampus[0];
                 }
-                else if ($scope.myCampus.length == 0){
-                    $scope.anyService.selectedCampus = undefined ;
+                else if ($scope.myCampus.length == 0) {
+                    $scope.anyService.selectedCampus = undefined;
                 }
 
                 $scope.setCrudTabSelected(1);
@@ -2702,54 +2638,55 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
     $scope.addCampus = function () {
 
         var name_element = document.getElementById("CampusName");
-        var name =  "\"name\":\""+name_element.value+"\"";
+        var name = "\"name\":\"" + name_element.value + "\"";
 
-        if (document.getElementById("CampusDescription").value.localeCompare("")==0){
-            document.getElementById("CampusDescription").value="-";
+        if (document.getElementById("CampusDescription").value.localeCompare("") == 0) {
+            document.getElementById("CampusDescription").value = "-";
         }
 
         var des = document.getElementById("CampusDescription");
-        var des = "\"description\":\""+ des.value+"\"";
+        var des = "\"description\":\"" + des.value + "\"";
 
         var mycuid = document.getElementById("CampusID");
-        var mycuid = "\"cuid\":\""+ mycuid.value+"\"";
+        var mycuid = "\"cuid\":\"" + mycuid.value + "\"";
 
         var greeklish = document.getElementById("Greeklish-OnOff").checked;
-        greeklish =  "\"greeklish\":\""+ greeklish+"\"";
+        greeklish = "\"greeklish\":\"" + greeklish + "\"";
         var sz = $scope.example9model.length;
 
-        if (sz==0) {
+        if (sz == 0) {
             _err("No buildings selected.");
             return;
         }
         var buids = "\"buids\":[";
         for (var i = sz - 1; i > 0; i--) {
-            buids =buids+ "\""+$scope.example9model[i].id+"\",";
+            buids = buids + "\"" + $scope.example9model[i].id + "\",";
         }
-        buids =buids+ "\""+$scope.example9model[0].id+"\"]";
+        buids = buids + "\"" + $scope.example9model[0].id + "\"]";
 
-        var jreq = "{"+greeklish+","+buids+","+mycuid+","+des+","+name+",\"owner_id\":\""+ $scope.owner_id+"\",\"access_token\":\""+$scope.gAuth.access_token+"\"}";
+        var jreq = "{" + greeklish + "," + buids + "," + mycuid + "," + des + "," + name + ",\"owner_id\":\"" + $scope.owner_id + "\",\"access_token\":\"" + $scope.gAuth.access_token + "\"}";
         //alert(document.getElementById("Greeklish-OnOff").checked);
         var promise = $scope.anyAPI.addBuildingSet(jreq);
         promise.then(
             function (resp) {
                 // on success
                 var data = resp.data;
-                var new_campus = {} ;
-                new_campus.name = document.getElementById("CampusName").value ;
-                new_campus.buids = buids.buids ;
+                var new_campus = {};
+                new_campus.name = document.getElementById("CampusName").value;
+                new_campus.buids = buids.buids;
                 new_campus.description = document.getElementById("CampusDescription").value;
-                new_campus.cuid = data.cuid ;
+                new_campus.cuid = data.cuid;
                 $scope.myCampus.push(new_campus);
                 $scope.anyService.selectedCampus = $scope.myCampus[$scope.myCampus.length - 1];
                 _suc("Successfully added campus.");
 
                 function S4() {
-                    return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+                    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
                 }
-                var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+
+                var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
                 var d = new Date();
-                document.getElementById("CampusID").value="cuid_"+guid+ "_"+ d.getTime();
+                document.getElementById("CampusID").value = "cuid_" + guid + "_" + d.getTime();
             },
             function (resp) {
                 // on error
@@ -2943,7 +2880,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                                             if (sPoi.pois_type == "None") {
                                                 continue;
                                             }
-                                            if (sPoi.overwrite){
+                                            if (sPoi.overwrite) {
                                                 var tmp = {
                                                     name: sPoi.name,
                                                     description: sPoi.description,
@@ -3044,7 +2981,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
             return;
         }
         var reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             var contents = e.target.result;
             $scope.fileToUpload = contents;
         };
@@ -3059,25 +2996,25 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
     $scope.importBuildingFromJson = function () {
 
         $scope.anyService.progress = 0;
-        var i, j,count= 0,countok=0;
-        if ($scope.fileToUpload==""){
+        var i, j, count = 0, countok = 0;
+        if ($scope.fileToUpload == "") {
             _err("Something went wrong no file selected");
         }
         var obj = JSON.parse($scope.fileToUpload);
-        for (i=0; i<obj.building.floors.length; i++){
-            for (j=0; j<obj.building.floors[i].pois.length; j++){
-                if (obj.building.floors[i].pois[j].overwrite=="true"){
+        for (i = 0; i < obj.building.floors.length; i++) {
+            for (j = 0; j < obj.building.floors[i].pois.length; j++) {
+                if (obj.building.floors[i].pois[j].overwrite == "true") {
                     count++;
                 }
             }
         }
-        if (count==0){
+        if (count == 0) {
             _err("Something went wrong no pois to update");
         }
 
-        for (i=0; i<obj.building.floors.length; i++){
-            for (j=0; j<obj.building.floors[i].pois.length; j++){
-                if (obj.building.floors[i].pois[j].overwrite=="true"){
+        for (i = 0; i < obj.building.floors.length; i++) {
+            for (j = 0; j < obj.building.floors[i].pois.length; j++) {
+                if (obj.building.floors[i].pois[j].overwrite == "true") {
                     countok++;
                     $scope.updatePoifromFile(obj.building.floors[i].pois[j].puid,
                         obj.building.floors[i].pois[j].coordinates_lat,
@@ -3086,7 +3023,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                         obj.building.floors[i].pois[j].description,
                         obj.building.floors[i].pois[j].pois_type,
                         obj.building.floors[i].pois[j].overwrite,
-                        obj.building.buid,i,j,count,countok,
+                        obj.building.buid, i, j, count, countok,
                         obj.building.name
                     );
                 }
@@ -3105,16 +3042,16 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         // Create A File Reader HTML5
         var reader = new FileReader();
         // Ready The Event For When A File Gets Selected
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             var data = e.target.result;
             var cfb = XLS.CFB.read(data, {type: 'binary'});
             var wb = XLS.parse_xlscfb(cfb);
             // Loop Over Each Sheet
-            wb.SheetNames.forEach(function(sheetName) {
+            wb.SheetNames.forEach(function (sheetName) {
                 // Obtain The Current Row As CSV
                 var oJS = XLS.utils.sheet_to_row_object_array(wb.Sheets[sheetName]);
-                var last_buid="";
-                $scope.uploadloop(0,oJS,last_buid);
+                var last_buid = "";
+                $scope.uploadloop(0, oJS, last_buid);
             });
         };
 
@@ -3122,51 +3059,51 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         reader.readAsBinaryString(oFile);
     }
 
-    $scope.uploadloop = function (potition,oJS,last_buid) {
+    $scope.uploadloop = function (potition, oJS, last_buid) {
 
-        for (var i=potition; i<oJS.length; i++){
-            if (last_buid!=oJS[i].buid && oJS[i].buid!=undefined){
+        for (var i = potition; i < oJS.length; i++) {
+            if (last_buid != oJS[i].buid && oJS[i].buid != undefined) {
                 $scope.pois = {};
-                last_buid=oJS[i].buid;
-                $scope.fetchAllPoisForBuilding(oJS[i].buid,oJS,i,last_buid);
+                last_buid = oJS[i].buid;
+                $scope.fetchAllPoisForBuilding(oJS[i].buid, oJS, i, last_buid);
                 return;
             }
             var description = "";
 
-            if (oJS[i].des3!=undefined && oJS[i].des3!="" && oJS[i].des3!=null){
-                if (oJS[i].des4!=undefined && oJS[i].des4!="" && oJS[i].des4!=null){
-                    description =description+ oJS[i].des3+" "+oJS[i].des4;
+            if (oJS[i].des3 != undefined && oJS[i].des3 != "" && oJS[i].des3 != null) {
+                if (oJS[i].des4 != undefined && oJS[i].des4 != "" && oJS[i].des4 != null) {
+                    description = description + oJS[i].des3 + " " + oJS[i].des4;
                 }
                 else {
-                    description =description+ oJS[i].des3;
+                    description = description + oJS[i].des3;
                 }
             }
             else {
-                if (oJS[i].des4!=undefined && oJS[i].des4!="" && oJS[i].des4!=null){
-                    description =description+ oJS[i].des4;
+                if (oJS[i].des4 != undefined && oJS[i].des4 != "" && oJS[i].des4 != null) {
+                    description = description + oJS[i].des4;
                 }
             }
 
-            if (oJS[i].des1!=undefined && oJS[i].des1!="" && oJS[i].des1!=null){
-                if (description!=""){
-                    description =description+"\n"+ oJS[i].des1;
+            if (oJS[i].des1 != undefined && oJS[i].des1 != "" && oJS[i].des1 != null) {
+                if (description != "") {
+                    description = description + "\n" + oJS[i].des1;
                 }
                 else {
-                    description =description+oJS[i].des1;
+                    description = description + oJS[i].des1;
                 }
             }
 
-            if (oJS[i].des2!=undefined && oJS[i].des2!="" && oJS[i].des2!=null){
-                if (description!=""){
-                    description =description+"\n"+ oJS[i].des2;
+            if (oJS[i].des2 != undefined && oJS[i].des2 != "" && oJS[i].des2 != null) {
+                if (description != "") {
+                    description = description + "\n" + oJS[i].des2;
                 }
                 else {
-                    description =description+oJS[i].des2;
+                    description = description + oJS[i].des2;
                 }
             }
 
-            $scope.anyService.progress = (i/(oJS.length-1))*100;
-            if ($scope.pois[oJS[i].name]){
+            $scope.anyService.progress = (i / (oJS.length - 1)) * 100;
+            if ($scope.pois[oJS[i].name]) {
                 $scope.updatePoifromExcel($scope.pois[oJS[i].name].puid,
                     $scope.pois[oJS[i].name].coordinates_lat,
                     $scope.pois[oJS[i].name].coordinates_lon,
@@ -3196,7 +3133,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         }
     };
 
-    $scope.fetchAllPoisForBuilding = function (building,oJS,position,last_buid) {
+    $scope.fetchAllPoisForBuilding = function (building, oJS, position, last_buid) {
         var jsonReq = AnyplaceService.jsonReq;
         jsonReq.buid = building;
 
@@ -3212,7 +3149,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                     var name = $scope.myPois[i].name;
                     $scope.pois[name] = $scope.myPois[i];
                 }
-                $scope.uploadloop(position,oJS,last_buid);
+                $scope.uploadloop(position, oJS, last_buid);
             },
             function (resp) {
                 var data = resp.data;
@@ -3223,7 +3160,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
     $scope.logfile = {
         pois: []
     };
-    $scope.updatePoifromExcel = function (id,lat,lng,building_entrance,nm,des,ptype,ovwrite,bid,buildingname) {
+    $scope.updatePoifromExcel = function (id, lat, lng, building_entrance, nm, des, ptype, ovwrite, bid, buildingname) {
 
         var obj = {};
 
@@ -3246,15 +3183,16 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         promise.then(
             function (resp) {
                 var data = resp.data;
-                if ($scope.anyService.progress==100){
-                    setTimeout(function(){$scope.anyService.progress= undefined;
+                if ($scope.anyService.progress == 100) {
+                    setTimeout(function () {
+                        $scope.anyService.progress = undefined;
                     }, 1500);
 
                     if ($scope.anyService.downloadlogfile) {
                         $scope.anyService.downloadlogfile = false;
                         _suc("Successfully updated POIs.A log file will be downloaded");
                         var blob = new Blob([JSON.stringify($scope.logfile, null, 4)], {type: "text/plain;charset=utf-8"});
-                        saveAs(blob, ($scope.fileToUpload+"-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
+                        saveAs(blob, ($scope.fileToUpload + "-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
                     }
                     else {
                         _suc("Successfully updated POIs.");
@@ -3264,26 +3202,27 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
             function (resp) {
                 var data = resp.data;
                 $scope.logfile.pois.push({
-                    "name" : nm,
-                    "puid"  : id,
-                    "description"  : des,
-                    "status"  : "Something went wrong while updating POI."
+                    "name": nm,
+                    "puid": id,
+                    "description": des,
+                    "status": "Something went wrong while updating POI."
                 });
                 $scope.anyService.downloadlogfile = true;
-                if ($scope.anyService.progress==100){
+                if ($scope.anyService.progress == 100) {
                     $scope.anyService.downloadlogfile = false;
-                    setTimeout(function(){$scope.anyService.progress= undefined;
+                    setTimeout(function () {
+                        $scope.anyService.progress = undefined;
                     }, 1500);
                     _suc("Successfully updated POIs.A log file will be downloaded");
                     var blob = new Blob([JSON.stringify($scope.logfile, null, 4)], {type: "text/plain;charset=utf-8"});
-                    saveAs(blob, ($scope.fileToUpload+"-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
+                    saveAs(blob, ($scope.fileToUpload + "-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
                 }
             }
         );
     };
 
 
-    $scope.updatePoifromFile = function (id,lat,lng,nm,des,ptype,ovwrite,bid,i,j,count,countok,buildingname) {
+    $scope.updatePoifromFile = function (id, lat, lng, nm, des, ptype, ovwrite, bid, i, j, count, countok, buildingname) {
 
         var obj = {};
 
@@ -3305,14 +3244,15 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         promise.then(
             function (resp) {
                 var data = resp.data;
-                $scope.anyService.progress = countok/count*100;
-                if ($scope.anyService.progress==100){
-                    setTimeout(function(){$scope.anyService.progress= undefined;
+                $scope.anyService.progress = countok / count * 100;
+                if ($scope.anyService.progress == 100) {
+                    setTimeout(function () {
+                        $scope.anyService.progress = undefined;
                     }, 1500);
-                    if ($scope.anyService.downloadlogfile){
+                    if ($scope.anyService.downloadlogfile) {
                         _suc("Successfully updated POIs.A log file will be downloaded");
                         var blob = new Blob([JSON.stringify($scope.logfile, null, 4)], {type: "text/plain;charset=utf-8"});
-                        saveAs(blob, (buildingname+"-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
+                        saveAs(blob, (buildingname + "-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
                     }
                     else {
                         _suc("Successfully updated POIs.");
@@ -3323,16 +3263,17 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                 var data = resp.data;
 
                 $scope.logfile.pois.push({
-                    "name" : nm,
-                    "puid"  : id,
-                    "description"  : des,
-                    "status"  : "Something went wrong while updating POI."
+                    "name": nm,
+                    "puid": id,
+                    "description": des,
+                    "status": "Something went wrong while updating POI."
                 });
 
                 $scope.anyService.downloadlogfile = true;
-                $scope.anyService.progress = countok/count*100;
-                if ($scope.anyService.progress==100){
-                    setTimeout(function(){$scope.anyService.progress= undefined;
+                $scope.anyService.progress = countok / count * 100;
+                if ($scope.anyService.progress == 100) {
+                    setTimeout(function () {
+                        $scope.anyService.progress = undefined;
                     }, 1500);
                     if ($scope.anyService.downloadlogfile) {
                         _suc("Successfully updated POIs.A log file will be downloaded");
@@ -3355,8 +3296,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
     };
 
     $scope.Connectionsresult = {
-        building: {
-        }
+        building: {}
     };
 
     $scope.zip = new JSZip();
@@ -3366,7 +3306,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         var xFloors = [];
         var jsonReq = AnyplaceService.jsonReq;
         jsonReq.buid = b.buid;
-        $scope.anyService.progress=0;
+        $scope.anyService.progress = 0;
         var promise = AnyplaceAPIService.allBuildingFloors(jsonReq);
         promise.then(
             function (resp) {
@@ -3374,14 +3314,14 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                 var floor = 0;
                 var floor_number = "";
                 for (var i = 0; i < xFloors.length; i++) {
-                    if (i==0){
-                        floor_number =xFloors[i].floor_number;
+                    if (i == 0) {
+                        floor_number = xFloors[i].floor_number;
                     }
-                    else{
-                        floor_number =floor_number+" "+ xFloors[i].floor_number;
+                    else {
+                        floor_number = floor_number + " " + xFloors[i].floor_number;
                     }
                 }
-                $scope.anyService.progress=10;
+                $scope.anyService.progress = 10;
                 var buid = b.buid;
                 var jsonReq2 = AnyplaceService.jsonReq;
                 var promise2 = AnyplaceAPIService.downloadFloorPlanAll(jsonReq2, buid, floor_number);
@@ -3390,27 +3330,27 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                         // on success
                         var data = resp.data;
                         var img = $scope.zip.folder("floor_plans");
-                        for (var si=0; si<data.all_floors.length; si++){
-                            if (data.all_floors[si]!=""){
-                                img.file(xFloors[si].floor_number+".png", data.all_floors[si], {base64: true});
+                        for (var si = 0; si < data.all_floors.length; si++) {
+                            if (data.all_floors[si] != "") {
+                                img.file(xFloors[si].floor_number + ".png", data.all_floors[si], {base64: true});
                             }
                         }
-                        $scope.anyService.progress=25;
+                        $scope.anyService.progress = 25;
                         var jsonReq3 = AnyplaceService.jsonReq;
-                        jsonReq3.buid=buid;
-                        jsonReq3.floor=floor_number;
+                        jsonReq3.buid = buid;
+                        jsonReq3.floor = floor_number;
                         var promise3 = AnyplaceAPIService.getRadioByBuildingFloorAll(jsonReq3);
                         promise3.then(
                             function (resp) {
                                 var data2 = resp.data;
                                 var logs = $scope.zip.folder("radiomaps");
-                                if(data2.rss_log_files){
+                                if (data2.rss_log_files) {
                                     var urls = "";
-                                    for (var si2=0; si2<data2.rss_log_files.length; si2++){
-                                        logs.file(xFloors[si2].floor_number+"-radiomap.txt",data2.rss_log_files[si2]);
+                                    for (var si2 = 0; si2 < data2.rss_log_files.length; si2++) {
+                                        logs.file(xFloors[si2].floor_number + "-radiomap.txt", data2.rss_log_files[si2]);
                                     }
                                 }
-                                $scope.anyService.progress=70;
+                                $scope.anyService.progress = 70;
                                 $scope.exportPoisBuildingToJson();
                             },
                             function (resp) {
@@ -3455,7 +3395,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                 var floors = resp.data.floors;
 
                 var resFloors = [];
-                $scope.anyService.progress=80;
+                $scope.anyService.progress = 80;
                 if (floors) {
                     for (var i = 0; i < floors.length; i++) {
 
@@ -3471,7 +3411,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
 
                                         var flPois = [];
 
-                                        if (poisArray[0]!=undefined) {
+                                        if (poisArray[0] != undefined) {
                                             var fNo = poisArray[0].floor_number;
 
                                             for (var j = 0; j < poisArray.length; j++) {
@@ -3503,7 +3443,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                                                     };
                                                 }
 
-                                                if (sPoi.is_building_entrance== 'true') {
+                                                if (sPoi.is_building_entrance == 'true') {
                                                     tmp.is_building_entrance = 'true';
                                                 }
                                                 else {
@@ -3524,7 +3464,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                                         if (count === floors.length) {
                                             $scope.Poisresult.building.floors = resFloors;
                                             $scope.zip.file("allpois.json", JSON.stringify($scope.Poisresult, null, 4));
-                                            $scope.anyService.progress=90;
+                                            $scope.anyService.progress = 90;
                                             $scope.exportConnectionBuildingToJson();
                                         }
 
@@ -3580,7 +3520,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                             var promise = AnyplaceAPIService.retrieveConnectionsByBuildingFloor(jreq);
                             promise.then(
                                 function (resp) {
-                                    $scope.anyService.progress=100;
+                                    $scope.anyService.progress = 100;
                                     var data = resp.data;
 
                                     var connArray = data.connections;
@@ -3589,7 +3529,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
 
                                         var flConnections = [];
 
-                                        if (connArray[0]!=undefined) {
+                                        if (connArray[0] != undefined) {
 
                                             var fNo = connArray[0].floor_a;
 
@@ -3627,12 +3567,12 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                                             $scope.Connectionsresult.building.floors = resFloors;
                                             $scope.zip.file("allconnections.json", JSON.stringify($scope.Connectionsresult, null, 4));
 
-                                            $scope.zip.generateAsync({type:"blob"})
-                                                .then(function(content) {
+                                            $scope.zip.generateAsync({type: "blob"})
+                                                .then(function (content) {
                                                     // see FileSaver.js
-                                                    saveAs(content, building.buid+".zip");
+                                                    saveAs(content, building.buid + ".zip");
                                                 });
-                                            $scope.anyService.progress=undefined;
+                                            $scope.anyService.progress = undefined;
                                         }
                                     }
                                 },
@@ -3700,13 +3640,16 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
     $scope.owner_id = undefined;
     $scope.displayName = undefined;
 
+    var self = this; //to be able to reference to it in a callback, you could use $scope instead
+
+
     $scope.setAuthenticated = function (bool) {
         $scope.isAuthenticated = bool;
     };
 
     $scope.showFullControls = true;
 
-    $scope.toggleFullControls = function() {
+    $scope.toggleFullControls = function () {
         $scope.showFullControls = !$scope.showFullControls;
     };
 
@@ -3732,32 +3675,30 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         AnyplaceService.addAlert('success', 'access_token: ' + $scope.gAuth.access_token);
     };
 
-    $scope.signinCallback = function (authResult) {
-        if (authResult['status']['signed_in']) {
-            // Update the app to reflect a signed in user
-            // Hide the sign-in button now that the user is authorized, for example:
-            // document.getElementById('signinButton').setAttribute('style', 'display: none');
-            $scope.setAuthenticated(true);
-            $scope.gAuth = authResult;
+    $scope.onSignIn = function (googleUser) {
+        $scope.setAuthenticated(true);
 
-            app.access_token = authResult.access_token;
+        $scope.gAuth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse();
 
-            gapi.client.load('plus', 'v1', apiClientLoaded);
+        $scope.gAuth.access_token = $scope.gAuth.id_token;
 
-        } else {
-            // Update the app to reflect a signed out user
-            // Possible error values:
-            //   "user_signed_out" - User is signed-out
-            //   "access_denied" - User denied access to your app
-            //   "immediate_failed" - Could not automatically log in the user
-            console.log('Sign-in state: ' + authResult['error']);
-        }
+        app.access_token = $scope.gAuth.id_token;
 
-    };
+        $scope.personLookUp(googleUser);
+    }
+
+
+    $scope.onSignInFailure = function () {
+        console.log('Sign-in state: Error');
+    }
+
+    window.onSignIn = $scope.onSignIn;
+    window.onSignInFailure = $scope.onSignInFailure;
 
     $scope.personLookUp = function (resp) {
-        $scope.person = resp;
-
+        $scope.person = resp.getBasicProfile();
+        $scope.person.id = $scope.person.getId();
+        $scope.person.displayName = $scope.person.getName();
         // compose user id
         $scope.owner_id = $scope.person.id + '_' + $scope.signInType;
         $scope.displayName = $scope.person.displayName;
@@ -3780,13 +3721,18 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
     };
 
     $scope.signOut = function () {
-        gapi.auth.signOut();
+        var auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function () {
+            console.log('User signed out.');
+        });
         $scope.isAuthenticated = false;
 
         $scope.$broadcast('loggedOff', []);
         $scope.gAuth = {};
         $scope.owner_id = undefined;
         $scope.person = undefined;
+
+
     };
 
     $scope.tab = 1;
@@ -3798,7 +3744,6 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
     $scope.isTabSet = function (num) {
         return $scope.tab === num;
     };
-
 
 }]);
 /**
@@ -3898,12 +3843,12 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
     });
 
     /**
-    $scope.$watch('anyService.selectedPoi', function (newVal, oldVal) {
+     $scope.$watch('anyService.selectedPoi', function (newVal, oldVal) {
         if (newVal && _latLngFromPoi(newVal)) {
             $scope.showRadioHeatmapPoi();
         }
     });
-*/
+     */
     $scope.$watch('newFloorNumber', function (newVal, oldVal) {
         //if (_floorNoExists(newVal)) {
         //    _setNextFloor();
@@ -4386,7 +4331,13 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
     };
 
     $scope.showRadioHeatmapPoi = function () {
-        var jsonReq = {"buid":$scope.anyService.getBuildingId(),"floor":$scope.anyService.getFloorNumber(),"coordinates_lat":$scope.anyService.selectedPoi.coordinates_lat,"coordinates_lon":$scope.anyService.selectedPoi.coordinates_lon,"range":"1"};
+        var jsonReq = {
+            "buid": $scope.anyService.getBuildingId(),
+            "floor": $scope.anyService.getFloorNumber(),
+            "coordinates_lat": $scope.anyService.selectedPoi.coordinates_lat,
+            "coordinates_lon": $scope.anyService.selectedPoi.coordinates_lon,
+            "range": "1"
+        };
 
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
@@ -4432,7 +4383,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
     }
 
     $scope.showRadioHeatmap = function () {
-        var jsonReq = {"buid":$scope.anyService.getBuildingId(),"floor":$scope.anyService.getFloorNumber()};
+        var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
 
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
@@ -4606,7 +4557,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             $scope.fetchAllPoisTypes(newVal.poistypeid);
         }
         else {
-            $scope.poisTypes= [
+            $scope.poisTypes = [
                 "Disabled Toilets",
                 "Elevator",
                 "Entrance",
@@ -4654,22 +4605,22 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     });
 
     $scope.poicategories = [{
-            poicat: "Elevator",
-            poicatPlaceholder: "name",
-            disenable: "true"
-        },{
-            poicat: "Entrance",
-            poicatPlaceholder: "name",
-            disenable: "true"
-        },{
-            poicat: "Stair",
-            poicatPlaceholder: "name",
-            disenable: "true"
-        }
+        poicat: "Elevator",
+        poicatPlaceholder: "name",
+        disenable: "true"
+    }, {
+        poicat: "Entrance",
+        poicatPlaceholder: "name",
+        disenable: "true"
+    }, {
+        poicat: "Stair",
+        poicatPlaceholder: "name",
+        disenable: "true"
+    }
     ];
 
     $scope.add = function () {
-        if ($scope.poicategories[$scope.poicategories.length-1].poicat!=""){
+        if ($scope.poicategories[$scope.poicategories.length - 1].poicat != "") {
             $scope.poicategories.push({
                 poicat: "",
                 poicatPlaceholder: "name",
@@ -4684,34 +4635,35 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     $scope.addcategory = function () {
 
         var name_element = document.getElementById("poistype");
-        var name =  "\"poistype\":\""+name_element.value+"\"";
+        var name = "\"poistype\":\"" + name_element.value + "\"";
 
         function S4() {
-            return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
         }
-        var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+
+        var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
         var d = new Date();
 
 
-        var poistypeid = "poistypeid_"+guid+ "_"+ d.getTime();
-        poistypeid = "\"poistypeid\":\""+ poistypeid+"\"";
+        var poistypeid = "poistypeid_" + guid + "_" + d.getTime();
+        poistypeid = "\"poistypeid\":\"" + poistypeid + "\"";
 
         var sz = $scope.poicategories.length;
 
-        if (sz==0) {
+        if (sz == 0) {
             _err("No categories added.");
             return;
         }
 
         var types = "\"types\":[";
         for (var i = sz - 1; i > 0; i--) {
-            if ($scope.poicategories[i].poicat!=""){
-                types =types+ "\""+$scope.poicategories[i].poicat+"\",";
+            if ($scope.poicategories[i].poicat != "") {
+                types = types + "\"" + $scope.poicategories[i].poicat + "\",";
             }
         }
-        types =types+ "\""+$scope.poicategories[0].poicat+"\"]";
+        types = types + "\"" + $scope.poicategories[0].poicat + "\"]";
 
-        var jreq = "{"+name+","+poistypeid+","+types+",\"owner_id\":\""+ $scope.owner_id+"\",\"access_token\":\""+$scope.gAuth.access_token+"\"}";
+        var jreq = "{" + name + "," + poistypeid + "," + types + ",\"owner_id\":\"" + $scope.owner_id + "\",\"access_token\":\"" + $scope.gAuth.access_token + "\"}";
 
         var promise = $scope.anyAPI.addCategory(jreq);
         promise.then(
@@ -4755,15 +4707,15 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
                 var sz = poistypes.length;
                 for (var i = sz - 1; i >= 0; i--) {
-                    if (poistypes[i].poistypeid==poistypeid){
-                        var types=poistypes[i].types;
+                    if (poistypes[i].poistypeid == poistypeid) {
+                        var types = poistypes[i].types;
                         break;
                     }
                 }
 
                 var sz = types.length;
                 for (var i = sz - 1; i >= 0; i--) {
-                    $scope.poisTypes[i]=types[i];
+                    $scope.poisTypes[i] = types[i];
                 }
             },
             function (resp) {
@@ -4889,11 +4841,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             if ($scope.myConnectionsHashT.hasOwnProperty(cuid)) {
                 var conn = $scope.myConnectionsHashT[cuid];
 
-                if (!conn || !conn.pois_a || !conn.pois_b ||
-                    !$scope.myPoisHashT[conn.pois_a] ||
-                    !$scope.myPoisHashT[conn.pois_b] ||
-                    !$scope.myPoisHashT[conn.pois_a].model ||
-                    !$scope.myPoisHashT[conn.pois_b].model) {
+                if (!conn || !conn.pois_a || !conn.pois_b || !$scope.myPoisHashT[conn.pois_a] || !$scope.myPoisHashT[conn.pois_b] || !$scope.myPoisHashT[conn.pois_a].model || !$scope.myPoisHashT[conn.pois_b].model) {
                     continue;
                 }
 
