@@ -126,7 +126,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             $scope.fetchAllPoisTypes(newVal.poistypeid);
         }
         else {
-            $scope.poisTypes= [
+            $scope.poisTypes = [
                 "Disabled Toilets",
                 "Elevator",
                 "Entrance",
@@ -177,11 +177,11 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         poicat: "Elevator",
         poicatPlaceholder: "name",
         disenable: "true"
-    },{
+    }, {
         poicat: "Entrance",
         poicatPlaceholder: "name",
         disenable: "true"
-    },{
+    }, {
         poicat: "Stair",
         poicatPlaceholder: "name",
         disenable: "true"
@@ -189,7 +189,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     ];
 
     $scope.add = function () {
-        if ($scope.poicategories[$scope.poicategories.length-1].poicat!=""){
+        if ($scope.poicategories[$scope.poicategories.length - 1].poicat != "") {
             $scope.poicategories.push({
                 poicat: "",
                 poicatPlaceholder: "name",
@@ -204,34 +204,35 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     $scope.addcategory = function () {
 
         var name_element = document.getElementById("poistype");
-        var name =  "\"poistype\":\""+name_element.value+"\"";
+        var name = "\"poistype\":\"" + name_element.value + "\"";
 
         function S4() {
-            return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+            return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
         }
-        var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+
+        var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
         var d = new Date();
 
 
-        var poistypeid = "poistypeid_"+guid+ "_"+ d.getTime();
-        poistypeid = "\"poistypeid\":\""+ poistypeid+"\"";
+        var poistypeid = "poistypeid_" + guid + "_" + d.getTime();
+        poistypeid = "\"poistypeid\":\"" + poistypeid + "\"";
 
         var sz = $scope.poicategories.length;
 
-        if (sz==0) {
+        if (sz == 0) {
             _err("No categories added.");
             return;
         }
 
         var types = "\"types\":[";
         for (var i = sz - 1; i > 0; i--) {
-            if ($scope.poicategories[i].poicat!=""){
-                types =types+ "\""+$scope.poicategories[i].poicat+"\",";
+            if ($scope.poicategories[i].poicat != "") {
+                types = types + "\"" + $scope.poicategories[i].poicat + "\",";
             }
         }
-        types =types+ "\""+$scope.poicategories[0].poicat+"\"]";
+        types = types + "\"" + $scope.poicategories[0].poicat + "\"]";
 
-        var jreq = "{"+name+","+poistypeid+","+types+",\"owner_id\":\""+ $scope.owner_id+"\",\"access_token\":\""+$scope.gAuth.access_token+"\"}";
+        var jreq = "{" + name + "," + poistypeid + "," + types + ",\"owner_id\":\"" + $scope.owner_id + "\",\"access_token\":\"" + $scope.gAuth.access_token + "\"}";
 
         var promise = $scope.anyAPI.addCategory(jreq);
         promise.then(
@@ -275,15 +276,15 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
                 var sz = poistypes.length;
                 for (var i = sz - 1; i >= 0; i--) {
-                    if (poistypes[i].poistypeid==poistypeid){
-                        var types=poistypes[i].types;
+                    if (poistypes[i].poistypeid == poistypeid) {
+                        var types = poistypes[i].types;
                         break;
                     }
                 }
 
                 var sz = types.length;
                 for (var i = sz - 1; i >= 0; i--) {
-                    $scope.poisTypes[i]=types[i];
+                    $scope.poisTypes[i] = types[i];
                 }
             },
             function (resp) {
@@ -409,11 +410,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             if ($scope.myConnectionsHashT.hasOwnProperty(cuid)) {
                 var conn = $scope.myConnectionsHashT[cuid];
 
-                if (!conn || !conn.pois_a || !conn.pois_b ||
-                    !$scope.myPoisHashT[conn.pois_a] ||
-                    !$scope.myPoisHashT[conn.pois_b] ||
-                    !$scope.myPoisHashT[conn.pois_a].model ||
-                    !$scope.myPoisHashT[conn.pois_b].model) {
+                if (!conn || !conn.pois_a || !conn.pois_b || !$scope.myPoisHashT[conn.pois_a] || !$scope.myPoisHashT[conn.pois_b] || !$scope.myPoisHashT[conn.pois_a].model || !$scope.myPoisHashT[conn.pois_b].model) {
                     continue;
                 }
 

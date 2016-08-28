@@ -10,17 +10,18 @@
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
 
-    <script type="text/javascript" src="build/js/client_platform.js" async defer></script>
-    <script type="text/javascript" src="build/js/client_plusone.js"></script>
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="587500723971-osfarnc1g7vvpo280foaju1oij0f59rr.apps.googleusercontent.com">
 
-    <link href="bower_components/jquery-ui/themes/base/all.css" rel="stylesheet"
-          type="text/css"/>
+    <script src="https://apis.google.com/js/platform.js"></script>
+
+
+    <link href="bower_components/jquery-ui/themes/base/all.css" rel="stylesheet" type="text/css"/>
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
     <script src="bower_components/jquery-ui/jquery-ui.min.js"></script>
     <script src="libs/jquery.ui.rotatable.min.js"></script>
 
 
-    <script type="text/javascript" src="build/js/client_plusone.js"></script>
     <script type="text/javascript"
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCRLbtsuuKx5cdY2ydiri2r4ji3FTYdbY&libraries=places,visualization">
     </script>
@@ -73,13 +74,6 @@
             </span>
         </div>
 
-        <script>
-            var signinCallback = function (authResult) {
-                var $element = $('#control-bar');
-                var scope = angular.element($element).scope();
-                scope.signinCallback(authResult);
-            };
-        </script>
 
         <div id="sign-in-box" ng-hide="isAuthenticated || !showFullControls">
             <!--<img class="social-login-buttons" src="images/fb-login.png" ng-click="setAuthenticated(true)">-->
@@ -88,15 +82,18 @@
 
             <!--data-clientid="587500723971-si8s4qqat9v5efgemnebihpi3qe9onlp.apps.googleusercontent.com"-->
             <span id="signinButton" style="display: block; text-align: center">
-                <span
-                        class="g-signin"
-                        data-callback="signinCallback"
+                <div
+                        class="g-signin2"
+                        data-scope="https://www.googleapis.com/auth/plus.login"
+                        data-onsuccess="onSignIn"
+                        data-onfailure="onSignInFailure"
                         data-clientid="587500723971-osfarnc1g7vvpo280foaju1oij0f59rr.apps.googleusercontent.com"
                         data-cookiepolicy="single_host_origin"
                         data-scope="profile"
                         data-width="wide"
-                        data-height="tall">
-                </span>
+                        data-height="tall"
+                        data-accesstype="offline">
+                </div>
             </span>
 
         </div>
@@ -334,7 +331,7 @@
                                         <br />
                                         <input type="text" id="CampusID" size="25" class="form-control" placeholder="Campus id (unique per building)"/>
                                         <br />
-                                        <label><input type="checkbox" id="Greeklish-OnOff" value=""/> Enable-Disable Greeklish search for this Campus</label>
+                                        <label><input type="checkbox" id="Greeklish-OnOff" value=""/> Enable Greeklish search for this Campus</label>
                                         <br /><br />
                                         <button type="submit" class="btn btn-success pull-right add-any-button"
                                                 ng-click="addCampus()"><span class="glyphicon glyphicon-pencil"></span>
@@ -754,6 +751,7 @@
 <script type="text/javascript" src="build/js/flurry.js"></script>
 
 <script>FlurryAgent.startSession("DND8DGH2MT7VZGBMNBPP");</script>
+
 
 </body>
 

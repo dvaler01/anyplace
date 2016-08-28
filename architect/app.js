@@ -25,7 +25,7 @@
  THE SOFTWARE.
  */
 
-var app = angular.module('anyArchitect', ['angularjs-dropdown-multiselect','ui.bootstrap', 'ui.select', 'ngSanitize']);
+var app = angular.module('anyArchitect', ['angularjs-dropdown-multiselect', 'ui.bootstrap', 'ui.select', 'ngSanitize']);
 
 app.service('GMapService', function () {
 
@@ -42,7 +42,7 @@ app.service('GMapService', function () {
         zoomControl: true,
         mapTypeControl: true,
         mapTypeControlOptions: {
-            position:google.maps.ControlPosition.RIGHT_BOTTOM
+            position: google.maps.ControlPosition.RIGHT_BOTTOM
         },
         scaleControl: true,
         streetViewControl: false,
@@ -118,21 +118,21 @@ app.factory('AnyplaceService', function () {
     };
 
     anyService.getBuildingId = function () {
-        if(!this.selectedBuilding) {
+        if (!this.selectedBuilding) {
             return undefined;
         }
         return this.selectedBuilding.buid;
     };
 
-    anyService.getBuildingName = function() {
-        if(!this.selectedBuilding) {
+    anyService.getBuildingName = function () {
+        if (!this.selectedBuilding) {
             return 'N/A';
         }
         return this.selectedBuilding.name;
     };
 
-    anyService.getCampusName = function() {
-        if(!this.selectedCampus) {
+    anyService.getCampusName = function () {
+        if (!this.selectedCampus) {
             return 'N/A';
         }
         return this.selectedCampus.name;
@@ -143,7 +143,7 @@ app.factory('AnyplaceService', function () {
     };
 
     anyService.getFloorNumber = function () {
-        if(!this.selectedFloor) {
+        if (!this.selectedFloor) {
             return 'N/A';
         }
         return String(this.selectedFloor.floor_number);
@@ -169,46 +169,46 @@ app.factory('AnyplaceService', function () {
         this.alerts.splice(index, 1);
     };
 
-    anyService.getBuildingViewerUrl = function() {
-        if(!this.selectedBuilding || !this.selectedBuilding.buid) {
+    anyService.getBuildingViewerUrl = function () {
+        if (!this.selectedBuilding || !this.selectedBuilding.buid) {
             return "N/A";
         }
         return this.selectedBuilding.buid;
     };
 
-    anyService.getBuildingViewerUrlEncoded = function() {
-        if(!this.selectedBuilding || !this.selectedBuilding.buid) {
+    anyService.getBuildingViewerUrlEncoded = function () {
+        if (!this.selectedBuilding || !this.selectedBuilding.buid) {
             return "N/A";
         }
         return encodeURIComponent("https://anyplace.cs.ucy.ac.cy/viewer/?buid=" + this.selectedBuilding.buid);
     };
 
-    anyService.getCampusViewerUrl = function() {
-        if(!this.selectedCampus || !this.selectedCampus.cuid) {
+    anyService.getCampusViewerUrl = function () {
+        if (!this.selectedCampus || !this.selectedCampus.cuid) {
             return "N/A";
         }
         return "https://anyplace.cs.ucy.ac.cy/viewer/?cuid=" + this.selectedCampus.cuid;
     };
 
-    anyService.getCampusViewerUrlEncoded = function() {
-        if(!this.selectedCampus || !this.selectedCampus.cuid) {
+    anyService.getCampusViewerUrlEncoded = function () {
+        if (!this.selectedCampus || !this.selectedCampus.cuid) {
             return "N/A";
         }
         return encodeURIComponent("https://anyplace.cs.ucy.ac.cy/viewer/?cuid=" + this.selectedCampus.cuid);
     };
 
-    anyService.clearAllData = function() {
+    anyService.clearAllData = function () {
         anyService.selectedPoi = undefined;
         anyService.selectedFloor = undefined;
         anyService.selectedBuilding = undefined;
         anyService.selectedCampus = undefined;
-        anyService.ShowShareProp = undefined ;
+        anyService.ShowShareProp = undefined;
     };
 
     return anyService;
 });
 
-app.factory('Alerter', function() {
+app.factory('Alerter', function () {
     var alerter = {};
 
     alerter.AlertCtrl = '-';
@@ -265,9 +265,9 @@ app.filter('propsFilter', function () {
     }
 });
 
-app.factory('myInterceptor', [function() {
+app.factory('myInterceptor', [function () {
     var requestInterceptor = {
-        request: function(config) {
+        request: function (config) {
 
             if (config.url.indexOf(AnyplaceAPI.FULL_SERVER) != 0) {
                 return config;
@@ -284,6 +284,6 @@ app.factory('myInterceptor', [function() {
     return requestInterceptor;
 }]);
 
-app.config(['$httpProvider', function($httpProvider) {
+app.config(['$httpProvider', function ($httpProvider) {
     $httpProvider.interceptors.push('myInterceptor');
 }]);

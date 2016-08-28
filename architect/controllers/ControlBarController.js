@@ -1,3 +1,4 @@
+
 /**
  *
  The MIT License (MIT)
@@ -42,13 +43,16 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
     $scope.owner_id = undefined;
     $scope.displayName = undefined;
 
+    var self = this; //to be able to reference to it in a callback, you could use $scope instead
+
+
     $scope.setAuthenticated = function (bool) {
         $scope.isAuthenticated = bool;
     };
 
     $scope.showFullControls = true;
 
-    $scope.toggleFullControls = function() {
+    $scope.toggleFullControls = function () {
         $scope.showFullControls = !$scope.showFullControls;
     };
 
@@ -74,32 +78,30 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
         AnyplaceService.addAlert('success', 'access_token: ' + $scope.gAuth.access_token);
     };
 
-    $scope.signinCallback = function (authResult) {
-        if (authResult['status']['signed_in']) {
-            // Update the app to reflect a signed in user
-            // Hide the sign-in button now that the user is authorized, for example:
-            // document.getElementById('signinButton').setAttribute('style', 'display: none');
-            $scope.setAuthenticated(true);
-            $scope.gAuth = authResult;
+    $scope.onSignIn = function (googleUser) {
+        $scope.setAuthenticated(true);
 
-            app.access_token = authResult.access_token;
+        $scope.gAuth = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse();
 
-            gapi.client.load('plus', 'v1', apiClientLoaded);
+        $scope.gAuth.access_token = $scope.gAuth.id_token;
 
-        } else {
-            // Update the app to reflect a signed out user
-            // Possible error values:
-            //   "user_signed_out" - User is signed-out
-            //   "access_denied" - User denied access to your app
-            //   "immediate_failed" - Could not automatically log in the user
-            console.log('Sign-in state: ' + authResult['error']);
-        }
+        app.access_token = $scope.gAuth.id_token;
 
-    };
+        $scope.personLookUp(googleUser);
+    }
+
+
+    $scope.onSignInFailure = function () {
+        console.log('Sign-in state: Error');
+    }
+
+    window.onSignIn = $scope.onSignIn;
+    window.onSignInFailure = $scope.onSignInFailure;
 
     $scope.personLookUp = function (resp) {
-        $scope.person = resp;
-
+        $scope.person = resp.getBasicProfile();
+        $scope.person.id = $scope.person.getId();
+        $scope.person.displayName = $scope.person.getName();
         // compose user id
         $scope.owner_id = $scope.person.id + '_' + $scope.signInType;
         $scope.displayName = $scope.person.displayName;
@@ -122,13 +124,18 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
     };
 
     $scope.signOut = function () {
-        gapi.auth.signOut();
+        var auth2 = gapi.auth2.getAuthInstance();
+        auth2.signOut().then(function () {
+            console.log('User signed out.');
+        });
         $scope.isAuthenticated = false;
 
         $scope.$broadcast('loggedOff', []);
         $scope.gAuth = {};
         $scope.owner_id = undefined;
         $scope.person = undefined;
+
+
     };
 
     $scope.tab = 1;
@@ -140,6 +147,5 @@ app.controller('ControlBarController', ['$scope', '$rootScope', 'AnyplaceService
     $scope.isTabSet = function (num) {
         return $scope.tab === num;
     };
-
 
 }]);

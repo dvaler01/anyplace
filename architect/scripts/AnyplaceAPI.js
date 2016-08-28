@@ -133,11 +133,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.RADIO_HEATMAP_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -149,11 +147,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.POIS_TYPES_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -163,11 +159,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.POIS_ALL_BUILDING_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -178,11 +172,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.RADIO_HEATMAP_URL_POI,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -192,11 +184,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -206,11 +196,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.RADIO_BY_BUILDING_FLOOR_ALL_TXT_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -224,11 +212,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.BUILDING_ADD_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -239,11 +225,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.BUILDINGSET_ADD_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -254,11 +238,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.POISCATEGORY_ADD_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -269,11 +251,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.BUILDING_UPDATE_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
 
@@ -285,11 +265,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.CAMPUS_UPDATE_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
 
@@ -301,11 +279,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.BUILDING_DELETE_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
 
@@ -317,11 +293,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.CAMPUS_DELETE_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
 
@@ -332,11 +306,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.BUILDING_ALL_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
 
@@ -347,16 +319,13 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.CAMPUS_ALL_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
 
     };
-
 
 
     /****************************************************
@@ -369,11 +338,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_ADD_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -384,11 +351,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_UPDATE_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -399,11 +364,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_DELETE_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
 
@@ -415,11 +378,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_ALL_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
 
@@ -439,11 +400,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
                 json: json_req
             },
             transformRequest: formDataObject
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -467,11 +426,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             headers: {
                 'Content-Type': undefined
             }
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -482,11 +439,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL + buid + "/" + floor_number,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -497,11 +452,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.FLOOR_PLAN_DOWNLOAD_URL_ALL + buid + "/" + floor_number,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -516,11 +469,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.POIS_ADD_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -531,11 +482,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.POIS_UPDATE_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -548,12 +497,10 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.POIS_DELETE_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             //deferred.resolve(data);
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             //deferred.resolve(data);
             return data;
         });
@@ -565,11 +512,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.POIS_ALL_FLOOR_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     }
@@ -584,11 +529,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.CONNECTION_ADD_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -599,11 +542,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.CONNECTION_UPDATE_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -614,11 +555,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.CONNECTION_DELETE_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -628,11 +567,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.CONNECTION_ALL_FLOOR_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };
@@ -642,11 +579,9 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
             method: "POST",
             url: AnyplaceAPI.Mapping.SIGN_URL,
             data: json_req
-        }).
-        success(function (data, status) {
+        }).success(function (data, status) {
             return data;
-        }).
-        error(function (data, status) {
+        }).error(function (data, status) {
             return data;
         });
     };

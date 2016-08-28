@@ -18,7 +18,7 @@ function USGSOverlay(bounds, image, map) {
     this.setMap(map);
 }
 
-USGSOverlay.prototype.onAdd = function() {
+USGSOverlay.prototype.onAdd = function () {
 
     // Note: an overlay's receipt of onAdd() indicates that
     // the map's panes are now available for attaching
@@ -26,7 +26,7 @@ USGSOverlay.prototype.onAdd = function() {
 
     // Create the DIV and set some basic attributes.
     var div = document.createElement('div');
-    div.id="ground_overlay";
+    div.id = "ground_overlay";
     div.style.borderStyle = 'none';
     div.style.borderWidth = '0px';
     div.style.position = 'absolute';
@@ -48,7 +48,7 @@ USGSOverlay.prototype.onAdd = function() {
     panes.overlayLayer.appendChild(div);
 }
 
-USGSOverlay.prototype.draw = function() {
+USGSOverlay.prototype.draw = function () {
 
     // Size and position the overlay. We use a southwest and northeast
     // position of the overlay to peg it to the correct position and size.
@@ -69,7 +69,7 @@ USGSOverlay.prototype.draw = function() {
     div.style.height = (sw.y - ne.y) + 'px';
 }
 
-USGSOverlay.prototype.onRemove = function() {
+USGSOverlay.prototype.onRemove = function () {
     this.div_.parentNode.removeChild(this.div_);
     this.div_ = null;
 }

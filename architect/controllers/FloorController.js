@@ -583,7 +583,13 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
     };
 
     $scope.showRadioHeatmapPoi = function () {
-        var jsonReq = {"buid":$scope.anyService.getBuildingId(),"floor":$scope.anyService.getFloorNumber(),"coordinates_lat":$scope.anyService.selectedPoi.coordinates_lat,"coordinates_lon":$scope.anyService.selectedPoi.coordinates_lon,"range":"1"};
+        var jsonReq = {
+            "buid": $scope.anyService.getBuildingId(),
+            "floor": $scope.anyService.getFloorNumber(),
+            "coordinates_lat": $scope.anyService.selectedPoi.coordinates_lat,
+            "coordinates_lon": $scope.anyService.selectedPoi.coordinates_lon,
+            "range": "1"
+        };
 
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
@@ -629,7 +635,7 @@ app.controller('FloorController', ['$scope', 'AnyplaceService', 'GMapService', '
     }
 
     $scope.showRadioHeatmap = function () {
-        var jsonReq = {"buid":$scope.anyService.getBuildingId(),"floor":$scope.anyService.getFloorNumber()};
+        var jsonReq = {"buid": $scope.anyService.getBuildingId(), "floor": $scope.anyService.getFloorNumber()};
 
         jsonReq.username = $scope.creds.username;
         jsonReq.password = $scope.creds.password;
