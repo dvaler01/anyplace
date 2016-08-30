@@ -658,6 +658,9 @@ public class AnyplaceMapping extends Controller {
             if (json.findValue("description") != null) {
                 stored_campus.put("description", json.path("description").textValue());
             }
+            if (json.findValue("cuidnew") != null) {
+                stored_campus.put("cuid", json.path("cuidnew").textValue());
+            }
 
             AbstractModel campus = new BuildingSet(stored_campus);
             if (!ProxyDataSource.getIDatasource().replaceJsonDocument(campus.getId(), 0, campus.toCouchGeoJSON())) {
@@ -1496,7 +1499,7 @@ public class AnyplaceMapping extends Controller {
         }
         // get access token from url and check it against google's service
         if (json.findValue("access_token") == null) {
-            return AnyResponseHelper.forbidden("Unauthorized");
+            return AnyResponseHelper.forbidden("Unauthorized access_token");
         }
         String owner_id = verifyOwnerId(json.findValue("access_token").textValue());
         if (owner_id == null) {
@@ -1515,7 +1518,7 @@ public class AnyplaceMapping extends Controller {
             }
 
             if (!isBuildingOwner(stored_building, owner_id) && !isBuildingCoOwner(stored_building, owner_id)) {
-                return AnyResponseHelper.unauthorized("Unauthorized");
+                return AnyResponseHelper.unauthorized("Unauthorized owner_id:"+owner_id);
             }
 
         } catch (DatasourceException e) {

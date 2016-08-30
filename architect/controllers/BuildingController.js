@@ -1,3 +1,4 @@
+
 /**
  *
  The MIT License (MIT)
@@ -52,6 +53,10 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
     $scope.example9model = [];
     $scope.example9data = [];
     $scope.example9settings = {enableSearch: true, scrollable: true};
+
+    $scope.example9modeledit = [];
+    $scope.example9dataedit = [];
+    $scope.example9settingsedit = {enableSearch: true, scrollable: true};
 
     $scope.myBuildings = [];
 
@@ -314,6 +319,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                     var b = $scope.myBuildings[i];
 
                     $scope.example9data[i] = {id: b.buid, label: b.name};
+                    $scope.example9dataedit[i] = {id: b.buid, label: b.name};
 
                     if (localStoredBuildingId && localStoredBuildingId === b.buid) {
                         localStoredBuildingIndex = i;
@@ -675,13 +681,33 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
             reqObj.name = b.name;
         }
 
+        if (b.newcuid) {
+            reqObj.newcuid = b.newcuid;
+        }
+
+        var sz = $scope.example9modeledit.length;
+
+        if (sz == 0) {
+            _err("No buildings selected.");
+            return;
+        }
+        var buids = "\"buids\":[";
+        for (var i = sz - 1; i > 0; i--) {
+            buids = buids + "\"" + $scope.example9modeledit[i].id + "\",";
+        }
+        buids = buids + "\"" + $scope.example9modeledit[0].id + "\"]";
+
+        reqObj.greeklish = document.getElementById("Greeklish-OnOffedit").checked;
+
+        reqObj.buids = buids ;
+
 
         var promise = $scope.anyAPI.updateCampus(reqObj);
         promise.then(
             function (resp) {
                 // on success
                 var data = resp.data;
-
+                document.getElementById("CampusIDeditnew").value = "";
                 _suc("Successfully updated campus.")
             },
             function (resp) {
@@ -880,9 +906,6 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
             + '<input ng-model="myMarkers[' + marker.myId + '].model.is_published" id="building-published" type="checkbox"><span> Make building public to view.</span>'
             + '</fieldset>'
             + '<fieldset class="form-group">'
-            + '<select ng-model="myMarkers[' + marker.myId + '].model.poistypeid" class="form-control" ng-options="type.poistypeid as type.poistype for type in catTypes" title="POI Types" tabindex="2">'
-            + '<option value="">Select POI Category</option>'
-            + '</select>'
             + '</fieldset class="form-group">'
             + '<div style="text-align: center;">'
             + '<fieldset class="form-group" style="display: inline-block; width: 75%;">'
@@ -1220,6 +1243,8 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
             }
 
             $scope.anyService.progress = (i / (oJS.length - 1)) * 100;
+            if ((oJS.length - 1)==0) $scope.anyService.progress = 100;
+
             if ($scope.pois[oJS[i].name]) {
                 $scope.updatePoifromExcel($scope.pois[oJS[i].name].puid,
                     $scope.pois[oJS[i].name].coordinates_lat,
@@ -1301,18 +1326,22 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
             function (resp) {
                 var data = resp.data;
                 if ($scope.anyService.progress == 100) {
-                    setTimeout(function () {
-                        $scope.anyService.progress = undefined;
-                    }, 1500);
 
                     if ($scope.anyService.downloadlogfile) {
                         $scope.anyService.downloadlogfile = false;
                         _suc("Successfully updated POIs.A log file will be downloaded");
                         var blob = new Blob([JSON.stringify($scope.logfile, null, 4)], {type: "text/plain;charset=utf-8"});
                         saveAs(blob, ($scope.fileToUpload + "-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
+                        setTimeout(function () {
+                            $scope.anyService.progress = undefined;
+                        }, 2500);
                     }
                     else {
                         _suc("Successfully updated POIs.");
+                        setTimeout(function () {
+                            $scope.anyService.progress = undefined;
+                            location.reload();
+                        }, 2500);
                     }
                 }
             },
@@ -1327,12 +1356,14 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                 $scope.anyService.downloadlogfile = true;
                 if ($scope.anyService.progress == 100) {
                     $scope.anyService.downloadlogfile = false;
-                    setTimeout(function () {
-                        $scope.anyService.progress = undefined;
-                    }, 1500);
                     _suc("Successfully updated POIs.A log file will be downloaded");
                     var blob = new Blob([JSON.stringify($scope.logfile, null, 4)], {type: "text/plain;charset=utf-8"});
                     saveAs(blob, ($scope.fileToUpload + "-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
+                    $scope.logfile.pois = [];
+
+                    setTimeout(function () {
+                        $scope.anyService.progress = undefined;
+                    }, 2500);
                 }
             }
         );
@@ -1363,16 +1394,20 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                 var data = resp.data;
                 $scope.anyService.progress = countok / count * 100;
                 if ($scope.anyService.progress == 100) {
-                    setTimeout(function () {
-                        $scope.anyService.progress = undefined;
-                    }, 1500);
                     if ($scope.anyService.downloadlogfile) {
                         _suc("Successfully updated POIs.A log file will be downloaded");
                         var blob = new Blob([JSON.stringify($scope.logfile, null, 4)], {type: "text/plain;charset=utf-8"});
                         saveAs(blob, (buildingname + "-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
+                        setTimeout(function () {
+                            $scope.anyService.progress = undefined;
+                        }, 2500);
                     }
                     else {
                         _suc("Successfully updated POIs.");
+                        setTimeout(function () {
+                            $scope.anyService.progress = undefined;
+                            location.reload();
+                        }, 2500);
                     }
                 }
             },
@@ -1389,17 +1424,22 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                 $scope.anyService.downloadlogfile = true;
                 $scope.anyService.progress = countok / count * 100;
                 if ($scope.anyService.progress == 100) {
-                    setTimeout(function () {
-                        $scope.anyService.progress = undefined;
-                    }, 1500);
+
                     if ($scope.anyService.downloadlogfile) {
                         _suc("Successfully updated POIs.A log file will be downloaded");
-                        $scope.logfile.pois = [];
                         var blob = new Blob([JSON.stringify($scope.logfile, null, 4)], {type: "text/plain;charset=utf-8"});
                         saveAs(blob, (buildingname + "-log_file").toLowerCase().replace(/[^a-zA-Z0-9]+/g, "-") + ".txt");
+                        $scope.logfile.pois = [];
+                        setTimeout(function () {
+                            $scope.anyService.progress = undefined;
+                        }, 2500);
                     }
                     else {
                         _suc("Successfully updated POIs.");
+                        setTimeout(function () {
+                            $scope.anyService.progress = undefined;
+                            location.reload();
+                        }, 2500);
                     }
                 }
             }

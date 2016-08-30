@@ -1869,7 +1869,7 @@ public class CouchbaseDatasource implements IDatasource, IAccountService {
                     y=y.substring(1, y.length() - 1);
                     if (!(Double.parseDouble(x)>=bbox[0].dlat&&Double.parseDouble(x)<=bbox[1].dlat
                             &&Double.parseDouble(y)>=bbox[0].dlon&&Double.parseDouble(y)<=bbox[1].dlon)){
-                       flag = false;
+                        flag = false;
                     }
                 } catch (IOException e) {
                     // skip documents not in Json-format
@@ -1897,167 +1897,167 @@ public class CouchbaseDatasource implements IDatasource, IAccountService {
     /**
      * Can be helpful in case we want to iterate through all the rss logs again
 
-    private static double getD(double x1, double y1, double x2, double y2) {
-        return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
-    }
+     private static double getD(double x1, double y1, double x2, double y2) {
+     return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+     }
 
-    @Override
-    public long addBuidToRssLogs() throws DatasourceException {
-        List<JsonNode> buildings = null;
-        try {
-            buildings = ProxyDataSource.getIDatasource().getAllBuildings();
-        } catch (DatasourceException e) {
-            return -1;
-        }
+     @Override
+     public long addBuidToRssLogs() throws DatasourceException {
+     List<JsonNode> buildings = null;
+     try {
+     buildings = ProxyDataSource.getIDatasource().getAllBuildings();
+     } catch (DatasourceException e) {
+     return -1;
+     }
 
-        List<JsonNode> maxFloors = new ArrayList<JsonNode>();
-        List<Double> maxFloorsVal = new ArrayList<Double>();
-        List<Double> maxFloorsCentreX = new ArrayList<Double>();
-        List<Double> maxFloorsCentreY = new ArrayList<Double>();
+     List<JsonNode> maxFloors = new ArrayList<JsonNode>();
+     List<Double> maxFloorsVal = new ArrayList<Double>();
+     List<Double> maxFloorsCentreX = new ArrayList<Double>();
+     List<Double> maxFloorsCentreY = new ArrayList<Double>();
 
-        for (JsonNode jn : buildings) {
-            String buid = jn.get("buid").textValue();
+     for (JsonNode jn : buildings) {
+     String buid = jn.get("buid").textValue();
 
-            if (buid == null)
-                continue;
+     if (buid == null)
+     continue;
 
-            List<JsonNode> floors = null;
+     List<JsonNode> floors = null;
 
-            try {
-                floors = ProxyDataSource.getIDatasource().floorsByBuildingAsJson(buid);
-            } catch (DatasourceException e) {
-                LPLogger.error("Err: can't get floors for buid: " + buid);
-                continue;
-            }
+     try {
+     floors = ProxyDataSource.getIDatasource().floorsByBuildingAsJson(buid);
+     } catch (DatasourceException e) {
+     LPLogger.error("Err: can't get floors for buid: " + buid);
+     continue;
+     }
 
-            if (floors == null || floors.size() <= 0)
-                continue;
+     if (floors == null || floors.size() <= 0)
+     continue;
 
-            JsonNode maxFloor = null;
-            double maxD = Double.MIN_VALUE;
+     JsonNode maxFloor = null;
+     double maxD = Double.MIN_VALUE;
 
-            for (JsonNode fjn : floors) {
-                double top_x = fjn.get("top_right_lat").asDouble();
-                double top_y = fjn.get("top_right_lng").asDouble();
-                double bot_x = fjn.get("bottom_left_lat").asDouble();
-                double bot_y = fjn.get("bottom_left_lng").asDouble();
+     for (JsonNode fjn : floors) {
+     double top_x = fjn.get("top_right_lat").asDouble();
+     double top_y = fjn.get("top_right_lng").asDouble();
+     double bot_x = fjn.get("bottom_left_lat").asDouble();
+     double bot_y = fjn.get("bottom_left_lng").asDouble();
 
-                double d = getD(top_x, top_y, bot_x, bot_y);
+     double d = getD(top_x, top_y, bot_x, bot_y);
 
-                if (d >= maxD) {
-                    maxD = d;
-                    maxFloor = fjn;
-                }
-            }
+     if (d >= maxD) {
+     maxD = d;
+     maxFloor = fjn;
+     }
+     }
 
-            maxFloors.add(maxFloor);
-            maxFloorsVal.add(maxD);
-            maxFloorsCentreX.add((maxFloor.get("top_right_lat").asDouble() + maxFloor.get("bottom_left_lat").asDouble()) / 2);
-            maxFloorsCentreY.add((maxFloor.get("top_right_lng").asDouble() + maxFloor.get("bottom_left_lng").asDouble()) / 2);
-        }
+     maxFloors.add(maxFloor);
+     maxFloorsVal.add(maxD);
+     maxFloorsCentreX.add((maxFloor.get("top_right_lat").asDouble() + maxFloor.get("bottom_left_lat").asDouble()) / 2);
+     maxFloorsCentreY.add((maxFloor.get("top_right_lng").asDouble() + maxFloor.get("bottom_left_lng").asDouble()) / 2);
+     }
 
 
-        CouchbaseClient couchbaseClient = getConnection();
-        View view;
-        Query query;
-        // multi key
-        // couch view
-        int queryLimit = 10000;
-        int totalFetched = 0;
-        int currentFetched;
-        JsonNode rssEntry;
+     CouchbaseClient couchbaseClient = getConnection();
+     View view;
+     Query query;
+     // multi key
+     // couch view
+     int queryLimit = 10000;
+     int totalFetched = 0;
+     int currentFetched;
+     JsonNode rssEntry;
 
-        view = couchbaseClient.getView("radio", "radio_without_buid");
-        do {
-            query = new Query();
-            query.setIncludeDocs(true);
-            query.setLimit(queryLimit);
-            query.setSkip(totalFetched);
+     view = couchbaseClient.getView("radio", "radio_without_buid");
+     do {
+     query = new Query();
+     query.setIncludeDocs(true);
+     query.setLimit(queryLimit);
+     query.setSkip(totalFetched);
 
-            ViewResponse res = couchbaseClient.query(view, query);
+     ViewResponse res = couchbaseClient.query(view, query);
 
-            if (res == null)
-                return totalFetched;
+     if (res == null)
+     return totalFetched;
 
-            String belongsTo = null;
-            double prev_x = 0;
-            double prev_y = 0;
+     String belongsTo = null;
+     double prev_x = 0;
+     double prev_y = 0;
 
-            currentFetched = 0;
-            for (ViewRow row : res) {
-                // handle each raw radio entry
-                currentFetched++;
+     currentFetched = 0;
+     for (ViewRow row : res) {
+     // handle each raw radio entry
+     currentFetched++;
 
-                try {
-                    rssEntry = JsonUtils.getJsonTree(row.getDocument().toString());
-                } catch (IOException e) {
-                    // skip documents not in Json-format
-                    continue;
-                }
+     try {
+     rssEntry = JsonUtils.getJsonTree(row.getDocument().toString());
+     } catch (IOException e) {
+     // skip documents not in Json-format
+     continue;
+     }
 
-                double p_x = rssEntry.get("x").asDouble();
-                double p_y = rssEntry.get("y").asDouble();
+     double p_x = rssEntry.get("x").asDouble();
+     double p_y = rssEntry.get("y").asDouble();
 
-                if (true) {
-                    ((ObjectNode) rssEntry).put("buid", "username_1373876832005");
-                    replaceJsonDocument(row.getId(), 0, rssEntry.toString());
-                } else if (p_x == prev_x && p_y == prev_y && belongsTo != null) {
-                    ((ObjectNode) rssEntry).put("buid", belongsTo);
-                    replaceJsonDocument(row.getId(), 0, rssEntry.toString());
-                } else {
+     if (true) {
+     ((ObjectNode) rssEntry).put("buid", "username_1373876832005");
+     replaceJsonDocument(row.getId(), 0, rssEntry.toString());
+     } else if (p_x == prev_x && p_y == prev_y && belongsTo != null) {
+     ((ObjectNode) rssEntry).put("buid", belongsTo);
+     replaceJsonDocument(row.getId(), 0, rssEntry.toString());
+     } else {
 
-                    prev_x = p_x;
-                    prev_y = p_y;
+     prev_x = p_x;
+     prev_y = p_y;
 
-                    List<Double> candidateFloorsVal = new ArrayList<Double>();
-                    List<JsonNode> candidateFloors = new ArrayList<JsonNode>();
+     List<Double> candidateFloorsVal = new ArrayList<Double>();
+     List<JsonNode> candidateFloors = new ArrayList<JsonNode>();
 
-                    for (int fl = 0; fl < maxFloors.size(); fl++) {
-                        JsonNode maxFloor = maxFloors.get(fl);
-                        double maxD = maxFloorsVal.get(fl);
+     for (int fl = 0; fl < maxFloors.size(); fl++) {
+     JsonNode maxFloor = maxFloors.get(fl);
+     double maxD = maxFloorsVal.get(fl);
 
-                        double c_x = maxFloorsCentreX.get(fl);
-                        double c_y = maxFloorsCentreY.get(fl);
+     double c_x = maxFloorsCentreX.get(fl);
+     double c_y = maxFloorsCentreY.get(fl);
 
-                        double p_d = getD(c_x, c_y, p_x, p_y);
+     double p_d = getD(c_x, c_y, p_x, p_y);
 
-                        if (p_d <= maxD / 2) {
-                            candidateFloorsVal.add(p_d);
-                            candidateFloors.add(maxFloor);
-                        }
-                    }
+     if (p_d <= maxD / 2) {
+     candidateFloorsVal.add(p_d);
+     candidateFloors.add(maxFloor);
+     }
+     }
 
-                    if (candidateFloors.size() > 0) {
-                        double minV = Double.MAX_VALUE;
-                        int minI = -1;
-                        for (int i = 0; i < candidateFloorsVal.size(); i++) {
-                            if (candidateFloorsVal.get(i) <= minV) {
-                                minV = candidateFloorsVal.get(i);
-                                minI = i;
-                            }
-                        }
+     if (candidateFloors.size() > 0) {
+     double minV = Double.MAX_VALUE;
+     int minI = -1;
+     for (int i = 0; i < candidateFloorsVal.size(); i++) {
+     if (candidateFloorsVal.get(i) <= minV) {
+     minV = candidateFloorsVal.get(i);
+     minI = i;
+     }
+     }
 
-                        belongsTo = candidateFloors.get(minI).get("buid").textValue();
+     belongsTo = candidateFloors.get(minI).get("buid").textValue();
 
-                        ((ObjectNode) rssEntry).put("buid", belongsTo);
-                        replaceJsonDocument(row.getId(), 0, rssEntry.toString());
-                    } else {
-                        belongsTo = null;
-                    }
-                }
+     ((ObjectNode) rssEntry).put("buid", belongsTo);
+     replaceJsonDocument(row.getId(), 0, rssEntry.toString());
+     } else {
+     belongsTo = null;
+     }
+     }
 
-            } // end while paginator
-            totalFetched += currentFetched;
+     } // end while paginator
+     totalFetched += currentFetched;
 
-            LPLogger.info("total fetched: " + totalFetched);
+     LPLogger.info("total fetched: " + totalFetched);
 
-            // basically, ==
-        } while (currentFetched >= queryLimit);
+     // basically, ==
+     } while (currentFetched >= queryLimit);
 
-        return totalFetched;
-    }
+     return totalFetched;
+     }
 
-    */
+     */
 
     /**
      * ***************************************************************

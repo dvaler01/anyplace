@@ -122,26 +122,26 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
     });
 
     $scope.$watch('anyService.selectedBuilding', function (newVal, oldVal) {
-        if (newVal && newVal.buid && newVal.poistypeid) {
-            $scope.fetchAllPoisTypes(newVal.poistypeid);
-        }
-        else {
-            $scope.poisTypes = [
-                "Disabled Toilets",
-                "Elevator",
-                "Entrance",
-                "Fire Extinguisher",
-                "First Aid/AED",
-                "Kitchen",
-                "Office",
-                "Ramp",
-                "Room",
-                "Security/Guard",
-                "Stair",
-                "Toilets",
-                "Other"
-            ];
-        }
+        //if (newVal && newVal.buid && newVal.poistypeid) {
+        //  $scope.fetchAllPoisTypes(newVal.poistypeid);
+        //}
+        //else {
+        $scope.poisTypes = [
+            "Disabled Toilets",
+            "Elevator",
+            "Entrance",
+            "Fire Extinguisher",
+            "First Aid/AED",
+            "Kitchen",
+            "Office",
+            "Ramp",
+            "Room",
+            "Security/Guard",
+            "Stair",
+            "Toilets",
+            "Other"
+        ];
+        //}
     });
 
     $scope.$watch('anyService.selectedFloor', function (newVal, oldVal) {
