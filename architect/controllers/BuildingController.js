@@ -105,7 +105,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
         //_suc('Successfully logged in.');
         $scope.fetchAllBuildings();
         $scope.fetchAllCampus();
-        $scope.fetchAllPoisTypes();
+        //$scope.fetchAllPoisTypes();
     });
 
     $scope.$on("loggedOff", function (event, mass) {
@@ -195,26 +195,26 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                 localStorage.setItem("lastBuilding", newVal.buid);
             }
         }
-        if (newVal && newVal.buid && newVal.poistypeid) {
-            $scope.fetchAllPoisTypes(newVal.poistypeid);
-        }
-        else {
-            $scope.poisTypes = [
-                "Disabled Toilets",
-                "Elevator",
-                "Entrance",
-                "Fire Extinguisher",
-                "First Aid/AED",
-                "Kitchen",
-                "Office",
-                "Ramp",
-                "Room",
-                "Security/Guard",
-                "Stair",
-                "Toilets",
-                "Other"
-            ];
-        }
+        //if (newVal && newVal.buid && newVal.poistypeid) {
+        // $scope.fetchAllPoisTypes(newVal.poistypeid);
+        // }
+        // else {
+        $scope.poisTypes = [
+            "Disabled Toilets",
+            "Elevator",
+            "Entrance",
+            "Fire Extinguisher",
+            "First Aid/AED",
+            "Kitchen",
+            "Office",
+            "Ramp",
+            "Room",
+            "Security/Guard",
+            "Stair",
+            "Toilets",
+            "Other"
+        ];
+        //}
     });
 
     $scope.$watch('anyService.selectedCampus', function (newVal, oldVal) {

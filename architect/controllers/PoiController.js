@@ -123,7 +123,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
     $scope.$watch('anyService.selectedBuilding', function (newVal, oldVal) {
         //if (newVal && newVal.buid && newVal.poistypeid) {
-        //  $scope.fetchAllPoisTypes(newVal.poistypeid);
+        //$scope.fetchAllPoisTypes(newVal.poistypeid);
         //}
         //else {
         $scope.poisTypes = [
@@ -140,6 +140,74 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             "Stair",
             "Toilets",
             "Other"
+        ];
+
+        $scope.poicategories = [{
+            poicat: "Disabled Toilets",
+            poicatPlaceholder: "name",
+            id: "type1",
+            disenable: "false"
+        },{
+            poicat: "Elevator",
+            poicatPlaceholder: "name",
+            id: "type2",
+            disenable: "true"
+        },{
+            poicat: "Entrance",
+            poicatPlaceholder: "name",
+            id: "type3",
+            disenable: "true"
+        },{
+            poicat: "Fire Extinguisher",
+            poicatPlaceholder: "name",
+            id: "type4",
+            disenable: "false"
+        },{
+            poicat: "First Aid/AED",
+            poicatPlaceholder: "name",
+            id: "type5",
+            disenable: "false"
+        }, {
+            poicat: "Kitchen",
+            poicatPlaceholder: "name",
+            id: "type6",
+            disenable: "false"
+        }, {
+            poicat: "Office",
+            poicatPlaceholder: "name",
+            id: "type7",
+            disenable: "false"
+        }, {
+            poicat: "Ramp",
+            poicatPlaceholder: "name",
+            id: "type8",
+            disenable: "false"
+        }, {
+            poicat: "Room",
+            poicatPlaceholder: "name",
+            id: "type9",
+            disenable: "false"
+        }, {
+            poicat: "Security/Guard",
+            poicatPlaceholder: "name",
+            id: "type10",
+            disenable: "false"
+        }, {
+            poicat: "Stair",
+            poicatPlaceholder: "name",
+            id: "type11",
+            disenable: "true"
+        }, {
+            poicat: "Toilets",
+            poicatPlaceholder: "name",
+            id: "type12",
+            disenable: "false"
+        }, {
+            poicat: "Other",
+            poicatPlaceholder: "name",
+            id: "type13",
+            disenable: "false"
+        }
         ];
         //}
     });
@@ -173,21 +241,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         }
     });
 
-    $scope.poicategories = [{
-        poicat: "Elevator",
-        poicatPlaceholder: "name",
-        disenable: "true"
-    }, {
-        poicat: "Entrance",
-        poicatPlaceholder: "name",
-        disenable: "true"
-    }, {
-        poicat: "Stair",
-        poicatPlaceholder: "name",
-        disenable: "true"
-    }
-    ];
-
     $scope.add = function () {
         if ($scope.poicategories[$scope.poicategories.length - 1].poicat != "") {
             $scope.poicategories.push({
@@ -198,6 +251,17 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         }
         else {
             _err("Complete the last input to continue!");
+        }
+    };
+
+    $scope.deletetype = function (id) {
+
+        for (var i=0; i<$scope.poicategories.length; i++){
+            if ($scope.poicategories[i].id==id){
+                $scope.poicategories[i].id="";
+                $( "#".id ).remove();
+                break;
+            }
         }
     };
 
@@ -510,7 +574,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
 
         for (var i = 0; i < $scope.myPois.length; i++) {
-
+            $scope.myPois[i].pois_type2 = $scope.myPois[i].pois_type;
             var p = $scope.myPois[i];
 
             if (localPuid && p.puid === localPuid) {
@@ -519,7 +583,7 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
             var marker;
             var htmlContent = '-';
-
+            p.pois_type2 = p.pois_type;
             if (p.pois_type == "None") {
                 marker = new google.maps.Marker({
                     position: _latLngFromPoi(p),
@@ -585,6 +649,9 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                     + '<option value="">Select POI Type</option>'
                     + '</select>'
                     + '</fieldset class="form-group">'
+                    + '<fieldset class="form-group">Or ender your one type name:'
+                    + '<input ng-model="myPois[' + i + '].pois_type2" id="poi-pois_type2" type="text" class="form-control" placeholder="POI Type" tabindex="2">'
+                    + '</fieldset>'
                     + '<fieldset class="form-group">'
                     + '<input ng-model="myPois[' + i + '].is_building_entrance" id="poi-entrance" type="checkbox" tabindex="4"><span> is building entrance?</span>'
                     + '</fieldset>'
@@ -909,6 +976,8 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                         $scope.myPois[i].is_building_entrance = false;
                     }
 
+                    $scope.myPois[i].pois_type2=$scope.myPois[i].pois_type;
+
                     $scope.myPoisHashT[puid] = {};
                     $scope.myPoisHashT[puid].model = $scope.myPois[i];
                 }
@@ -932,6 +1001,10 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
 
     $scope.addPoi = function (id) {
         if ($scope.myMarkers[id] && $scope.myMarkers[id].marker) {
+
+            if ($scope.myMarkers[id].model.pois_type2.localeCompare("")!=0){
+                $scope.myMarkers[id].model.pois_type=$scope.myMarkers[id].model.pois_type2;
+            }
 
             var poi = $scope.myMarkers[id].model;
 
@@ -1270,6 +1343,10 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             }
         }
 
+        if (bobj.model.pois_type2.localeCompare("")!=0){
+            bobj.model.pois_type = bobj.model.pois_type2;
+        }
+
         var obj = bobj.model;
         obj.username = $scope.creds.username;
         obj.password = $scope.creds.password;
@@ -1446,10 +1523,12 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
                 description: type === 'connector' ? "Connector" : "",
                 name: type === 'connector' ? "Connector" : "",
                 pois_type: type === 'connector' ? "None" : "",
+                pois_type2: type === 'connector' ? "None" : "",
                 url: "-",
                 image: "url_to_pois_image"
             };
             $scope.myMarkers[marker.myId].marker = marker;
+            $scope.myMarkers[marker.myId].model.pois_type2=$scope.myMarkers[marker.myId].model.pois_type;
             $scope.myMarkerId++;
         });
 
@@ -1466,6 +1545,9 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             + '<option value="">Select POI Type</option>'
             + '</select>'
             + '</fieldset class="form-group">'
+            + '<fieldset class="form-group">Or ender your one type name:'
+            + '<input ng-model="myMarkers[' + marker.myId + '].model.pois_type2" id="poi-pois_type2" type="text" class="form-control" placeholder="POI Type" tabindex="2">'
+            + '</fieldset>'
             + '<fieldset class="form-group">'
             + '<input ng-model="myMarkers[' + marker.myId + '].model.is_building_entrance" id="poi-entrance" type="checkbox" tabindex="4"><span> is building entrance?</span>'
             + '</fieldset>'
@@ -1490,7 +1572,6 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
         //    + '<h5 style="margin: 8px 0 0 0">Type:</h5>'
         //    + '<span>{{myMarkers[' + marker.myId + '].model.pois_type}}</span>'
         //    + '</div>';
-
         var htmlContent2 = '<div class="infowindow-scroll-fix" ng-keydown="onInfoWindowKeyDown($event)">'
             + '<form name="poiForm">'
             + '<fieldset class="form-group">'
@@ -1504,6 +1585,9 @@ app.controller('PoiController', ['$scope', '$compile', 'GMapService', 'AnyplaceS
             + '<option value="">Select POI Type</option>'
             + '</select>'
             + '</fieldset class="form-group">'
+            + '<fieldset class="form-group">Or ender your one type name:'
+            + '<input ng-model="myMarkers[' + marker.myId + '].model.pois_type" id="poi-pois_type2" type="text" class="form-control" placeholder="POI Type" tabindex="2">'
+            + '</fieldset>'
             + '<fieldset class="form-group">'
             + '<input ng-model="myMarkers[' + marker.myId + '].model.is_building_entrance" id="poi-entrance" type="checkbox" tabindex="4"><span> is building entrance?</span>'
             + '</fieldset>'
