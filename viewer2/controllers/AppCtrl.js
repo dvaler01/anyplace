@@ -1,6 +1,7 @@
 /**
  * Created by dimitris on 23/8/2016.
  */
+
 app.controller('AppCtrl', function ($scope, $timeout, $mdSidenav, $log)  {
 
     $scope.toggleLeft = buildDelayedToggler('left');

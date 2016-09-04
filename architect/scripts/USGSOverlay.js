@@ -1,4 +1,3 @@
-
 USGSOverlay.prototype = new google.maps.OverlayView();
 /** @constructor */
 function USGSOverlay(bounds, image, map) {

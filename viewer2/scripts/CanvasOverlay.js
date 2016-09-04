@@ -1,3 +1,6 @@
+CanvasOverlay.prototype = new google.maps.OverlayView();
+
+// https://github.com/wbyoko/angularjs-google-maps-components
 
 /** @constructor */
 function CanvasOverlay(image, map) {

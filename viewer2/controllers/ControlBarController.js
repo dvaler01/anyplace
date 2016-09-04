@@ -248,7 +248,7 @@ app.controller('ControlBarController', ['$scope', '$rootScope', '$routeParams', 
             _err("The Geolocation feature is not supported by this browser.");
         }
     };
-    $scope.showUserLocation2();
+    //$scope.showUserLocation2();
     $scope.hideUserLocation = function () {
         if (myLocMarker)
             myLocMarker.setMap(null);

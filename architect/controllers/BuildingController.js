@@ -418,7 +418,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
             } else {
                 building.is_published = "false";
             }
-
+            alert(building.is_published);
             if (!building.description) {
                 building.description = "-";
             }
@@ -707,7 +707,6 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
             function (resp) {
                 // on success
                 var data = resp.data;
-                document.getElementById("CampusIDeditnew").value = "";
                 _suc("Successfully updated campus.")
             },
             function (resp) {

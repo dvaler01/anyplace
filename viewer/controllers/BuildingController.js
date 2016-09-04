@@ -183,7 +183,7 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                 // on success
                 var data = resp.data;
                 //var bs = JSON.parse( data.buildings );
-                $scope.myBuildings = data.buildings;
+                var myBuildingstmp = data.buildings;
 
                 var infowindow = new google.maps.InfoWindow({
                     content: '-',
@@ -202,78 +202,85 @@ app.controller('BuildingController', ['$scope', '$compile', 'GMapService', 'Anyp
                 }
 
                 var loadBuidFromUrl = -1;
+                var count=0;
+                for (var i = 0; i < myBuildingstmp.length; i++) {
 
-                for (var i = 0; i < $scope.myBuildings.length; i++) {
-
-                    var b = $scope.myBuildings[i];
+                    var b = myBuildingstmp[i];
 
                     if (localStoredBuildingId && localStoredBuildingId === b.buid) {
                         localStoredBuildingIndex = i;
                     }
 
                     if (b.is_published === 'true' || b.is_published == true) {
+                        $scope.myBuildings[count] = b;
+                        count++;
                         b.is_published = true;
-                    } else {
-                        b.is_published = false;
-                    }
 
-                    if ($scope.urlBuid && $scope.urlBuid == b.buid) {
-                        loadBuidFromUrl = i;
-                    }
 
-                    var s = new google.maps.Size(55, 80);
-                    if ($scope.isFirefox)
-                        s = new google.maps.Size(110, 160);
+                        if ($scope.urlBuid && $scope.urlBuid == b.buid) {
+                            loadBuidFromUrl = i;
+                        }
 
-                    var marker = new google.maps.Marker({
-                        position: _latLngFromBuilding(b),
-                        icon: {
-                            url: 'build/images/building-icon.png',
-                            size: s,
-                            scaledSize: new google.maps.Size(55, 80)
-                        },
-                        draggable: false
-                    });
+                        var s = new google.maps.Size(55, 80);
+                        if ($scope.isFirefox)
+                            s = new google.maps.Size(110, 160);
 
-                    markerCluster.addMarker(marker);
-
-                    var htmlContent = '<div class="infowindow-scroll-fix">'
-                        + '<h5 style="margin: 0">Building:</h5>'
-                        + '<span>' + b.name + '</span>'
-                        + '<h5 style="margin: 8px 0 0 0">Description:</h5>'
-                        + '<span>' + b.description + '</span>'
-                        + '</div>';
-
-                    marker.infoContent = htmlContent;
-                    marker.building = b;
-
-                    $scope.myBuildingsHashT[b.buid] = {
-                        marker: marker,
-                        model: b
-                    };
-
-                    google.maps.event.addListener(marker, 'click', function () {
-                        infowindow.setContent(this.infoContent);
-                        infowindow.open(GMapService.gmap, this);
-
-                        setTimeout(function () {
-                            infowindow.setMap(null);
-                        }, 2000);
-
-                        var self = this;
-                        $scope.$apply(function () {
-                            $scope.anyService.selectedBuilding = self.building;
+                        var marker = new google.maps.Marker({
+                            position: _latLngFromBuilding(b),
+                            icon: {
+                                url: 'build/images/building-icon.png',
+                                size: s,
+                                scaledSize: new google.maps.Size(55, 80)
+                            },
+                            draggable: false
                         });
-                    });
-                }
 
-                if (loadBuidFromUrl > -1) {
-                    $scope.anyService.selectedBuilding = $scope.myBuildings[loadBuidFromUrl];
-                } else if ($scope.urlBuid) {
-                    $scope.fetchBuilding($scope.urlBuid);
-                } else if (localStoredBuildingIndex >= 0) {
-                    // using the latest building form localStorage
-                    $scope.anyService.selectedBuilding = $scope.myBuildings[localStoredBuildingIndex];
+                        markerCluster.addMarker(marker);
+
+                        var htmlContent = '<div class="infowindow-scroll-fix">'
+                            + '<h5 style="margin: 0">Building:</h5>'
+                            + '<span>' + b.name + '</span>'
+                            + '<h5 style="margin: 8px 0 0 0">Description:</h5>'
+                            + '<span>' + b.description + '</span>'
+                            + '</div>';
+
+                        marker.infoContent = htmlContent;
+                        marker.building = b;
+
+                        $scope.myBuildingsHashT[b.buid] = {
+                            marker: marker,
+                            model: b
+                        };
+
+                        google.maps.event.addListener(marker, 'click', function () {
+                            infowindow.setContent(this.infoContent);
+                            infowindow.open(GMapService.gmap, this);
+
+                            setTimeout(function () {
+                                infowindow.setMap(null);
+                            }, 2000);
+
+                            var self = this;
+                            $scope.$apply(function () {
+                                $scope.anyService.selectedBuilding = self.building;
+                            });
+                        });
+
+
+                        if (loadBuidFromUrl > -1) {
+                            $scope.anyService.selectedBuilding = myBuildingstmp[loadBuidFromUrl];
+                        } else if ($scope.urlBuid) {
+                            $scope.fetchBuilding($scope.urlBuid);
+                        } else if (localStoredBuildingIndex >= 0) {
+                            // using the latest building form localStorage
+                            $scope.anyService.selectedBuilding = myBuildingstmp[localStoredBuildingIndex];
+                        }
+
+                    }
+                    else {
+                        b.is_published = false;
+
+                    }
                 }
             },
             function (resp) {

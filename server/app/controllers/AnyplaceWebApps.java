@@ -72,7 +72,7 @@ public class AnyplaceWebApps extends Controller {
             if(null == floor) {
                 floor = "";
             }
-            if(null == campus) {
+            if(null == campus || campus=="") {
                 campus = "";
                 viewerDir = new File("public/anyplace_viewer");
             }

@@ -685,6 +685,34 @@
 
                         </div>
 
+                        <div class="divider-top-10" ng-show="isCrudTabSelected(22)">
+
+                            <div class="form-group">POI's types.</div>
+
+
+                            <div style="height: 150px;">
+                                <div style="overflow: scroll; height: 100%;">
+                                    <div ng-repeat="item in poicategories track by $index" style="margin: 2px;">
+                                        <input  class="form-control" type="text" placeholder="Type new location" ng-disabled="{{item.disenable}}" ng-model="item.poicat" placeholder="{{item.poicatPlaceholder}}" value="{{poicategory.poicat}}"/>
+                                        <button class="fieldsme"  ng-click="remove($index)">X</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button style="margin: 2px;" id="buttononmap" class="btn btn-success pull-right add-any-button" ng-click="add()">Add POI type</button>
+
+                            <div id="routes3-map"></div>
+
+                            <div style="height: 150px;">
+                                <div style="overflow: scroll; height: 100%;">
+                                    <div ng-repeat="poicategory in poicategories">
+                                        <span ng-click="deletetype(poicategory.id)" class="glyphicon glyphicon-remove-circle">
+                                            <input style="margin: 2px; width: 80%;" class="form-control" type="text" ng-disabled="{{poicategory.disenable}}" placeholder="{{poicategory.poicatPlaceholder}}" id="{{poicategory.id}}" ng-model="poicategory.poicat" value="{{poicategory.poicat}}" >
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
 
                         <div class="divider-top-10" ng-show="isCrudTabSelected(2) && anyService.selectedBuilding">
                             <div>

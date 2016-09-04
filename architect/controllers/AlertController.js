@@ -34,4 +34,3 @@ app.controller("AlertController", ['$rootScope', '$scope', 'AnyplaceService', fu
     $scope.closeable = true;
 
 }]);
-

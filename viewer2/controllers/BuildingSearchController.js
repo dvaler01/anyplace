@@ -1,5 +1,15 @@
-/**
- * Created by dimitris on 23/8/2016.
+/*
+ Building Schema:
+ {
+ address: "-"
+ buid: "building_02e4ebd2-413e-4b27-b3bf-6f7e2ca3640f_1397488807470"
+ coordinates_lat: "52.52816874290241"
+ coordinates_lon: "13.457137495279312"
+ description: "IPSN 2014 Venue"
+ is_published: "true"
+ name: "Andel's Hotel Berlin, Berlin, Germany"
+ url: "-"
+ }
  */
 
 app.controller('BuildingSearchController', ['$scope', '$compile', 'GMapService', 'AnyplaceService', 'AnyplaceAPIService','$timeout', '$q', '$log', function BuildingSearchController ($scope, $compile, GMapService, AnyplaceService, AnyplaceAPIService,$timeout, $q, $log) {

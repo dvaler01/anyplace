@@ -249,6 +249,7 @@ LPUtils.Base64 = {
 
 }
 
+
 /**
  * Uses the new array typed in javascript to binary base64 encode/decode
  * at the moment just decodes a binary base64 encoded

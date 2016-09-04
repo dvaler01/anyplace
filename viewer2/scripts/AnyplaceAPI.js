@@ -245,6 +245,3 @@ app.factory('AnyplaceAPIService', ['$http', '$q', 'formDataObject', function ($h
     // we return apiService controller in order to be able to use it in ng-click
     return apiService;
 }]);
-CanvasOverlay.prototype = new google.maps.OverlayView();
-
-// https://github.com/wbyoko/angularjs-google-maps-components
